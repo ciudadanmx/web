@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import '../styles/NavBar.css'; // Asegúrate de tener los estilos adecuados
+import { useAuth0 } from '@auth0/auth0-react';
 import guestImage from '../assets/guest.png'; // Ajusta la ruta si es necesario
 import defaultProfileImage from '../assets/guest.png'; // Cambia esto si tienes una imagen predeterminada de perfil
 
-const NavBar = ({ isAuthenticated, user, onLogin, onLogout }) => {
+const NavBar = () => {
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -14,7 +15,7 @@ const NavBar = ({ isAuthenticated, user, onLogin, onLogout }) => {
     <div className="navbar">
       <div className="profile" onClick={toggleDropdown}>
         <img
-          src={isAuthenticated ? (user?.profilePicture || defaultProfileImage) : guestImage}
+          src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
           alt="Profile"
           className="profile-img"
         />
@@ -27,9 +28,9 @@ const NavBar = ({ isAuthenticated, user, onLogin, onLogout }) => {
       )}
       <div className="auth-buttons">
         {isAuthenticated ? (
-          <button onClick={onLogout}>Cerrar sesión</button>
+          <button onClick={() => logout({ returnTo: window.location.href.split('#')[0] })}>Cerrar sesión</button>
         ) : (
-          <button onClick={onLogin}>Iniciar sesión</button>
+          <button onClick={() => loginWithRedirect()}>Iniciar sesión</button>
         )}
       </div>
     </div>
