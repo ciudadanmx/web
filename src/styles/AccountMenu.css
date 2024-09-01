@@ -1,0 +1,43 @@
+.account-menu {
+    position: absolute;
+    top: 7%; /* Alinea el menú justo debajo del ícono */
+    
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 200px;
+    display: none;
+    z-index: 1000;
+  }
+  
+  .account-menu.open {
+    display: block;
+  }
+  
+  .account-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .account-menu li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .account-menu li:hover {
+    background-color: #f0f0f0;
+  }
+  
+
+  /* Ajuste para móviles */
+@media (max-width: 768px) {
+    .account-menu {
+      right: 0; /* Alinea el menú a la derecha en dispositivos móviles */
+      top: 28%; /* Alinea el menú justo debajo del ícono */
+      width: 100%; /* Ajusta el ancho del menú para ocupar el 100% del contenedor */
+    }
+  }
+  
