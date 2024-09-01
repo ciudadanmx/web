@@ -16,6 +16,7 @@ import NotificationsIcon from './NotificationsIcon';
 import '../styles/App.css';
 import '../styles/NavBar.css';
 import '../styles/CuentaIcon.css';
+import '../styles/AccountMenu.css';
 
 
 const NavBar = ({ SetIsMenuOpen }) => {
@@ -127,22 +128,25 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     <img
                         src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
                         alt="Profile"
-                        title="image profile"
+
                         className="cuenta-icon"
                     />
                 </div>
             
             </div>
 
-            <div className="dropdown-menu">
+            <div className="account-menu-contenedor">
             {isMenuOpen && (
-            <div className="dropdown-menu">
+            <div className="account-menu.contenedor">
             {isAuthenticated ? (
             <>
-            <div className="account-menu">Bienvenido, {user.name}</div>
-            <a href="/cuenta" className="dropdown-item">Tu cuenta</a>
-            <a href="/ayuda" className="dropdown-item">Ayuda</a>
-            <div className="dropdown-item" onClick={handleLogout}>Salir</div>
+            <div>Bienvenido, {user.name}
+                <ul>
+                    <li><a href="/cuenta" >Tu cuenta</a></li>
+                    <li><a href="/ayuda" >Ayuda</a></li>
+                    <li><div  onClick={handleLogout}>Salir</div></li>
+                </ul>
+            </div>
             </>
             ) : (
             <>
@@ -153,7 +157,9 @@ const NavBar = ({ SetIsMenuOpen }) => {
           )}
         </div>
         
-      )}
+      )
+      
+      }
     </div>
     </div>
 

@@ -11,7 +11,7 @@ const MessagesMenu = ({ isOpen, onClose,  onLogout }) => {
 
 
   return (
-    <div className={`account-menu ${isOpen ? 'open' : 'closed'}`}>
+    <div className={`message-menu ${isOpen ? 'open' : 'closed'}`}>
     <ul>
      
         <>
