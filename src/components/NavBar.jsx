@@ -40,6 +40,7 @@ const NavBar = () => {
   };
 
   return (
+    <>
     <div className="navbar">
       <div className="profile" onClick={toggleDropdown}>
         <img
@@ -74,6 +75,7 @@ const NavBar = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

@@ -8,8 +8,7 @@ const App = () => {
   return (
     <div>
       <NavBar />
-      <h1>Prueba de Autenticación con Google</h1>
-      <p>{isAuthenticated ? `Usuario: ${user?.name}` : 'No hay usuario'}</p>
+      
     </div>
   );
 };
