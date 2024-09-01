@@ -134,36 +134,36 @@ const NavBar = ({ SetIsMenuOpen }) => {
                 </div>
             
             </div>
-
-            <div className="account-menu-contenedor">
-            {isMenuOpen && (
-            <div className="account-menu.contenedor">
-            {isAuthenticated ? (
-            <>
-            <div>Bienvenido, {user.name}
-                <ul>
-                    <li><a href="/cuenta" >Tu cuenta</a></li>
-                    <li><a href="/ayuda" >Ayuda</a></li>
-                    <li><div  onClick={handleLogout}>Salir</div></li>
-                </ul>
-            </div>
-            </>
-            ) : (
-            <>
-            <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
-            <a href="/ayuda" className="dropdown-item">Ayuda</a>
-            <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
-            </>
-          )}
-        </div>
+            <div className='padre'>
+                <div className={`account-menu-contenedor ${isMenuOpen ? 'open' : 'closed'}`}>
+                    {isMenuOpen && (
+                    <div className="account-menu.open">
+                    {isAuthenticated ? (
+                    <>
+                    <div>Bienvenido, {user.name}
+                        <ul>
+                            <li><a href="/cuenta" >Tu cuenta</a></li>
+                            <li><a href="/ayuda" >Ayuda</a></li>
+                            <li><div  onClick={handleLogout}>Salir</div></li>
+                        </ul>
+                    </div>
+                    </>
+                    ) : (
+                    <>
+                    <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
+                    <a href="/ayuda" className="dropdown-item">Ayuda</a>
+                    <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
+                    </>
+                    )}
+                    </div>   
         
       )
       
       }
-    </div>
-    </div>
+                 </div>
+            </div>
 
-
+</div>
 
 
 
