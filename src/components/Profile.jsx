@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../Contexts/AuthContext';
-import registerUserInStrapi from '../utils/registerUserInStrapi';
+import registerUserInStrapi from '../utils/registerUser';
 
 const Profile = () => {
   const { user, token } = useContext(AuthContext);

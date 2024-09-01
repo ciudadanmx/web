@@ -1,38 +1,33 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import LoginButton from './components/LoginButton';
-import LogoutButton from './components/LogoutButton';
-import Profile from './components/Profile';
-
-console.log('app');
+import React, { useEffect } from 'react';
+import { useAuth } from './Contexts/AuthContext';
+import registerUser from './utils/registerUser';
 
 const App = () => {
-  const { user, isAuthenticated } = useAuth0();
+  const { user, setUser } = useAuth();
+
+  useEffect(() => {
+    const testRegister = async () => {
+      const userData = {
+        username: 'aabbbtestuser',
+        email: 'caaatestuser@example.com',
+        password: 'testpassword',
+      };
+
+      const result = await registerUser(userData);
+      console.log('Resultado del registro:', result);
+      if (result && result.user) {
+        setUser(result.user);
+      }
+    };
+
+    testRegister();
+  }, [setUser]);
 
   return (
-    <Router>
-      <div>
-        <nav>
-          <LoginButton />
-          <LogoutButton />
-        </nav>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div>
-                <h1>Bienvenido a la aplicación</h1>
-                {isAuthenticated && (
-                  <p>Estás logueado como: {user.email}</p>
-                )}
-              </div>
-            }
-          />
-          <Route path="/perfil" element={<Profile />} />
-        </Routes>
-      </div>
-    </Router>
+    <div>
+      <h1>Prueba de Registro de Usuario</h1>
+      <p>{user ? `Usuario: ${user.username}` : 'No hay usuario'}</p>
+    </div>
   );
 };
 
