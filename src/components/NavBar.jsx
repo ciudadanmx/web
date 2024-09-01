@@ -29,6 +29,16 @@ const NavBar = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const handleLogout = () => {
+    logout({ returnTo: window.location.origin });
+    setIsDropdownOpen(false); // Cierra el menú desplegable al salir
+  };
+
+  const handleLogin = () => {
+    loginWithRedirect();
+    setIsDropdownOpen(false); // Cierra el menú desplegable al iniciar sesión
+  };
+
   return (
     <div className="navbar">
       <div className="profile" onClick={toggleDropdown}>
@@ -40,15 +50,27 @@ const NavBar = () => {
       </div>
       {isDropdownOpen && (
         <div className="dropdown-menu">
-          <div className="dropdown-item">Opción 1</div>
-          <div className="dropdown-item">Opción 2</div>
+          {isAuthenticated ? (
+            <>
+              <div className="dropdown-item">Bienvenido, {user.name}</div>
+              <a href="/cuenta" className="dropdown-item">Tu cuenta</a>
+              <a href="/ayuda" className="dropdown-item">Ayuda</a>
+              <div className="dropdown-item" onClick={handleLogout}>Salir</div>
+            </>
+          ) : (
+            <>
+              <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
+              <a href="/ayuda" className="dropdown-item">Ayuda</a>
+              <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
+            </>
+          )}
         </div>
       )}
       <div className="auth-buttons">
         {isAuthenticated ? (
-          <button onClick={() => logout({ returnTo: window.location.origin })}>Cerrar sesión</button>
+          <button onClick={handleLogout}>Cerrar sesión</button>
         ) : (
-          <button onClick={() => loginWithRedirect()}>Iniciar sesión</button>
+          <button onClick={handleLogin}>Iniciar sesión</button>
         )}
       </div>
     </div>
