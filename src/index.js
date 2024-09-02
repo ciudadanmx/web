@@ -9,9 +9,12 @@ import RestaurantesRoute from './routes/RestaurantesRoute';
 import MarketRoute from './routes/MarketRoute';
 import AcademiaRoute from './routes/AcademiaRoute';
 import ComunidadRoute from './routes/ComunidadRoute';
+import GenRoute from './routes/GenRoute';
+import OpWalletRoute from './routes/OpWalletRoute';
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -32,6 +35,8 @@ root.render(
           <Route path="/market" element={<MarketRoute />} />
           <Route path="/academia" element={<AcademiaRoute />} />
           <Route path="/comunidad" element={<ComunidadRoute />} />
+          <Route path="/gen" element={<GenRoute />} />
+          <Route path="/opwallet" element={<OpWalletRoute />} />
           {/* Agrega más rutas aquí según sea necesario */}
         </Routes>
       </Router>
