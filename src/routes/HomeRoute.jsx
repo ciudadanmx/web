@@ -2,7 +2,7 @@ import React from 'react';
 
 import ciudadanCompleto from '../assets/ciudadanCompleto.jpg';
 import ciudadanMobile from '../assets/ciudadanMobile.jpg';
-//
+
 const HomeRoute = () => {
   return (
     <div className="home">
