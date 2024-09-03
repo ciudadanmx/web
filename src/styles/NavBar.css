@@ -1,0 +1,277 @@
+.circular-image-sesion {
+    width: 50px; /* Ajusta el tamaño según tus necesidades */
+    height: 50px; /* Ajusta el tamaño según tus necesidades */
+    border-radius: 50%;
+    object-fit: cover; /* Asegura que la imagen se ajuste al contenedor sin distorsión */
+    border: 2px solid #ddd; /* Añade un borde opcional alrededor de la imagen */
+  }
+  
+  /* Estilo general para la barra de navegación */
+  .navbar {
+    display: flex;
+    flex-direction: column; /* Ajustar para que la barra se vea bien en escritorio */
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff200; /* Color de fondo amarillo */
+  }
+  
+  .logo-img {
+    width: 250px; /* Tamaño grande del logo, ajusta según sea necesario */
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  
+  .boton-ia {
+    display: none;
+  }
+  .boton-busca {
+    position: absolute;
+    margin-left: -23px;
+    margin-right: -63%;
+    font-size: 33px; /* Tamaño del icono */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000; /* Fondo negro */
+    border-radius: 50%; /* Para hacer el botón circular */
+    width: 36px; /* Ajusta el tamaño del botón */
+    height: 36px; /* Ajusta el tamaño del botón */
+    color: #fff; /* Color del icono (blanco) */
+    cursor: pointer; /* Cursor de mano al pasar sobre el botón */
+    border: none; /* Sin borde */
+    outline: none; /* Sin borde de enfoque */
+    transition: background-color 0.3s; /* Suaviza cambios de color */
+    font-weight: 900;
+  }
+  
+  .boton-busca:hover {
+    background-color: #333; /* Cambia el color al pasar el cursor */
+  }
+  
+  
+  .nav-input {
+    width: 100%; /* O ajusta el valor según sea necesario */
+    max-width: 440px; /* Establece un ancho máximo si lo deseas */
+    padding: 2px; /* Añade padding para mejorar la apariencia */
+    border: 1px solid #ccc; /* Añade un borde para que sea más visible */
+    border-radius: 24px; /* Opcional: añade bordes redondeados */
+    box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
+    margin-top: -30px;
+    margin-left: 20px;
+  }
+  
+  .correte {
+    margin-left: 100px;
+  }
+  
+  .nav-links {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+    justify-content: center;
+    width: 100%;
+    margin-top: -8px;
+    margin-bottom: -8px;
+  
+  }
+  
+  .iko {
+    font-size: 28px;
+    color: green
+  }
+  .iko2 {
+    font-size: 36px;
+    color: green;
+  }
+  
+  .iko3 {
+    font-size: 33px;
+  }
+  
+  .subido {
+    margin-top: -6px !important;
+  }
+  .bajado {
+    margin-top: 16px !important;
+  }
+  
+  .shadow {
+    box-shadow: 5px 5px 4px #ff0000;
+  }
+  
+  
+  .nav-link {
+    text-align: center;
+    font-size: 24px;
+    color: #000; /* Color del texto */
+    margin: 10px; /* Margen entre íconos */
+    margin-left: 40px;
+    margin-right: 40px;
+  }
+  
+  /* Agrupar los iconos en una sola línea para el primer grupo */
+  .nav-linky {
+    text-align: center;
+    font-size: 33px;
+    color: #000;
+    margin: 10px; /* Margen entre íconos */
+  }
+  
+  /* Mostrar el texto a la derecha del ícono en escritorio */
+  .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .nav-text {
+    display: block; /* Mostrar el texto debajo del ícono en escritorio */
+    margin-top: 5px;
+    font-weight: 600;
+  }
+  
+  /* Responsividad para pantallas pequeñas */
+  @media (max-width: 1268px) {
+  
+    .logo-img {
+      width: 210px; /* Tamaño grande del logo, ajusta según sea necesario */
+      height: auto;
+      margin-bottom: 10px;
+      max-width: 220px;
+    }
+    .nav-text {
+      display: block; /* Mostrar el texto debajo del ícono en escritorio */
+      margin-top: 5px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+  
+    .nav-link {
+      font-size: 18px;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+  
+  
+  
+    .navbar {
+      flex-direction: column;
+    }
+  
+    .nav-links {
+      flex-direction: row; /* Mostrar los íconos en fila en móvil */
+      justify-content: space-around;
+      align-items: center;
+    }
+  
+    .nav-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .nav-linky {
+      text-align: center;
+      font-size: 24px;
+      color: #000;
+      margin: 0; /* Sin margen entre íconos en móvil */
+    }
+  
+    .nav-link .nav-text {
+      display: block; /* Mostrar el texto debajo de cada ícono en móvil */
+    }
+  
+    .nav-link i {
+      font-size: 30px; /* Tamaño de los iconos en móvil */
+    }
+  }
+  
+  @media (max-width: 800px) {
+    .correte {
+      display: none !important;
+    }
+  
+    .boton-busca {
+      display: none;
+    }
+  
+    .boton-ia {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+      justify-content: center;
+      width: 100%;
+      margin-top: -8px;
+      margin-bottom: -8px;
+     
+      font-size: 33px; /* Tamaño del icono */
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000; /* Fondo negro */
+      border-radius: 50%; /* Para hacer el botón circular */
+      width: 36px; /* Ajusta el tamaño del botón */
+      height: 36px; /* Ajusta el tamaño del botón */
+      color: #fff; /* Color del icono (blanco) */
+      cursor: pointer; /* Cursor de mano al pasar sobre el botón */
+      border: none; /* Sin borde */
+      outline: none; /* Sin borde de enfoque */
+      transition: background-color 0.3s; /* Suaviza cambios de color */
+      font-weight: 900;
+    
+    }
+  }
+  
+  @media (max-width: 378px) {
+  
+    .logo-img {
+      width: 200px; /* Tamaño grande del logo, ajusta según sea necesario */
+      height: auto;
+      margin-bottom: 10px;
+    }
+  
+  
+    .nav-text {
+      display: block; /* Mostrar el texto debajo del ícono en escritorio */
+      margin-top: 5px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+  
+    .nav-link {
+      font-size: 12px;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+  
+  @media (max-width: 342px) {
+  
+    .logo-img {
+      width: 130px; /* Tamaño grande del logo, ajusta según sea necesario */
+      height: auto;
+      margin-bottom: 10px;
+    }
+  
+  
+    .nav-text {
+  
+      display: none !important;
+    }
+  
+    .nav-link {
+      font-size: 10px;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+  
+    .boton-ia {
+      font-size: 21px; /* Tamaño del icono */
+      width: 30px; /* Ajusta el tamaño del botón */
+      height: 30px; /* Ajusta el tamaño del botón */
+    }
+  
+  }
+  
+  }
