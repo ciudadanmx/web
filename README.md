@@ -1,7 +1,7 @@
-#🌟 Ciudadan App 🌟
+# 🌟 Ciudadan App 🌟
 Welcome to Ciudadan—an all-in-one platform built with React and inspired by apps like WeChat. We aim to provide a seamless experience for users, combining multiple services in one place. From blockchain-powered wallets to collaborative tools, Ciudadan simplifies your digital life.
 
-#🚀 Features
+# 🚀 Features
 💼 Wallet
 Secure and fast transactions using Substrate and Polkadot sidechains. Your funds, your control.
 
