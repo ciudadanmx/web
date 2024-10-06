@@ -14,7 +14,7 @@ import OpWalletRoute from './routes/OpWalletRoute';
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
-
+import AuthCallback from './components/AuthCallback'; 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -37,6 +37,8 @@ root.render(
           <Route path="/comunidad" element={<ComunidadRoute />} />
           <Route path="/gen" element={<GenRoute />} />
           <Route path="/opwallet" element={<OpWalletRoute />} />
+
+          <Route path="/auth/callback" element={<AuthCallback />} />
           {/* Agrega más rutas aquí según sea necesario */}
         </Routes>
       </Router>
