@@ -22,7 +22,7 @@ app.post('/webhook', (req, res) => {
     const ref = req.body.ref;
 
     if (event === 'push' && ref === 'refs/heads/main') {
-        exec('cd /www/wwwroot/ciudadan.org/ciudadan-web/web && git pull origin main && npm install && npm run build', (error, stdout, stderr) => {
+        exec('cd /www/wwwroot/ciudadan.org/ciudadan-web/web && rm -rf build && git pull origin main && npm install && npm run build', (error, stdout, stderr) => {
             if (error) {
                 logToFile(`Error: ${error.message}`);
                 return res.status(500).send('Error en la construcción');
@@ -39,6 +39,7 @@ app.post('/webhook', (req, res) => {
         res.status(200).send('No es un evento de push en la rama main');
     }
 });
+
 
 // Iniciar el servidor
 app.listen(PORT, () => {
