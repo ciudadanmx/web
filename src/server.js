@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware para parsear el cuerpo de las solicitudes
 app.use(bodyParser.json());
 
-// Función para manejar el logging
+// Función para manejar el loggingg
 const logToFile = (message) => {
     fs.appendFile('webhook.log', `${new Date().toISOString()} - ${message}\n`, (err) => {
         if (err) console.error('Error escribiendo en el log:', err);
