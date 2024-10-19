@@ -1,7 +1,6 @@
 const express = require('express');
 const { exec } = require('child_process');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,39 +8,37 @@ const PORT = process.env.PORT || 3000;
 // Middleware para parsear el cuerpo de las solicitudes
 app.use(bodyParser.json());
 
-// Función para manejar el loggingg
-const logToFile = (message) => {
-    fs.appendFile('webhook.log', `${new Date().toISOString()} - ${message}\n`, (err) => {
-        if (err) console.error('Error escribiendo en el log:', err);
-    });
-};
-
-// Endpoint para manejar el webhook de GitHub
+// Ruta para el webhook
 app.post('/webhook', (req, res) => {
-    const event = req.headers['x-github-event'];
-    const ref = req.body.ref;
+  // Verifica el evento de GitHub
+  if (req.body.ref === 'refs/heads/main') {
+    console.log('Webhook recibido: nuevo push en main');
 
-    if (event === 'push' && ref === 'refs/heads/main') {
-        exec('cd /www/wwwroot/ciudadan.org/ciudadan-web/web && rm -rf build && git pull origin main && npm install && npm run build', (error, stdout, stderr) => {
-            if (error) {
-                logToFile(`Error: ${error.message}`);
-                return res.status(500).send('Error en la construcción');
-            }
-            if (stderr) {
-                logToFile(`stderr: ${stderr}`);
-                return res.status(500).send('Error en la construcción');
-            }
-            logToFile(`stdout: ${stdout}`);
-            res.status(200).send('Construcción completada');
-        });
-    } else {
-        logToFile('No es un evento de push en la rama main');
-        res.status(200).send('No es un evento de push en la rama main');
-    }
+    // Comando a ejecutar
+    const command = `
+      cd /www/wwwroot/ciudadan.org/ciudadan-web/web &&
+      git pull origin main &&
+      npm install &&
+      npm run build &&
+      pm2 restart ciudadan-server
+    `;
+
+    // Ejecutar el comando
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error al ejecutar el comando: ${error}`);
+        return res.status(500).send('Error en la construcción');
+      }
+      console.log(`STDOUT: ${stdout}`);
+      console.error(`STDERR: ${stderr}`);
+      return res.status(200).send('Construcción completada');
+    });
+  } else {
+    return res.status(200).send('Evento no relevante');
+  }
 });
 
-
-// Iniciar el servidor
+// Inicia el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
