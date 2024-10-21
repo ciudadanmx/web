@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:1337/api/', // Reemplaza con la URL de tu servidor Strapi
+  baseURL: `${process.env.REACT_APP_STRAPI_URL}/api/`, // Usar la variable de entorno para la URL de Strapi
 });
 
 export default api;
+
