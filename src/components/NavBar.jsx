@@ -156,7 +156,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     <div className="account-menu.open">
                     {isAuthenticated ? (
                     <>
-                    <div>Bienvenido, {user.name}
+                    <div>Bienvenid@, {user.name}
                         <ul>
                             <li><a href="/cuenta" >Tu cuenta</a></li>
                             <li><a href="/ayuda" >Ayuda</a></li>
