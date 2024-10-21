@@ -5,13 +5,14 @@ import defaultProfileImage from '../assets/guest.png'; // Cambia esto si tienes 
 import { registerUserInStrapi, findUserInStrapi } from '../utils/strapiUserService';
 
 import { FaUniversity, FaDollarSign, FaWallet, FaCarSide, FaHamburger, FaStore } from 'react-icons/fa';
-import { TbHelpTriangleFilled } from "react-icons/tb";
+//import { TbHelpTriangleFilled } from "react-icons/tb";
 import { AiOutlineApartment, AiFillApi, AiOutlineRobot } from "react-icons/ai";
 
 import BotonCircular from './BotonCircular.jsx';
 
 import MessagesIcon from './MessagesIcon.jsx';
 import NotificationsIcon from './NotificationsIcon';
+import MenuIcon from './MenuIcon';
 
 import '../styles/App.css';
 import '../styles/NavBar.css';
@@ -94,9 +95,24 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
 
 
+            
+            
+            
+            
+            
             <div className="nav-linky">
-                <a href="/" className="iko3"> <TbHelpTriangleFilled /></a>
-            </div> 
+                <MenuIcon 
+                    isOpen={isMenuOpen}
+                    onClose={() => setIsMenuOpen(false)}
+                    authenticated={isAuthenticated}
+                    userData={user}
+                    className="cuenta-icon"
+
+                />
+            </div>
+
+
+
             <div className="nav-linky">
                 <MessagesIcon 
                     isOpen={isMenuOpen}

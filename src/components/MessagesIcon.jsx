@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { IoIosNotifications } from "react-icons/io";
+import { TbMessageFilled } from "react-icons/tb";
+
 import MessagesMenu from './MessagesMenu.jsx';
 import { useAuth0 } from '@auth0/auth0-react';
 import '../styles/MessagesIcon.css';
@@ -59,7 +60,7 @@ const MessagesIcon = () => {
 
     return (
         <div className="message-icon-container" onClick={toggleMenu}>
-            <IoIosNotifications className="message-icon" />
+            <TbMessageFilled className="message-icon" />
             {messageCount > 0 && <span className="message-count">{messageCount}</span>}
 
             <MessagesMenu 

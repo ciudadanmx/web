@@ -1,0 +1,53 @@
+.account-menu {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    width: 400px; /* Fijamos el ancho a 400px */
+    margin: 0 auto; /* Centramos horizontalmente el contenedor */
+    top: 33px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Grid 3x3 */
+    gap: 20px; /* Espaciado entre elementos */
+    justify-items: center; /* Centra los items horizontalmente */
+    align-items: center; /* Centra los items verticalmente */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.grid-item {
+    text-align: center;
+}
+
+.grid-item img {
+    display: block;
+    margin: 0 auto 10px; /* Centra la imagen y agrega margen inferior */
+}
+
+.grid-item p {
+    font-size: 14px; /* Tamaño de texto más pequeño */
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    margin: 0;
+}
+
+/* Responsivo para pantallas pequeñas */
+@media (max-width: 768px) {
+    .account-menu {
+        width: 100%; /* Para pantallas más pequeñas, ocupará el 100% del ancho */
+    }
+
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr); /* Cambia a 2 columnas en pantallas pequeñas */
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* Cambia a 1 columna en pantallas muy pequeñas */
+    }
+}
