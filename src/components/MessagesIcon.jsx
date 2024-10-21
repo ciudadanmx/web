@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { TbMessageFilled } from "react-icons/tb";
-
 import MessagesMenu from './MessagesMenu.jsx';
 import { useAuth0 } from '@auth0/auth0-react';
 import '../styles/MessagesIcon.css';
 
 const MessagesIcon = () => {
-    const { user, isAuthenticated, getAccessTokenSilently } = useAuth0(); // Obtenemos el email del usuario autenticado
+    const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
     const [messages, setMessages] = useState([]);
@@ -20,9 +19,10 @@ const MessagesIcon = () => {
         if (!isAuthenticated) return;
 
         try {
-            const token = await getAccessTokenSilently();  // Obtenemos el token para autenticar la solicitud a Strapi
+            const token = await getAccessTokenSilently(); // Obtenemos el token para autenticar la solicitud a Strapi
+
             // Primero, obtenemos el usuario desde Strapi usando el email
-            const userResponse = await fetch(`https://tu-strapi-url.com/users?email=${user.email}`, {
+            const userResponse = await fetch(`${process.env.REACT_APP_STRAPI_URL}/users?email=${user.email}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const MessagesIcon = () => {
             });
 
             const userData = await userResponse.json();
-            const userId = userData[0]?.id;  // Obtenemos el ID del usuario
+            const userId = userData[0]?.id; // Obtenemos el ID del usuario
 
             // Si no obtenemos el ID del usuario, no continuamos
             if (!userId) {
@@ -39,7 +39,7 @@ const MessagesIcon = () => {
             }
 
             // Ahora, buscamos los mensajes donde el usuario es el receptor (receiver)
-            const response = await fetch(`https://tu-strapi-url.com/messages?receiver.id=${userId}`, {
+            const response = await fetch(`${process.env.REACT_APP_STRAPI_URL}/messages?receiver.id=${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -47,15 +47,15 @@ const MessagesIcon = () => {
             });
 
             const messagesData = await response.json();
-            setMessages(messagesData);  // Guardamos los mensajes obtenidos
-            setMessageCount(messagesData.length);  // Guardamos la cantidad de mensajes
+            setMessages(messagesData); // Guardamos los mensajes obtenidos
+            setMessageCount(messagesData.length); // Guardamos la cantidad de mensajes
         } catch (error) {
             console.error('Error al obtener los mensajes:', error);
         }
     };
 
     useEffect(() => {
-        fetchMessages();  // Llamamos a la función al montar el componente
+        fetchMessages(); // Llamamos a la función al montar el componente
     }, [isAuthenticated]);
 
     return (
@@ -66,7 +66,7 @@ const MessagesIcon = () => {
             <MessagesMenu 
                 isOpen={isMenuOpen} 
                 onClose={() => setIsMenuOpen(false)} 
-                messages={messages}  // Pasamos los mensajes al menú de mensajes
+                messages={messages} // Pasamos los mensajes al menú de mensajes
             />
         </div>
     );
