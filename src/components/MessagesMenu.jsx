@@ -1,6 +1,6 @@
 //import React from 'react';
 
-import '../styles/AccountMenu.css';
+import '../styles/MessagesMenu.css';
 //import Sesion from './Sesion';
 //import { gapi } from 'gapi-script';
 import { useState, useEffect } from 'react';
@@ -11,7 +11,7 @@ const MessagesMenu = ({ isOpen, onClose,  onLogout }) => {
 
 
   return (
-    <div className={`message-menu ${isOpen ? 'open' : 'closed'}`}>
+    <div className={`account-menu ${isOpen ? 'open' : 'closed'}`}>
     <ul>
      
         <>
