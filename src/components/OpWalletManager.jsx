@@ -6,7 +6,6 @@ import { ethers } from 'ethers';
 const alchemyApiUrl = `https://opt-mainnet.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`;
 const worldcoinContractAddress = '0x163f8C2467924be0ae7B5347228CABF260318753';
 const worldcoinAbi = [
-  // ABI para el método balanceOf de ERC-20
   "function balanceOf(address owner) view returns (uint256)"
 ];
 
@@ -31,9 +30,11 @@ const OpWalletManager = () => {
     const fetchWallet = async () => {
       if (isAuthenticated && user.email) {
         try {
-          const response = await axios.post(`${process.env.REACT_APP_STRAPI_URL}/api/world-coin-wallets`, {
-            filters: {
-              user_id: user.email,
+          const response = await axios.get(`${process.env.REACT_APP_STRAPI_URL}/api/world-coin-wallets`, {
+            params: {
+              filters: {
+                user_id: user.email,
+              },
             },
           });
 
@@ -58,12 +59,17 @@ const OpWalletManager = () => {
 
   const createWallet = async () => {
     try {
+      if (walletExists) {
+        alert('Ya tienes una cartera asociada.'); // Evitar crear otra cartera
+        return;
+      }
+
       const wallet = ethers.Wallet.createRandom(); // Crea una nueva cartera real
       const newWalletAddress = wallet.address;
 
       const response = await axios.post(`${process.env.REACT_APP_STRAPI_URL}/api/world-coin-wallets`, {
         data: {
-          user_id: user.email,
+          user_id: user.email,  // Asegúrate de que esto sea correcto
           CarteraIdx: newWalletAddress,
         },
       });
@@ -74,10 +80,11 @@ const OpWalletManager = () => {
         await fetchWorldcoinBalance(newWalletAddress);
         alert('Cartera creada exitosamente!');
       } else {
+        console.error('Response:', response);
         alert('Hubo un error al crear la cartera. Por favor, inténtalo de nuevo.');
       }
     } catch (error) {
-      console.error('Error creating wallet:', error);
+      console.error('Error creating wallet:', error.response ? error.response.data : error.message);
       alert('Hubo un error al crear la cartera. Por favor, inténtalo de nuevo.');
     }
   };

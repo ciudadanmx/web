@@ -11,6 +11,7 @@ import AcademiaRoute from './routes/AcademiaRoute';
 import ComunidadRoute from './routes/ComunidadRoute';
 import GenRoute from './routes/GenRoute';
 import OpWalletRoute from './routes/OpWalletRoute';
+import ProfileRoute from './routes/ProfileRoute.jsx';
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
@@ -36,7 +37,8 @@ root.render(
           <Route path="/academia" element={<AcademiaRoute />} />
           <Route path="/comunidad" element={<ComunidadRoute />} />
           <Route path="/gen" element={<GenRoute />} />
-          <Route path="/opwallet" element={<OpWalletRoute />} />
+          <Route path="/cartera" element={<OpWalletRoute />} />
+          <Route path="/perfil" element={<ProfileRoute />} />
 
           <Route path="/auth/callback" element={<AuthCallback />} />
           {/* Agrega más rutas aquí según sea necesario */}
