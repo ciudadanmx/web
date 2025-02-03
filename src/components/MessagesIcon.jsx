@@ -1,42 +1,70 @@
-import React, { useState, useContext } from 'react';
-//import '../styles/CuentaIcon.css';
+import React, { useState, useEffect } from 'react';
 import { IoIosNotifications } from "react-icons/io";
 import MessagesMenu from './MessagesMenu.jsx';
-//import { gapi } from 'gapi-script';
-import { useAuth0 } from '@auth0/auth0-react';
-import { AuthProvider } from '../Contexts/AuthContext'; // Importa el contexto
-
+import axios from 'axios';
 import '../styles/MessagesIcon.css';
- 
+import { useAuth0 } from '@auth0/auth0-react';
 
-const MessagesIcon = ({ count = a13 }) => {
+const MessagesIcon =  () => {
+    const { user, isAuthenticated } = useAuth0();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    //const { isAuthenticated, setAuthenticated, user, userData, setUserData } = useContext(AuthProvider);
+    const [messageCount, setMessageCount] = useState(0);
+    const [loading, setLoading] = useState(true); // Para indicar que se están cargando los mensajes
+    const [error, setError] = useState(null); // Para manejar errores de la API
 
-  
+    // Función para obtener el número de mensajes
+    const fetchMessageCount = async () => {
+        if (isAuthenticated && user && user.email) { // Verificar si está autenticado y si tiene un email
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_STRAPI_URL}/api/messages?filters[sender_id][email]=${user.email}`);
+                setMessageCount(response.data.data.length); // Asumimos que la respuesta tiene un campo "count"
+                console.log(response.data.data.length);
+                setLoading(false); // Dejamos de cargar
+            } catch (error) {
+                setError(error.message); // Guardamos el error
+                setLoading(false); // Dejamos de cargar
+            }
+        } else {
+            setLoading(false); // Deja de cargar si el usuario no está autenticado
+        }
+    };
+
+    useEffect(() => {
+        fetchMessageCount(); // Llamar a la función cuando el componente se monte
+    }, [isAuthenticated, user]); // Re-ejecutar cuando el usuario cambie
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
-      };
+    };
 
-  return (
-    
-      
-      <div className="message-icon-container" onClick={toggleMenu}>
-        <IoIosNotifications className="message-icon" />
-        {count > 0 && <span className="message-count">{count}</span>}
-      
-        <MessagesMenu 
-        isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
-        
-      />
-    </div>
+    if (loading) {
+        return (
+            <div className="message-icon-container" onClick={toggleMenu}>
+                <IoIosNotifications className="message-icon" />
+                <span className="message-count">..</span>
+            </div>
+        );
+    }
 
+    if (error) {
+        return (
+            <div className="message-icon-container" onClick={toggleMenu}>
+                <IoIosNotifications className="message-icon" />
+                <span className="message-count">**</span>
+            </div>
+        );
+    }
 
-
-
-
-  );
+    return (
+        <div className="message-icon-container" onClick={toggleMenu}>
+            <IoIosNotifications className="message-icon" />
+            {messageCount > 0 && <span className="message-count">{messageCount}</span>}
+            <MessagesMenu 
+                isOpen={isMenuOpen} 
+                onClose={() => setIsMenuOpen(false)} 
+            />
+        </div>
+    );
 };
 
 export default MessagesIcon;
