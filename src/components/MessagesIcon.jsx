@@ -9,7 +9,7 @@ import { AuthProvider } from '../Contexts/AuthContext'; // Importa el contexto
 import '../styles/MessagesIcon.css';
  
 
-const MessagesIcon = ({ count = 13 }) => {
+const MessagesIcon = ({ count = a13 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     //const { isAuthenticated, setAuthenticated, user, userData, setUserData } = useContext(AuthProvider);
 
