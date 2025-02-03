@@ -35,12 +35,17 @@ const NavBar = ({ SetIsMenuOpen }) => {
     const handleUserRegistration = async () => {
       if (isAuthenticated && user) {
         const userEmail = user.email;
-        const existingUsers = await findUserInStrapi(userEmail);
-
-        if (existingUsers.length === 0) {
-          // Usuario no encontrado en Strapi, registrar nuevo usuario
-          const result = await registerUserInStrapi(userEmail, user.name);
-          console.log('Usuario registrado en Strapi:', result);
+        
+        try {
+          const existingUsers = await findUserInStrapi(userEmail);
+  
+          // Verificar si existingUsers es un array antes de acceder a .length
+          if (Array.isArray(existingUsers) && existingUsers.length === 0) {
+            const result = await registerUserInStrapi(userEmail, user.name);
+            console.log('Usuario registrado en Strapi:', result);
+          }
+        } catch (error) {
+          console.error('Error al buscar o registrar usuario en Strapi:', error);
         }
       }
     };

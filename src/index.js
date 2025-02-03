@@ -36,7 +36,7 @@ root.render(
           <Route path="/academia" element={<AcademiaRoute />} />
           <Route path="/comunidad" element={<ComunidadRoute />} />
           <Route path="/gen" element={<GenRoute />} />
-          <Route path="/opwallet" element={<OpWalletRoute />} />
+          <Route path="/cartera" element={<OpWalletRoute />} />
           {/* Agrega más rutas aquí según sea necesario */}
         </Routes>
       </Router>
