@@ -5,6 +5,8 @@ import HomeRoute from './routes/HomeRoute';
 import GanaRoute from './routes/GanaRoute';
 import NavBar from './components/NavBar';
 import TaxisRoute from './routes/TaxisRoute';
+import TachosRoute from './routes/TachosRoute';
+import TachisRoute from './routes/TachisRoute';
 import RestaurantesRoute from './routes/RestaurantesRoute';
 import MarketRoute from './routes/MarketRoute';
 import AcademiaRoute from './routes/AcademiaRoute';
@@ -31,6 +33,8 @@ root.render(
           <Route path="/" element={<HomeRoute />} />
           <Route path="/gana" element={<GanaRoute />} />
           <Route path="/taxis" element={<TaxisRoute />} />
+          <Route path="/tachos" element={<TachosRoute />} />
+          <Route path="/tachis" element={<TachisRoute />} />
           <Route path="/comida" element={<RestaurantesRoute />} />
           <Route path="/market" element={<MarketRoute />} />
           <Route path="/academia" element={<AcademiaRoute />} />
