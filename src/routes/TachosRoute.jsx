@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
 const TachosRoute = () => {
-    const zocaloCoords = { lat: 19.432608, lng: -99.133209 };
+    const zocaloCoords = { lat: 19.432607, lng: -99.133209 };
+    const centroCoords = { lat: 19.432609, lng: -99.133209 };
     const [fromLocation, setFromLocation] = useState('Zócalo, CDMX');
     const [toLocation, setToLocation] = useState('');
     const [fromSuggestions, setFromSuggestions] = useState([]);
@@ -11,6 +12,7 @@ const TachosRoute = () => {
     const [taxiCoords, setTaxiCoords] = useState([]);
     const [map, setMap] = useState(null);
     const [marker, setMarker] = useState(null);
+    const [toMarker, setToMarker] = useState(null);
 
     const taxiData = [
         { id: 1, lat: 19.434, lng: -99.132 },
@@ -53,8 +55,15 @@ const TachosRoute = () => {
             map: mapInstance,
             title: "Zócalo, CDMX",
         });
+        
+        const centroMarker = new window.google.maps.Marker({
+            position: centroCoords,
+            map: mapInstance,
+            title: "Zócalo, CDMX",
+        });
 
         setMarker(initialMarker);
+        setToMarker(centroMarker);
 
         taxiCoords.forEach((taxi) => {
             new window.google.maps.Marker({
@@ -141,10 +150,31 @@ const TachosRoute = () => {
         setFromSuggestions([]);
     };
 
-    const handleToSuggestionClick = (toSuggestion) => {
+    
+     const handleToSuggestionClick = (toSuggestion) => {
         setToLocation(toSuggestion.description);
         setToSuggestions([]);
+    
+        if (!toSuggestion.geometry || !toSuggestion.geometry.location) {
+            console.error("No se encontraron coordenadas en la sugerencia seleccionada.");
+            return;
+        }
+    
+        const destinoLat = toSuggestion.geometry.location.lat();
+        const destinoLng = toSuggestion.geometry.location.lng();
+    
+        if (!toMarker) {
+            toMarker = new window.google.maps.Marker({
+                position: { lat: destinoLat, lng: destinoLng },
+                map: map,
+                title: "Ubicación de destino",
+                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+            });
+        } else {
+            toMarker.setPosition({ lat: destinoLat, lng: destinoLng });
+        }
     };
+    
 
     return (
         <div style={{ width: '90%', height: '100vh', overflow: 'hidden', padding: '20px' }}>

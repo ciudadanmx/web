@@ -8,8 +8,6 @@ const TaxisRoute = () => {
     const [toLocation, setToLocation] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [error, setError] = useState(null);
-    const [fromCoords, setFromCoords] = useState(null);
-    const [toCoords, setToCoords] = useState(null);
 
     useEffect(() => {
         if (navigator.geolocation) {
@@ -23,10 +21,6 @@ const TaxisRoute = () => {
                     const data = await response.json();
                     if (data.results.length > 0) {
                         setFromLocation(data.results[0].formatted_address);
-                        setFromCoords({
-                            lat: latitude,
-                            lng: longitude
-                        });
                     }
                 } catch (err) {
                     setError("No se pudo obtener la ubicación");
@@ -66,70 +60,8 @@ const TaxisRoute = () => {
     const handleSuggestionClick = (suggestion) => {
         setToLocation(suggestion.description);
         setSuggestions([]);
-
-        // Obtener coordenadas del destino
-        const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(suggestion.description)}&key=${process.env.REACT_APP_PLACES_KEY}`;
-        fetch(geocodeUrl)
-            .then(response => response.json())
-            .then(data => {
-                if (data.results.length > 0) {
-                    const destination = data.results[0].geometry.location;
-                    setToCoords(destination);
-                }
-            })
-            .catch(error => {
-                setError("Error al obtener las coordenadas de destino");
-                console.error("Error obteniendo coordenadas de destino:", error);
-            });
     };
-
-    const renderMap = () => {
-        if (fromCoords && toCoords) {
-            const google = window.google;
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: fromCoords,
-                zoom: 13
-            });
-
-            new google.maps.Marker({
-                position: fromCoords,
-                map: map,
-                title: "Tu ubicación"
-            });
-
-            new google.maps.Marker({
-                position: toCoords,
-                map: map,
-                title: "Destino"
-            });
-
-            const directionsService = new google.maps.DirectionsService();
-            const directionsRenderer = new google.maps.DirectionsRenderer();
-            directionsRenderer.setMap(map);
-
-            const request = {
-                origin: fromCoords,
-                destination: toCoords,
-                travelMode: google.maps.TravelMode.DRIVING
-            };
-
-            directionsService.route(request, (result, status) => {
-                if (status === google.maps.DirectionsStatus.OK) {
-                    directionsRenderer.setDirections(result);
-                } else {
-                    setError("No se pudo obtener la ruta");
-                    console.error("Error al obtener la ruta:", status);
-                }
-            });
-        }
-    };
-
-    useEffect(() => {
-        if (fromCoords && toCoords) {
-            renderMap();
-        }
-    }, [fromCoords, toCoords]);
-
+    
     return (
         <div style={{ width: '90%', height: '100vh', overflow: 'hidden', padding: '20px' }}>
             {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
@@ -182,9 +114,6 @@ const TaxisRoute = () => {
             ) : (
                 <Conductor />
             )}
-
-            {/* Map section */}
-            <div id="map" style={{ width: '100%', height: '400px', marginTop: '20px' }}></div>
         </div>
     );
 };

@@ -6,9 +6,7 @@ const Conductor = () => {
 
   // Estado para las coordenadas y la posición del marcador
   const [coordinates, setCoordinates] = useState({ lat: 19.432608, lng: -99.133209 }); // Coordenadas por defecto
-  const [toCoordinates, setToCoordinates] = useState({ lat: 19.4374453, lng: -99.14651119999999 }); // Coordenadas por defecto
   const [markerPosition, setMarkerPosition] = useState({ lat: 19.432608, lng: -99.133209 }); // Inicial
-  const [toMarkerPosition, setToMarkerPosition] = useState({ lat: 19.432608, lng: -99.133209 }); // Inicial
 
   // Estado para la dirección seleccionada
   const [address, setAddress] = useState("");
@@ -32,17 +30,12 @@ const Conductor = () => {
     if (googleMapsLoaded && window.google) {
       const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
         center: coordinates,
-        zoom: 17, // Reducción del zoom para una mejor visualización
+        zoom: 14, // Reducción del zoom para una mejor visualización
       });
 
       const marker = new window.google.maps.Marker({
         map: mapInstance,
         position: coordinates,
-      });
-      
-      const toMarker = new window.google.maps.Marker({
-        map: mapInstance,
-        position: toCoordinates,
       });
 
       // Manejar el evento de clic en el mapa
@@ -50,21 +43,12 @@ const Conductor = () => {
         const { latLng } = event;
         const newLat = latLng.lat();
         const newLng = latLng.lng();
-        
-        //const { newToLatLng } = toCoordinates;
-        const newToLat = toCoordinates.lat();
-        const newToLng = toCoordinates.lng();
-        
-
 
         // Actualizar las coordenadas y mover el marcador
         setCoordinates({ lat: newLat, lng: newLng });
-        setToCoordinates({ lat: newToLat, lng: newToLng });
         setMarkerPosition({ lat: newLat, lng: newLng });
-        setToMarkerPosition({ lat: newToLat, lng: newToLng });
 
         marker.setPosition({ lat: newLat, lng: newLng });
-        toMarker.setPosition({ lat: newToLat, lng: newToLng });
       });
 
       // Autocomplete para la dirección
@@ -77,15 +61,11 @@ const Conductor = () => {
           // Actualizar las coordenadas con la ubicación seleccionada
           const newLat = place.geometry.location.lat();
           const newLng = place.geometry.location.lng();
-          const newToLat = place.geometry.toLocation.lat();
-          const newToLng = place.geometry.toLocation.lng();
           setCoordinates({ lat: newLat, lng: newLng });
           setMarkerPosition({ lat: newLat, lng: newLng });
-          setToMarkerPosition({ lat: newToLat, lng: newToLng });
 
           // Mover el marcador
           marker.setPosition({ lat: newLat, lng: newLng });
-          toMarker.setPosition({ lat: newToLat, lng: newToLng });
 
           // Actualizar la dirección seleccionada
           setAddress(place.formatted_address);
