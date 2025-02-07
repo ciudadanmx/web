@@ -4,9 +4,13 @@ import './styles/index.css';
 import HomeRoute from './routes/HomeRoute';
 import GanaRoute from './routes/GanaRoute';
 import NavBar from './components/NavBar';
+
+import Conductor from './components/Conductor';
+import Pasajero from './components/Pasajero';
 import TaxisRoute from './routes/TaxisRoute';
 import TachosRoute from './routes/TachosRoute';
 import TachisRoute from './routes/TachisRoute';
+
 import RestaurantesRoute from './routes/RestaurantesRoute';
 import MarketRoute from './routes/MarketRoute';
 import AcademiaRoute from './routes/AcademiaRoute';

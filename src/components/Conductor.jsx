@@ -1,143 +1,156 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth0 } from '@auth0/auth0-react';
+import io from 'socket.io-client';
+import '../styles/taxis.css';
+
 
 const Conductor = () => {
-  // Estado para la carga del script de Google Maps
+  const { user, isAuthenticated } = useAuth0();
+  const [isWaiting, setIsWaiting] = useState(true);
+  const [travelData, setTravelData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
+  const zocaloCoords = { lat: 19.432607, lng: -99.133209 };
 
-  // Estado para las coordenadas y la posición del marcador
-  const [coordinates, setCoordinates] = useState({ lat: 19.432608, lng: -99.133209 }); // Coordenadas por defecto
-  const [toCoordinates, setToCoordinates] = useState({ lat: 19.4374453, lng: -99.14651119999999 }); // Coordenadas por defecto
-  const [markerPosition, setMarkerPosition] = useState({ lat: 19.432608, lng: -99.133209 }); // Inicial
-  const [toMarkerPosition, setToMarkerPosition] = useState({ lat: 19.432608, lng: -99.133209 }); // Inicial
 
-  // Estado para la dirección seleccionada
-  const [address, setAddress] = useState("");
 
-  // Cargar la API de Google Maps con tu clave
   useEffect(() => {
-    const loadGoogleMaps = () => {
+      if (window.google) {
+        setGoogleMapsLoaded(true);
+        return;
+      }
+  
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_PLACES_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => setGoogleMapsLoaded(true);
+      script.onerror = (error) => {
+        console.error("Error al cargar Google Maps API:", error);
+      };
+  
       document.head.appendChild(script);
+  
+      return () => {
+        document.head.removeChild(script);
+      };
+    }, []);
+  
+    useEffect(() => {
+      if (googleMapsLoaded && window.google) {
+        const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
+          center: zocaloCoords,
+          zoom: 17,
+        });
+  
+        
+      }
+    }, [googleMapsLoaded, zocaloCoords]);
+
+
+
+
+
+
+
+  useEffect(() => {
+
+    
+    
+
+    const fetchUserId = async () => {
+      if (isAuthenticated && user?.email) {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_STRAPI_URL}/api/users`,
+            {
+              params: {
+                "filters[email]": user.email, // Buscando el usuario por email
+              },
+            }
+          );
+
+          if (response.data.length > 0) {
+            setUserId(response.data[0].id);
+            console.log('User ID from Strapi:', response.data[0].id);
+          }
+        } catch (error) {
+          console.error('Error fetching user ID from Strapi:', error);
+        }
+      }
     };
 
-    loadGoogleMaps();
-  }, []);
+    if (isAuthenticated && user) {
+      fetchUserId();
+    }
+  }, [isAuthenticated, user]);
 
-  // Inicializar el mapa y el marcador cuando la API esté cargada
   useEffect(() => {
-    if (googleMapsLoaded && window.google) {
-      const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
-        center: coordinates,
-        zoom: 17, // Reducción del zoom para una mejor visualización
-      });
+    const socket = io(process.env.REACT_APP_SOCKET_URL); // URL del servidor de sockets
 
-      const marker = new window.google.maps.Marker({
-        map: mapInstance,
-        position: coordinates,
-      });
+    if (userId) {
+      console.log('Estableciendo conexión con el socket...');
       
-      const toMarker = new window.google.maps.Marker({
-        map: mapInstance,
-        position: toCoordinates,
-      });
-
-      // Manejar el evento de clic en el mapa
-      window.google.maps.event.addListener(mapInstance, 'click', (event) => {
-        const { latLng } = event;
-        const newLat = latLng.lat();
-        const newLng = latLng.lng();
-        
-        //const { newToLatLng } = toCoordinates;
-        const newToLat = toCoordinates.lat();
-        const newToLng = toCoordinates.lng();
-        
-
-
-        // Actualizar las coordenadas y mover el marcador
-        setCoordinates({ lat: newLat, lng: newLng });
-        setToCoordinates({ lat: newToLat, lng: newToLng });
-        setMarkerPosition({ lat: newLat, lng: newLng });
-        setToMarkerPosition({ lat: newToLat, lng: newToLng });
-
-        marker.setPosition({ lat: newLat, lng: newLng });
-        toMarker.setPosition({ lat: newToLat, lng: newToLng });
-      });
-
-      // Autocomplete para la dirección
-      const input = document.getElementById('address-input');
-      const autocomplete = new window.google.maps.places.Autocomplete(input);
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (place.geometry) {
-          // Actualizar las coordenadas con la ubicación seleccionada
-          const newLat = place.geometry.location.lat();
-          const newLng = place.geometry.location.lng();
-          const newToLat = place.geometry.toLocation.lat();
-          const newToLng = place.geometry.toLocation.lng();
-          setCoordinates({ lat: newLat, lng: newLng });
-          setMarkerPosition({ lat: newLat, lng: newLng });
-          setToMarkerPosition({ lat: newToLat, lng: newToLng });
-
-          // Mover el marcador
-          marker.setPosition({ lat: newLat, lng: newLng });
-          toMarker.setPosition({ lat: newToLat, lng: newToLng });
-
-          // Actualizar la dirección seleccionada
-          setAddress(place.formatted_address);
+      socket.on('mensajeConductor', (data) => {
+        console.log('evento de solicitud !!! ');
+        console.log(data);
+        if (data.driverId === userId) {
+          console.log('Viaje encontrado:', data);
+          setIsWaiting(false);
+          setTravelData(data);
         }
       });
     }
-  }, [googleMapsLoaded, coordinates]);
+
+
+ 
+    
+
+    return () => {
+      socket.disconnect();
+      console.log('Desconectando socket...');
+    };
+  }, [userId]);
+
+  const handleTravelButtonClick = () => {
+    if (travelData) {
+      console.log('Datos del viaje:', travelData);
+      // Aquí puedes agregar la lógica para manejar el viaje, por ejemplo, aceptar el viaje, etc.
+    }
+  };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ textAlign: 'center' }}>Mapa del Conductor</h1>
-
-      {/* Input de Autocomplete */}
-      <input
-        id="address-input"
-        type="text"
-        placeholder="Buscar dirección"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '10px',
-          marginBottom: '10px',
-          fontSize: '16px',
-          borderRadius: '5px',
-          border: '1px solid #ccc',
-        }}
-      />
-
-      <div style={{ width: '100%', height: '60vh', marginBottom: '20px' }}>
-        <div id="map" style={{ width: '100%', height: '100%' }}></div>
-      </div>
-
-      {/* Sección de coordenadas */}
-      <div style={{
-        backgroundColor: 'black',
-        padding: '10px',
-        borderRadius: '5px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center',
-        color: 'white',
-        margintop: '-50px',
-        position: 'absolute',
-      }}>
-        <h4>Coordenadas actuales:</h4>
-        <p><strong>Latitud:</strong> {coordinates.lat}</p>
-        <p><strong>Longitud:</strong> {coordinates.lng}</p>
-      </div>
-
-      {/* Separador de 200px de altura */}
-      <div style={{ height: '200px', }}>aaa<p>aaaaa</p>aaa<p>aaaaa</p>aaa<p>aaaaa</p></div>
+    <div>
+      <div>
+      {isWaiting ? (
+        <div>
+          <p>Esperando viajes...</p>
+        </div>
+      ) : (
+        <div>
+          <h2>
+            Viaje: {travelData?.origin} a {travelData?.destination}
+          </h2>
+          <span className='conductor-a-title'>a</span>
+          <span className='conductor-a'>
+          Ejercito Nacional 1150, Col. Polanco CDMX
+          </span>
+           <hr />
+           <span className='conductor-a-title'>de</span>
+           <span className='conductor-a'>
+            Ejercito Nacional 1150, Col. Polanco CDMX
+          </span>
+        </div>
+      )}
     </div>
+    <div className='taxis-map'>
+    <div id="map" style={{ width: '100%', height: '100%' }}></div>
+    </div>
+    </div>
+
+    
+
   );
 };
 

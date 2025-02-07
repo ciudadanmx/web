@@ -27,18 +27,24 @@ const TachosRoute = () => {
     }, []);
 
     useEffect(() => {
+        // Evitar carga múltiple del script
+        if (window.google) return; // Si ya está cargado, no lo cargues de nuevo
+
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_PLACES_KEY}&libraries=places`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_PLACES_KEY}&libraries=places,marker`; // Añadir `marker` a las bibliotecas
         script.async = true;
         script.onload = () => {
             if (window.google) {
                 initializeMap();
             }
         };
+        script.onerror = (error) => {
+            console.error("Error al cargar el script de Google Maps:", error);
+        };
         document.head.appendChild(script);
 
         return () => {
-            document.head.removeChild(script);
+            document.head.removeChild(script); // Eliminar el script al desmontar el componente
         };
     }, []);
 
@@ -50,23 +56,24 @@ const TachosRoute = () => {
 
         setMap(mapInstance);
 
-        const initialMarker = new window.google.maps.Marker({
+        // Usando AdvancedMarkerElement después de cargar la biblioteca `marker`
+        const initialMarker = new google.maps.marker.AdvancedMarkerElement({
             position: zocaloCoords,
             map: mapInstance,
             title: "Zócalo, CDMX",
         });
-        
-        const centroMarker = new window.google.maps.Marker({
+
+        const centroMarker = new google.maps.marker.AdvancedMarkerElement({
             position: centroCoords,
             map: mapInstance,
-            title: "Zócalo, CDMX",
+            title: "Centro, CDMX",
         });
 
         setMarker(initialMarker);
         setToMarker(centroMarker);
 
         taxiCoords.forEach((taxi) => {
-            new window.google.maps.Marker({
+            new google.maps.marker.AdvancedMarkerElement({
                 position: { lat: taxi.lat, lng: taxi.lng },
                 map: mapInstance,
                 title: `Taxi ${taxi.id}`,
@@ -150,21 +157,21 @@ const TachosRoute = () => {
         setFromSuggestions([]);
     };
 
-    
-     const handleToSuggestionClick = (toSuggestion) => {
+    const handleToSuggestionClick = (toSuggestion) => {
         setToLocation(toSuggestion.description);
+        console.log(`Destino es: ---- ${toSuggestion.description} .... `);
         setToSuggestions([]);
-    
+
         if (!toSuggestion.geometry || !toSuggestion.geometry.location) {
             console.error("No se encontraron coordenadas en la sugerencia seleccionada.");
             return;
         }
-    
+
         const destinoLat = toSuggestion.geometry.location.lat();
         const destinoLng = toSuggestion.geometry.location.lng();
-    
+
         if (!toMarker) {
-            toMarker = new window.google.maps.Marker({
+            toMarker = new google.maps.marker.AdvancedMarkerElement({
                 position: { lat: destinoLat, lng: destinoLng },
                 map: map,
                 title: "Ubicación de destino",
@@ -174,7 +181,6 @@ const TachosRoute = () => {
             toMarker.setPosition({ lat: destinoLat, lng: destinoLng });
         }
     };
-    
 
     return (
         <div style={{ width: '90%', height: '100vh', overflow: 'hidden', padding: '20px' }}>
