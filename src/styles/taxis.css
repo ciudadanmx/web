@@ -93,3 +93,271 @@
 
 
 
+.travel-container {
+  background-color: #f5ffba;
+  border: 2px solid #ffd700;
+  border-radius: 10px;
+  padding: 15px;
+  max-width: 400px;
+  position: relative;
+}
+
+.travel-details {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.travel-label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.travel-info {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+}
+
+.travel-price {
+  text-align: right;
+  margin-top: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.price-amount {
+  font-size: 22px;
+  font-weight: bold;
+  color: #008000;
+}
+
+.travel-distance {
+  display: block;
+  font-size: 12px;
+  color: #c18a00;
+}
+
+.travel-time {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  color: #555;
+}
+
+.travel-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.change-button, .accept-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.change-button {
+  background-color: #ffeb3b;
+  color: #000;
+}
+
+.accept-button {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.edit-icon, .plus-icon {
+  margin-right: 5px;
+}
+
+.accept-button:hover {
+  background-color: #388e3c;
+}
+
+.change-button:hover {
+  background-color: #fdd835;
+}
+
+.taxis-map {
+  margin-top: 20px;
+  width: 100%;
+  height: 250px;
+}
+
+
+
+
+
+.travel-container {
+    background-color: #f5ffba;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 15px;
+    width: 100vh;
+    max-width: 90%;
+    position: relative;
+    margin: 20px 0; /* Alineado a la izquierda */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .travel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+  }
+  
+  .travel-info-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .travel-row {
+    display: flex;
+    align-items: start;
+  }
+  
+  .travel-label {
+    font-size: 14px;
+    font-weight: bold;
+    width: 50px; /* Asegura que "De" y "A" estén alineados */
+  }
+  
+  .travel-info {
+    font-size: 14px;
+    flex: 1;
+  }
+  
+  .travel-price {
+    text-align: right;
+    font-family: Arial, sans-serif;
+    min-width: 150px;
+  }
+  
+  .price-amount {
+    font-size: 22px;
+    font-weight: bold;
+    color: #008000;
+    display: block;
+  }
+  
+  .travel-distance {
+    font-size: 12px;
+    color: #c18a00;
+  }
+  
+  .travel-time {
+    font-size: 12px;
+    font-style: italic;
+    color: #555;
+  }
+  
+  .travel-buttons {
+    position: absolute;
+    bottom: -10px;
+    left: 25%; /* Más cargado al centro */
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .change-button, .accept-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .change-button {
+    background-color: #ffeb3b;
+    color: #000;
+  }
+  
+  .accept-button {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .edit-icon, .plus-icon {
+    margin-right: 5px;
+  }
+  
+  .accept-button:hover {
+    background-color: #388e3c;
+  }
+  
+  .change-button:hover {
+    background-color: #fdd835;
+  }
+  
+/*   .taxis-map {
+    margin-top: 20px;
+    width: 100%;
+    height: 250px;
+  } */
+  
+
+
+  html, body {
+    height: 100%; /* Asegura que el body pueda crecer */
+    overflow-y:scroll; /* Permite hacer scroll en toda la página */
+  }
+  
+  .conductor-layout {
+    display: flex;
+    flex-direction: column; /* Asegura que las tarjetas se acumulen arriba y el mapa se mantenga debajo */
+    min-height: 100vh; /* Permite que la página crezca más allá del viewport */
+  }
+  
+  .travel-list {
+    width: 100%; /* Asegura que ocupe todo el ancho */
+    padding: 10px;
+  }
+  
+  .taxis-map {
+    width: 100%;
+    height: 400px; /* Tamaño fijo para que siempre sea visible si bajas */
+  }
+  
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto; /* Permite scroll en la página cuando hay muchas tarjetas */
+  }
+  
+  .conductor-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Permite que el contenedor crezca más allá del viewport */
+  }
+  
+  .travel-list-container {
+    flex-grow: 1;
+    overflow-y: scroll; /* Permite que el contenido crezca sin restricciones */
+    padding: 10px;
+  }
+  
+  .taxis-map {
+    position: sticky; /* Hace que el mapa siempre esté en la parte inferior */
+    bottom: 0;
+    width: 100%;
+    height: 40vh;
+  }
+  

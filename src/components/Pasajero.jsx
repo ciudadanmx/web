@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/taxis.css';
 
+let desde;
+let hasta;
+
+
 const Pasajero = () => {
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [fromCoordinates, setFromCoordinates] = useState({ lat: 19.432608, lng: -99.133209 });
@@ -79,6 +83,7 @@ const Pasajero = () => {
           fromMarker.setPosition({ lat: newFromLat, lng: newFromLng });
 
           setFromAddress(fromPlace.formatted_address);
+          desde = fromPlace.formatted_address;
           console.log(`Origen: ${fromPlace.formatted_address}`);
         }
       });
@@ -94,6 +99,7 @@ const Pasajero = () => {
           toMarker.setPosition({ lat: newToLat, lng: newToLng });
 
           setToAddress(toPlace.formatted_address);
+          hasta = toPlace.formatted_address;
           console.log(`Destino: ${toPlace.formatted_address}`);
         }
       });
@@ -106,6 +112,8 @@ const Pasajero = () => {
     const payload = {
       origin: fromCoordinates,
       destination: toCoordinates,
+      originAdress: desde,
+      destinationAdress: hasta,
     };
 
     console.log(`----- ${ JSON.stringify(payload)} ------- `);
