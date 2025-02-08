@@ -361,3 +361,24 @@ hr {
     height: 40vh;
   }
   
+
+  .close-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .close-button:hover {
+    background-color: darkred;
+  }
+  
