@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
-import Conductor from '../components/Conductor';
-import Pasajero from '../components/Pasajero';
+import Conductor from '../components/Taxis/Conductor';
+import Pasajero from '../components/Taxis/Pasajero';
 
 const TaxisRoute = () => {
     const [activeTab, setActiveTab] = useState('pasajero');

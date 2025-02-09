@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/taxis.css';
+import '../../styles/taxis.css';
 
 let desde;
 let hasta;

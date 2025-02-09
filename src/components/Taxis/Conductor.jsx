@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
-import '../styles/taxis.css';
-import formaters from '../utils/formaters';
-import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../utils/mapUtils';
-import taxiIcon from '../assets/taxi_marker.png';
+import '../../styles/taxis.css';
+import formaters from '../../utils/formaters';
+import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../../utils/mapUtils';
+import taxiIcon from '../../assets/taxi_marker.png';
 //desempaquetado de los formateadores
-import UserLocation from './UserLocation'
+import UserLocation from '../UserLocation'
 const { formatTime, formatPrice } = formaters;
 
 const Conductor = () => {
