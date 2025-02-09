@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
 import '../styles/taxis.css';
 import formaters from '../utils/formaters';
+import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections } from '../utils/mapUtils';
 import taxiIcon from '../assets/taxi_marker.png';
 //desempaquetado de los formateadores
 import UserLocation from './UserLocation'
@@ -25,22 +26,7 @@ const Conductor = () => {
   const pickupMarkerRef = useRef(null);
 
   useEffect(() => {
-    if (window.google) {
-      setGoogleMapsLoaded(true);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_PLACES_KEY}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setGoogleMapsLoaded(true);
-    script.onerror = (error) => {
-      console.error('Error al cargar Google Maps API:', error);
-    };
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
+    return loadGoogleMaps(setGoogleMapsLoaded);
   }, []);
 
   // Inicializar el mapa y guardarlo en mapRef.current
@@ -53,11 +39,11 @@ const Conductor = () => {
 
       const fromMarker = new window.google.maps.Marker({
         map: mapRef.current,
-        position: zocaloCoords,
+        position: userCoords,
       });
 
     }
-  }, [googleMapsLoaded, zocaloCoords]);
+  }, [googleMapsLoaded, userCoords]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -101,6 +87,61 @@ const Conductor = () => {
     };
   }, [userId]);
 
+  //pinta la ruta para el viaje consultado
+  useEffect(() => {
+    if (
+      acceptedTravel !== null &&
+      googleMapsLoaded &&
+      window.google &&
+      mapRef.current
+    ) {
+      const travel = travelData[acceptedTravel];
+      if (
+        travel &&
+        travel.originAdress &&
+        travel.destinationAdress &&
+        travel.destinationAdress !== "sin datos"
+      ) {
+        const directionsService = new window.google.maps.DirectionsService();
+  
+        // Crear el DirectionsRenderer si aún no existe
+        if (!directionsRendererRef.current) {
+          directionsRendererRef.current = createDirectionsRenderer(mapRef);
+        }
+  
+        // Llamamos a getDirections pasando también pickupMarkerRef
+        getDirections(
+          travel.originAdress,
+          travel.destinationAdress,
+          directionsService,
+          directionsRendererRef,
+          mapRef,
+          pickupMarkerRef
+        );
+      }
+    } else {
+      // Si no hay viaje seleccionado, quitar la ruta y el marcador del mapa
+      if (directionsRendererRef.current) {
+        directionsRendererRef.current.setMap(null);
+        directionsRendererRef.current = null;
+      }
+      if (pickupMarkerRef.current) {
+        pickupMarkerRef.current.setMap(null);
+        pickupMarkerRef.current = null;
+      }
+    }
+  }, [acceptedTravel, googleMapsLoaded, travelData]);
+
+  
+  //inicialización del mapa
+  useEffect(() => {
+    if (googleMapsLoaded && window.google && mapRef.current) {
+        initializeMap(mapRef, userCoords);
+        addTaxiMarker(mapRef, userCoords, taxiIcon);
+    }
+  }, [googleMapsLoaded, userCoords]);
+
+  
   // Al hacer click en la card (envuelta en <a>) se guarda el índice del viaje seleccionado
   const handleTravelCardClick = (index) => {
     console.log('Datos del viaje:', travelData[index]);
@@ -116,81 +157,6 @@ const Conductor = () => {
   const handleBackButtonClick = () => {
     setAcceptedTravel(null);
   };
-
-  // UseEffect para pintar la ruta y agregar el marcador de recogida en el mapa
-  useEffect(() => {
-    if (acceptedTravel !== null && googleMapsLoaded && window.google && mapRef.current) {
-      const travel = travelData[acceptedTravel];
-      if (travel && travel.originAdress && travel.destinationAdress && travel.destinationAdress !== 'sin datos') {
-        const directionsService = new window.google.maps.DirectionsService();
-        if (!directionsRendererRef.current) {
-          directionsRendererRef.current = new window.google.maps.DirectionsRenderer();
-        }
-        directionsRendererRef.current.setMap(mapRef.current);
-        directionsService.route({
-          origin: travel.originAdress,
-          destination: travel.destinationAdress,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        }, (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK) {
-            directionsRendererRef.current.setDirections(result);
-            // Agregar marcador en el punto de recogida (start_location de la ruta)
-            const startLocation = result.routes[0].legs[0].start_location;
-            if (!pickupMarkerRef.current) {
-              pickupMarkerRef.current = new window.google.maps.Marker({
-                position: startLocation,
-                map: mapRef.current,
-                title: "Punto de recogida",
-              });
-            } else {
-              pickupMarkerRef.current.setPosition(startLocation);
-              pickupMarkerRef.current.setMap(mapRef.current);
-            }
-          } else {
-            console.error('Error fetching directions', result);
-          }
-        });
-      }
-    } else {
-      // Si no hay viaje seleccionado, quitar la ruta y el marcador del mapa
-      if (directionsRendererRef.current) {
-        directionsRendererRef.current.setMap(null);
-        directionsRendererRef.current = null;
-      }
-      if (pickupMarkerRef.current) {
-        pickupMarkerRef.current.setMap(null);
-        pickupMarkerRef.current = null;
-      }
-    }
-  }, [acceptedTravel, googleMapsLoaded, travelData]);
-
-/*   useEffect(() => {
-    if (mapRef.current && userCoords) {
-      mapRef.current.setCenter(userCoords);
-      
-    }
-  }, [userCoords]); */
-  
-  useEffect(() => {
-    if (googleMapsLoaded && window.google && mapRef.current) {
-
-        // Centrar y hacer zoom en el mapa
-        mapRef.current.setCenter(userCoords);
-        mapRef.current.setZoom(14.5); // Ajusta el nivel de zoom
-
-        // Crear el marcador del taxi
-        const userMarker = new window.google.maps.Marker({
-            map: mapRef.current,
-            position: userCoords,
-            icon: {
-                url: taxiIcon,
-                scaledSize: new window.google.maps.Size(32, 32),
-            },
-        });
-
-    }
-  }, [googleMapsLoaded, userCoords]);
-
 
   return (
     <div className="conductor-layout">
