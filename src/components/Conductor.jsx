@@ -232,43 +232,59 @@ const Conductor = () => {
                 onClick={(e) => e.preventDefault()}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <div className="travel-container">
-                  <button
-                    className="close-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCloseButtonClick(acceptedTravel);
-                    }}
-                  >
-                    ✖
-                  </button>
-                  <div className="travel-header">
-                    <div className="travel-info-container">
-                      <div className="travel-row">
-                        <p className="travel-label"><strong>De:</strong></p>
-                        <p className="travel-info">{travelData[acceptedTravel].originAdress}</p>
+                
+                {travelData[acceptedTravel] ? (
+                  <div className="travel-container">
+                    <button
+                      className="close-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCloseButtonClick(acceptedTravel);
+                      }}
+                    >
+                      ✖
+                    </button>
+                    <div className="travel-header">
+                      <div className="travel-info-container">
+                        <div className="travel-row">
+                          <p className="travel-label"><strong>De:</strong></p>
+                          <p className="travel-info">
+                            {travelData[acceptedTravel]?.originAdress || 'Dirección no disponible'}
+                          </p>
+                        </div>
+                        <div className="travel-row">
+                          <p className="travel-label"><strong>A:</strong></p>
+                          <p className="travel-info">
+                            {travelData[acceptedTravel]?.destinationAdress || 'sin datos'}
+                          </p>
+
+                        </div>
                       </div>
-                      <div className="travel-row">
-                        <p className="travel-label"><strong>A:</strong></p>
-                        <p className="travel-info">{travelData[acceptedTravel].destinationAdress || 'sin datos'}</p>
+                      <div className="travel-price">
+                        <span className="price-amount">
+                          $ {formatPrice(travelData[acceptedTravel]?.price, 'enteros') || '0'}
+                          <sup>{formatPrice(travelData[acceptedTravel]?.price, 'decimales') || '00'}</sup>
+                        </span>
+                        <span className="travel-distance">
+                          {(travelData[acceptedTravel]?.totalDistance / 1000)?.toFixed(2) || '0.00'} km – {formatTime(travelData[acceptedTravel]?.totalTime) || '0'} min
+                        </span>
+                        <span className="travel-time">
+                          {travelData[acceptedTravel]?.totalTime || '0'}
+                        </span>
                       </div>
+
                     </div>
-                    <div className="travel-price">
-                      <span className="price-amount">
-                        $ {formatPrice(travelData[acceptedTravel].price, 'enteros')}
-                        <sup>{formatPrice(travelData[acceptedTravel].price, 'decimales')}</sup>
-                      </span>
-                      <span className="travel-distance">
-                        {(travelData[acceptedTravel].totalDistance / 1000).toFixed(2)} km – {formatTime(travelData[acceptedTravel].totalTime)} min
-                      </span>
-                      <span className="travel-time">{travelData[acceptedTravel].totalTime}</span>
+                    <div className="travel-buttons">
+                      <button className="change-button">✏️ Cambiar</button>
+                      <button className="accept-button">➕ Aceptar Viaje</button>
                     </div>
                   </div>
-                  <div className="travel-buttons">
-                    <button className="change-button">✏️ Cambiar</button>
-                    <button className="accept-button">➕ Aceptar Viaje</button>
-                  </div>
-                </div>
+                  
+                  
+                    ):(<div></div>)}
+
+
+
               </a>
               <button className="back-button" onClick={handleBackButtonClick}>🔙 Atrás</button>
             </div>
