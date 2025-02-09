@@ -40,6 +40,10 @@ const Conductor = () => {
       const fromMarker = new window.google.maps.Marker({
         map: mapRef.current,
         position: userCoords,
+        icon: {
+          url: '../assets/taxi_marker.png',
+          scaledSize: new window.google.maps.Size(54,54 ),
+        },
       });
 
     }
