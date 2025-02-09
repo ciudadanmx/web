@@ -1,24 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
 import '../styles/taxis.css';
-
-function formatTime(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${minutes}`; // Formato mm:ss
-}
-
-function formatPrice(price, type) {
-  const priceFormatted = parseFloat(price).toFixed(2);
-  const [integerPart, decimalPart] = priceFormatted.split('.');
-  
-  if (type === 'enteros') return integerPart;
-  if (type === 'decimales') return decimalPart;
-  
-  return priceFormatted;
-}
+import formaters from '../utils/formaters';
+//desempaquetado de los formateadores
+import UserLocation from './UserLocation'
+const { formatTime, formatPrice } = formaters;
 
 const Conductor = () => {
   const { user, isAuthenticated } = useAuth0();
@@ -28,6 +16,11 @@ const Conductor = () => {
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [acceptedTravel, setAcceptedTravel] = useState(null);
   const zocaloCoords = { lat: 19.432607, lng: -99.133209 };
+
+  // Refs para el mapa, DirectionsRenderer y el marcador de recogida
+  const mapRef = useRef(null);
+  const directionsRendererRef = useRef(null);
+  const pickupMarkerRef = useRef(null);
 
   useEffect(() => {
     if (window.google) {
@@ -48,9 +41,10 @@ const Conductor = () => {
     };
   }, []);
 
+  // Inicializar el mapa y guardarlo en mapRef.current
   useEffect(() => {
     if (googleMapsLoaded && window.google) {
-      new window.google.maps.Map(document.getElementById('map'), {
+      mapRef.current = new window.google.maps.Map(document.getElementById('map'), {
         center: zocaloCoords,
         zoom: 17,
       });
@@ -110,10 +104,64 @@ const Conductor = () => {
     setTravelData((prevData) => prevData.filter((_, i) => i !== index));
   };
 
-  // El botón Atrás vuelve a mostrar la lista de viajes
+  // El botón Atrás vuelve a mostrar la lista de viajes y limpia la ruta del mapa
   const handleBackButtonClick = () => {
     setAcceptedTravel(null);
   };
+
+  // UseEffect para pintar la ruta y agregar el marcador de recogida en el mapa
+  useEffect(() => {
+    if (acceptedTravel !== null && googleMapsLoaded && window.google && mapRef.current) {
+      const travel = travelData[acceptedTravel];
+      if (travel && travel.originAdress && travel.destinationAdress && travel.destinationAdress !== 'sin datos') {
+        const directionsService = new window.google.maps.DirectionsService();
+        if (!directionsRendererRef.current) {
+          directionsRendererRef.current = new window.google.maps.DirectionsRenderer();
+        }
+        directionsRendererRef.current.setMap(mapRef.current);
+        directionsService.route({
+          origin: travel.originAdress,
+          destination: travel.destinationAdress,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        }, (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            directionsRendererRef.current.setDirections(result);
+            // Agregar marcador en el punto de recogida (start_location de la ruta)
+            const startLocation = result.routes[0].legs[0].start_location;
+            if (!pickupMarkerRef.current) {
+              pickupMarkerRef.current = new window.google.maps.Marker({
+                position: startLocation,
+                map: mapRef.current,
+                title: "Punto de recogida",
+              });
+            } else {
+              pickupMarkerRef.current.setPosition(startLocation);
+              pickupMarkerRef.current.setMap(mapRef.current);
+            }
+          } else {
+            console.error('Error fetching directions', result);
+          }
+        });
+      }
+    } else {
+      // Si no hay viaje seleccionado, quitar la ruta y el marcador del mapa
+      if (directionsRendererRef.current) {
+        directionsRendererRef.current.setMap(null);
+        directionsRendererRef.current = null;
+      }
+      if (pickupMarkerRef.current) {
+        pickupMarkerRef.current.setMap(null);
+        pickupMarkerRef.current = null;
+      }
+    }
+  }, [acceptedTravel, googleMapsLoaded, travelData]);
+
+  // Actualizar el centro del mapa con la ubicación del usuario (obtenida desde UserLocation)
+  useEffect(() => {
+    if (mapRef.current && window.google) {
+      mapRef.current.setCenter(zocaloCoords);
+    }
+  }, [zocaloCoords]);
 
   return (
     <div className="conductor-layout">
