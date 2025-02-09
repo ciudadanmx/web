@@ -4,7 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
 import '../styles/taxis.css';
 import formaters from '../utils/formaters';
-import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections } from '../utils/mapUtils';
+import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../utils/mapUtils';
 import taxiIcon from '../assets/taxi_marker.png';
 //desempaquetado de los formateadores
 import UserLocation from './UserLocation'
@@ -129,6 +129,8 @@ const Conductor = () => {
         pickupMarkerRef.current.setMap(null);
         pickupMarkerRef.current = null;
       }
+
+      resetMapZoom(mapRef, 14);
     }
   }, [acceptedTravel, googleMapsLoaded, travelData]);
 
