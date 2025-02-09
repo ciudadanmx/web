@@ -16,6 +16,7 @@ const Conductor = () => {
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [acceptedTravel, setAcceptedTravel] = useState(null);
   const zocaloCoords = { lat: 19.432607, lng: -99.133209 };
+  const [userCoords, setUserCoords] = useState(null);
 
   // Refs para el mapa, DirectionsRenderer y el marcador de recogida
   const mapRef = useRef(null);
@@ -156,15 +157,18 @@ const Conductor = () => {
     }
   }, [acceptedTravel, googleMapsLoaded, travelData]);
 
-  // Actualizar el centro del mapa con la ubicación del usuario (obtenida desde UserLocation)
   useEffect(() => {
-    if (mapRef.current && window.google) {
-      mapRef.current.setCenter(zocaloCoords);
+    if (mapRef.current && userCoords) {
+      mapRef.current.setCenter(userCoords);
     }
-  }, [zocaloCoords]);
+  }, [userCoords]);
+  
 
   return (
     <div className="conductor-layout">
+      {googleMapsLoaded && mapRef.current && (
+        <UserLocation onLocation={setUserCoords} map={mapRef.current} />
+      )}
       {isWaiting ? (
         <div>
           <p>Esperando viajes...</p>
