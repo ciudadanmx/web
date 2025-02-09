@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
 import '../styles/taxis.css';
 import formaters from '../utils/formaters';
+import taxiIcon from '../assets/taxi_marker.png';
 //desempaquetado de los formateadores
 import UserLocation from './UserLocation'
 const { formatTime, formatPrice } = formaters;
@@ -47,8 +48,14 @@ const Conductor = () => {
     if (googleMapsLoaded && window.google) {
       mapRef.current = new window.google.maps.Map(document.getElementById('map'), {
         center: zocaloCoords,
-        zoom: 17,
+        zoom: 14,
       });
+
+      const fromMarker = new window.google.maps.Marker({
+        map: mapRef.current,
+        position: zocaloCoords,
+      });
+
     }
   }, [googleMapsLoaded, zocaloCoords]);
 
@@ -157,12 +164,33 @@ const Conductor = () => {
     }
   }, [acceptedTravel, googleMapsLoaded, travelData]);
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (mapRef.current && userCoords) {
       mapRef.current.setCenter(userCoords);
+      
     }
-  }, [userCoords]);
+  }, [userCoords]); */
   
+  useEffect(() => {
+    if (googleMapsLoaded && window.google && mapRef.current) {
+
+        // Centrar y hacer zoom en el mapa
+        mapRef.current.setCenter(userCoords);
+        mapRef.current.setZoom(14.5); // Ajusta el nivel de zoom
+
+        // Crear el marcador del taxi
+        const userMarker = new window.google.maps.Marker({
+            map: mapRef.current,
+            position: userCoords,
+            icon: {
+                url: taxiIcon,
+                scaledSize: new window.google.maps.Size(32, 32),
+            },
+        });
+
+    }
+  }, [googleMapsLoaded, userCoords]);
+
 
   return (
     <div className="conductor-layout">
