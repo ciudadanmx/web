@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { IoIosNotifications } from "react-icons/io";
+//import { IoIosNotifications } from "react-icons/io";
+import { AiFillMessage } from "react-icons/ai";
+//import { SiGoogletasks } from "react-icons/si";
 import MessagesMenu from './MessagesMenu.jsx';
 import axios from 'axios';
 import '../styles/MessagesIcon.css';
@@ -40,7 +42,7 @@ const MessagesIcon =  () => {
     if (loading) {
         return (
             <div className="message-icon-container" onClick={toggleMenu}>
-                <IoIosNotifications className="message-icon" />
+                <AiFillMessage className="message-icon-small" />
                 <span className="message-count">..</span>
             </div>
         );
@@ -49,7 +51,7 @@ const MessagesIcon =  () => {
     if (error) {
         return (
             <div className="message-icon-container" onClick={toggleMenu}>
-                <IoIosNotifications className="message-icon" />
+                <AiFillMessage className="message-icon-small" />
                 <span className="message-count">**</span>
             </div>
         );
@@ -57,7 +59,7 @@ const MessagesIcon =  () => {
 
     return (
         <div className="message-icon-container" onClick={toggleMenu}>
-            <IoIosNotifications className="message-icon" />
+            <AiFillMessage className="message-icon-small" />
             {messageCount > 0 && <span className="message-count">{messageCount}</span>}
             <MessagesMenu 
                 isOpen={isMenuOpen} 

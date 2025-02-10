@@ -48,6 +48,9 @@ const MessagesMenu = ({ isOpen, onClose, onLogout }) => {
 
   return (
     <div className={`message-menu ${isOpen ? 'open' : 'closed'}`}>
+      <div>
+        y acá va a ir el menú
+      </div>
       <ul>
         {messages.length > 0 ? (
           messages.map((message) => (

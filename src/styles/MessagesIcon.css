@@ -7,8 +7,15 @@
   .message-icon {
     font-size: 36px; /* Ajusta el tamaño del ícono según tus necesidades */
     color: #000; /* Color del ícono */
+    z-index: 999999 !important;
   }
   
+  .message-icon-small {
+    font-size: 33px; /* Ajusta el tamaño del ícono según tus necesidades */
+    color: #000; /* Color del ícono */
+    z-index: 999999 !important;
+  }
+
   .message-count {
     position: absolute;
     top: -8px; /* Ajusta la posición vertical del contador */

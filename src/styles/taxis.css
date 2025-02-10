@@ -223,7 +223,7 @@ hr {
     color: #555;
   }
   
-  
+
   .travel-buttons {
     position: absolute;
     bottom: -10px;
@@ -353,5 +353,6 @@ hr {
   }
   
   .creciente {
-    overflow-y: scroll;
+    height: 100%;
+    overflow-y: auto;
   }

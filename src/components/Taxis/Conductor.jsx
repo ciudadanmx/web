@@ -18,7 +18,7 @@ const Conductor = () => {
   const [travelData, setTravelData] = useState([]);
   const [userId, setUserId] = useState(null);
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
-  const [acceptedTravel, setAcceptedTravel] = useState(null);
+  const [consultedTravel, setConsultedTravel] = useState(null);
   const zocaloCoords = { lat: 19.432607, lng: -99.133209 };
   const [userCoords, setUserCoords] = useState(null);
 
@@ -98,18 +98,20 @@ const Conductor = () => {
   //pinta la ruta para el viaje consultado
   useEffect(() => {
     if (
-      acceptedTravel !== null &&
+      consultedTravel !== null &&
       googleMapsLoaded &&
       window.google &&
       mapRef.current
     ) {
-      const travel = travelData[acceptedTravel];
+      const travel = travelData[consultedTravel];
       if (
         travel &&
         travel.originAdress &&
         travel.destinationAdress &&
         travel.destinationAdress !== "sin datos"
       ) {
+        console.log('********************');
+        console.log(travel.route);
         const directionsService = new window.google.maps.DirectionsService();
   
         // Crear el DirectionsRenderer si aún no existe
@@ -140,7 +142,7 @@ const Conductor = () => {
 
       resetMapZoom(mapRef, 14);
     }
-  }, [acceptedTravel, googleMapsLoaded, travelData]);
+  }, [consultedTravel, googleMapsLoaded, travelData]);
 
   
   //inicialización del mapa
@@ -155,7 +157,7 @@ const Conductor = () => {
   // Al hacer click en la card (envuelta en <a>) se guarda el índice del viaje seleccionado
   const handleTravelCardClick = (index) => {
     console.log('Datos del viaje:', travelData[index]);
-    setAcceptedTravel(index);
+    setConsultedTravel(index);
   };
 
   // El botón cerrar elimina la card de la lista
@@ -165,7 +167,7 @@ const Conductor = () => {
 
   // El botón Atrás vuelve a mostrar la lista de viajes y limpia la ruta del mapa
   const handleBackButtonClick = () => {
-    setAcceptedTravel(null);
+    setConsultedTravel(null);
   };
 
   // Aquí agregamos el cronómetro que muestra hace cuantos minutos y segundos se solicitó el viaje
@@ -195,7 +197,8 @@ const Conductor = () => {
   };
 
   return (
-    <div className="conductor-layout" classname="creciente" >
+    <div className="creciente">
+    <div className="conductor-layout">
       {googleMapsLoaded && mapRef.current && (
         <UserLocation onLocation={setUserCoords} map={mapRef.current} />
       )}
@@ -205,7 +208,7 @@ const Conductor = () => {
         </div>
       ) : (
         <div className="travel-list">
-          {acceptedTravel === null ? (
+          {consultedTravel === null ? (
             travelData.map((travel, index) => (
               <a
                 href="#"
@@ -265,13 +268,13 @@ const Conductor = () => {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 
-                {travelData[acceptedTravel] ? (
+                {travelData[consultedTravel] ? (
                   <div className="travel-container">
                     <button
                       className="close-button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCloseButtonClick(acceptedTravel);
+                        handleCloseButtonClick(consultedTravel);
                       }}
                     >
                       ✖
@@ -281,27 +284,27 @@ const Conductor = () => {
                         <div className="travel-row">
                           <p className="travel-label"><strong>De:</strong></p>
                           <p className="travel-info">
-                            {travelData[acceptedTravel]?.originAdress || 'Dirección no disponible'}
+                            {travelData[consultedTravel]?.originAdress || 'Dirección no disponible'}
                           </p>
                         </div>
                         <div className="travel-row">
                           <p className="travel-label"><strong>A:</strong></p>
                           <p className="travel-info">
-                            {travelData[acceptedTravel]?.destinationAdress || 'sin datos'}
+                            {travelData[consultedTravel]?.destinationAdress || 'sin datos'}
                           </p>
 
                         </div>
                       </div>
                       <div className="travel-price">
                         <span className="price-amount">
-                          $ {formatPrice(travelData[acceptedTravel]?.price, 'enteros') || '0'}
-                          <sup>{formatPrice(travelData[acceptedTravel]?.price, 'decimales') || '00'}</sup>
+                          $ {formatPrice(travelData[consultedTravel]?.price, 'enteros') || '0'}
+                          <sup>{formatPrice(travelData[consultedTravel]?.price, 'decimales') || '00'}</sup>
                         </span>
                         <span className="travel-distance">
-                          {(travelData[acceptedTravel]?.totalDistance / 1000)?.toFixed(2) || '0.00'} km – {formatTime(travelData[acceptedTravel]?.totalTime) || '0'} min
+                          {(travelData[consultedTravel]?.totalDistance / 1000)?.toFixed(2) || '0.00'} km – {formatTime(travelData[consultedTravel]?.totalTime) || '0'} min
                         </span>
                         <span className="travel-time">
-                          {travelData[acceptedTravel]?.totalTime || '0'}
+                          {travelData[consultedTravel]?.totalTime || '0'}
                         </span>
                       </div>
 
@@ -326,6 +329,7 @@ const Conductor = () => {
       <div className="taxis-map">
         <div id="map" style={{ width: '100%', height: '100%' }}></div>
       </div>
+    </div>
     </div>
   );
 };

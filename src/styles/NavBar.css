@@ -27,9 +27,9 @@
     display: none;
   }
   .boton-busca {
-    position: absolute;
+    position:static;
     margin-left: -23px;
-    margin-right: -63%;
+    margin-right: -13%;
     font-size: 33px; /* Tamaño del icono */
     display: inline-flex;
     justify-content: center;
@@ -266,7 +266,7 @@
       margin-right: 0px;
     }
   
-    .boton-ia {
+    .boton-busca {
       font-size: 21px; /* Tamaño del icono */
       width: 30px; /* Ajusta el tamaño del botón */
       height: 30px; /* Ajusta el tamaño del botón */
