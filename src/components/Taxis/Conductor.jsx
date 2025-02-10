@@ -4,11 +4,13 @@ import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
 import '../../styles/taxis.css';
 import formaters from '../../utils/formaters';
+import minutesSince from '../../utils/timeSince'
 import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../../utils/mapUtils';
 import taxiIcon from '../../assets/taxi_marker.png';
 //desempaquetado de los formateadores
 import UserLocation from '../UserLocation'
 const { formatTime, formatPrice } = formaters;
+
 
 const Conductor = () => {
   const { user, isAuthenticated } = useAuth0();
@@ -77,11 +79,13 @@ const Conductor = () => {
     const socket = io(process.env.REACT_APP_SOCKET_URL);
     if (userId) {
       console.log('Estableciendo conexión con el socket...');
-      socket.on('mensajeConductor', (data) => {
+      socket.on('trip-request', (data) => {
         console.log('Evento de solicitud recibido: ', data);
         if (data.driverId === userId) {
           setIsWaiting(false);
           setTravelData((prevTravelData) => [...prevTravelData, data]);
+          const minutosTranscurridos = minutesSince.getMinutesSince(data.requestTime, 'cdmx');
+          console.log(`Han pasado ${minutosTranscurridos} minutos.`);   
         }
       });
     }
@@ -164,8 +168,34 @@ const Conductor = () => {
     setAcceptedTravel(null);
   };
 
+  // Aquí agregamos el cronómetro que muestra hace cuantos minutos y segundos se solicitó el viaje
+  const ElapsedTimer = ({ startTime }) => {
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const start = new Date(startTime);
+        const diffSeconds = Math.floor((now - start) / 1000);
+        setElapsedSeconds(diffSeconds);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, [startTime]);
+
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+
+    return (
+      <span>
+        {minutes}:{seconds < 10 ? '0' : ''}
+        {seconds}
+      </span>
+    );
+  };
+
   return (
-    <div className="conductor-layout">
+    <div className="conductor-layout" classname="creciente" >
       {googleMapsLoaded && mapRef.current && (
         <UserLocation onLocation={setUserCoords} map={mapRef.current} />
       )}
@@ -209,13 +239,15 @@ const Conductor = () => {
                     </div>
                     <div className="travel-price">
                       <span className="price-amount">
-                        $ {formatPrice(travel.price, 'enteros')}
+                        $ {formatPrice(travel.price, 'enteros')}. 
                         <sup>{formatPrice(travel.price, 'decimales')}</sup>
                       </span>
                       <span className="travel-distance">
                         {(travel.totalDistance / 1000).toFixed(2)} km – {formatTime(travel.totalTime)} min
                       </span>
-                      <span className="travel-time">{travel.totalTime}</span>
+                      <span className="travel-time">
+                        <ElapsedTimer startTime={travel.requestTime} />
+                      </span>
                     </div>
                   </div>
                   <div className="travel-buttons">

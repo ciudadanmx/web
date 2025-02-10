@@ -23,17 +23,6 @@
     font-Family: Arial, sans-serif;
 }
 
-.taxis-map {
-    width: 100%;
-    height: 60vh;
-    margin-bottom: 20px;
-}
-
-
-
-.separador-final {
-    height: 200px;
-}
 
 .formulario-pasajero {
     display: flex; /* Cambié flexbox a flex */
@@ -47,9 +36,6 @@
 
     display: none;
 }
-
-
-
 
 .pasajero-origen {
     position: relative;
@@ -92,14 +78,17 @@
 }
 
 
-
 .travel-container {
-  background-color: #f5ffba;
-  border: 2px solid #ffd700;
-  border-radius: 10px;
-  padding: 15px;
-  max-width: 400px;
-  position: relative;
+    background-color: #f5ffba;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 15px;
+    width: 100vh;
+    max-width: 90%;
+    position: relative;
+    margin: 20px 0; /* Alineado a la izquierda */
+    display: flex;
+    flex-direction: column;
 }
 
 .travel-details {
@@ -148,12 +137,6 @@ hr {
   color: #555;
 }
 
-.travel-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
 .change-button, .accept-button {
   padding: 8px 12px;
   border: none;
@@ -187,29 +170,7 @@ hr {
   background-color: #fdd835;
 }
 
-.taxis-map {
-  margin-top: 20px;
-  width: 100%;
-  height: 250px;
-}
-
-
-
-
-
-.travel-container {
-    background-color: #f5ffba;
-    border: 2px solid #ffd700;
-    border-radius: 10px;
-    padding: 15px;
-    width: 100vh;
-    max-width: 90%;
-    position: relative;
-    margin: 20px 0; /* Alineado a la izquierda */
-    display: flex;
-    flex-direction: column;
-  }
-  
+ 
   .travel-header {
     display: flex;
     justify-content: space-between;
@@ -261,6 +222,7 @@ hr {
     font-style: italic;
     color: #555;
   }
+  
   
   .travel-buttons {
     position: absolute;
@@ -333,6 +295,14 @@ hr {
     width: 100%;
     height: 400px; /* Tamaño fijo para que siempre sea visible si bajas */
   }
+
+  .taxis-map {
+    margin-top: 20px;
+    width: 100%;
+    height: 250px;
+    margin-bottom: 20px;
+  }
+   
   
 
   html, body {
@@ -345,7 +315,7 @@ hr {
   .conductor-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Permite que el contenedor crezca más allá del viewport */
+    min-height: 100%; /* Permite que el contenedor crezca más allá del viewport */
   }
   
   .travel-list-container {
@@ -355,7 +325,7 @@ hr {
   }
   
   .taxis-map {
-    position: sticky; /* Hace que el mapa siempre esté en la parte inferior */
+    position: relative; /* Hace que el mapa siempre esté en la parte inferior */
     bottom: 0;
     width: 100%;
     height: 60vh;
@@ -382,3 +352,6 @@ hr {
     background-color: darkred;
   }
   
+  .creciente {
+    overflow-y: scroll;
+  }
