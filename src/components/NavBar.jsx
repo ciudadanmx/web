@@ -14,23 +14,25 @@ import MenuIcon from './MenuIcon';
 import MessagesIcon from './MessagesIcon.jsx';
 import NotificationsIcon from './NotificationsIcon';
 
-
 import '../styles/App.css';
 import '../styles/NavBar.css';
 import '../styles/CuentaIcon.css';
 import '../styles/AccountMenu.css';
 
+import { Link, useNavigate } from 'react-router-dom'; // Se agregó useNavigate junto con Link
 
 const NavBar = ({ SetIsMenuOpen }) => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const [isMenuOpen, setIsMenuOpen] = useState(SetIsMenuOpen || false);
+  const navigate = useNavigate(); // Se instancia el hook useNavigate
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // Ahora se utiliza navigate en lugar de window.location.href
   const handleNavigation = (path) => {
-    window.location.href = path;
+    navigate(path);
   };
 
   useEffect(() => {
@@ -116,7 +118,6 @@ const NavBar = ({ SetIsMenuOpen }) => {
             </div>
                 
 
-
             <div className="nav-linky">
                 <NotificationsIcon 
                     isOpen={isMenuOpen}
@@ -149,8 +150,8 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     <>
                     <div>Bienvenido, {user.name}
                         <ul>
-                            <li><a href="/cuenta" >Tu cuenta</a></li>
-                            <li><a href="/ayuda" >Ayuda</a></li>
+                            <li><Link to="/cuenta" >Tu cuenta</Link></li>
+                            <li><Link to="/ayuda" >Ayuda</Link></li>
                             <li><div  onClick={handleLogout}>Salir</div></li>
                         </ul>
                     </div>
@@ -158,7 +159,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     ) : (
                     <>
                     <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
-                    <a href="/ayuda" className="dropdown-item">Ayuda</a>
+                    <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
                     <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
                     </>
                     )}
@@ -204,19 +205,6 @@ const NavBar = ({ SetIsMenuOpen }) => {
             <span className="nav-text">Comunidad</span>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       <div className="auth-buttons">
         

@@ -14,10 +14,20 @@ import AcademiaRoute from './routes/AcademiaRoute';
 import ComunidadRoute from './routes/ComunidadRoute';
 import GenRoute from './routes/GenRoute';
 import OpWalletRoute from './routes/OpWalletRoute';
+import App from './App.js'
+//import Layout from './components/Layout'
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
 
+const Layout = () => {
+  return (
+    <>
+      <NavBar />
+      <App />
+    </>
+  );
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
