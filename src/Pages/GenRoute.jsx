@@ -1,5 +1,5 @@
 import React from 'react';
-import CrearBilleteraCentralWld from '../components/CrearBilleteraCentralWld';
+import CrearBilleteraCentralWld from '../components/Cartera/CrearBilleteraCentralWld';
 
 const GenRoute = () => {
   return (

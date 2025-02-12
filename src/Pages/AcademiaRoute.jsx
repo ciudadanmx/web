@@ -1,5 +1,5 @@
 import React from 'react';
-import Academia from '../components/Academia';
+import Academia from '../components/Academia/Academia';
 
 const AcademiaRoute = () => {
   return (

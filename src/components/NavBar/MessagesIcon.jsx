@@ -4,7 +4,7 @@ import { AiFillMessage } from "react-icons/ai";
 //import { SiGoogletasks } from "react-icons/si";
 import MessagesMenu from './MessagesMenu.jsx';
 import axios from 'axios';
-import '../styles/MessagesIcon.css';
+import '../../styles/MessagesIcon.css';
 import { useAuth0 } from '@auth0/auth0-react';
 
 const MessagesIcon =  () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Market.css';
+import '../../styles/Market.css';
 
 const categories = [
     { name: 'Electrónica', icon: '📱' },

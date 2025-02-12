@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Academia.css';
+import '../../styles/Academia.css';
 
 const Academia = () => {
   return (

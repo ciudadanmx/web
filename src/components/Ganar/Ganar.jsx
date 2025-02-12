@@ -1,23 +1,23 @@
 import React, { useContext, useEffect } from 'react';
-import '../styles/GanarConCiudadan.css';
-import { AuthProvider } from '../Contexts/AuthContext';
+import '../../styles/GanarConCiudadan.css';
+import { AuthProvider } from '../../Contexts/AuthContext';
 
 // Importa las imágenes
-import publicidad from '../assets/publicidad.png';
-import renta from '../assets/renta.png';
-import academicas from '../assets/academicas.png';
-import becas from '../assets/becas.png';
-import contenidos from '../assets/contenidos.png';
-import generales from '../assets/generales.png';
-import reciclando from '../assets/reciclando.png';
-import refiriendo from '../assets/refiriendo.png';
-import mxn from '../assets/mxn.png'; // Imágenes de monedas
-import labory from '../assets/labory.png'; // Imágenes de monedas
-import ensenando from '../assets/ensenando.png'; // Imágenes de monedas
-import taxis from '../assets/taxis.png'; // Imágenes de monedas
-import invirtiendo from '../assets/invirtiendo.png'; // Imágenes de monedas
-import agencia from '../assets/agencia.png'; // Imágenes de monedas
-import ciudadaneando from '../assets/ciudadaneando.png'; // Imágenes de monedas
+import publicidad from '../../assets/publicidad.png';
+import renta from '../../assets/renta.png';
+import academicas from '../../assets/academicas.png';
+import becas from '../../assets/becas.png';
+import contenidos from '../../assets/contenidos.png';
+import generales from '../../assets/generales.png';
+import reciclando from '../../assets/reciclando.png';
+import refiriendo from '../../assets/refiriendo.png';
+import mxn from '../../assets/mxn.png'; // Imágenes de monedas
+import labory from '../../assets/labory.png'; // Imágenes de monedas
+import ensenando from '../../assets/ensenando.png'; // Imágenes de monedas
+import taxis from '../../assets/taxis.png'; // Imágenes de monedas
+import invirtiendo from '../../assets/invirtiendo.png'; // Imágenes de monedas
+import agencia from '../../assets/agencia.png'; // Imágenes de monedas
+import ciudadaneando from '../../assets/ciudadaneando.png'; // Imágenes de monedas
 
 
 

@@ -8,7 +8,7 @@ import minutesSince from '../../utils/timeSince'
 import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../../utils/mapUtils';
 import taxiIcon from '../../assets/taxi_marker.png';
 //desempaquetado de los formateadores
-import UserLocation from '../UserLocation'
+import UserLocation from '../Usuarios/UserLocation'
 const { formatTime, formatPrice } = formaters;
 
 

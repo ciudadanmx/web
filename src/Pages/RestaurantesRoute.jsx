@@ -1,5 +1,5 @@
 import React from 'react';
-import Restaurantes from '../components/Restaurantes';
+import Restaurantes from '../components/Restaurantes/Restaurantes';
 
 const RestaurantesRoute = () => {
   return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Comunidad.css';
+import '../../styles/Comunidad.css';
 
 const Comunidad = () => {
   return (

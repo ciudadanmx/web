@@ -1,14 +1,14 @@
 import React from 'react';
-import '../styles/MenuMenu.css';
-import '../styles/AccountMenu.css';
-import wikiImage from '../assets/wikiciudadan.png'; 
-import quienesImage from '../assets/quienes.png'; 
-import blogImage from '../assets/blog.png'; 
-import whitePaperImage from '../assets/whitepaper.png'; 
-import tokensImage from '../assets/tokens.jpeg'; 
-import helpImage from '../assets/help.png'; 
-import contactImage from '../assets/contacto.jpeg'; 
-import VideosImage from '../assets/videos.png'; 
+import '../../styles/MenuMenu.css';
+import '../../styles/AccountMenu.css';
+import wikiImage from '../../assets/wikiciudadan.png'; 
+import quienesImage from '../../assets/quienes.png'; 
+import blogImage from '../../assets/blog.png'; 
+import whitePaperImage from '../../assets/whitepaper.png'; 
+import tokensImage from '../../assets/tokens.jpeg'; 
+import helpImage from '../../assets/help.png'; 
+import contactImage from '../../assets/contacto.jpeg'; 
+import VideosImage from '../../assets/videos.png'; 
 
 const MenuMenu = ({ isOpen, onClose }) => {
   const items = [

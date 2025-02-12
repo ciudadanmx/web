@@ -1,6 +1,6 @@
 //import React from 'react';
 
-import '../styles/AccountMenu.css';
+import '../../styles/AccountMenu.css';
 //import Sesion from './Sesion';
 //import { gapi } from 'gapi-script';
 import { useState, useEffect } from 'react';

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Restaurantes.css';
+import '../../styles/Restaurantes.css';
 
 const categories = [
     { name: 'Pizzas', icon: '🍕' },

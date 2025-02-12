@@ -1,5 +1,5 @@
 import React from 'react';
-import Comunidad from '../components/Comunidad';
+import Comunidad from '../components/Comunidad/Comunidad';
 
 const ComunidadRoute = () => {
   return (

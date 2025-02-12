@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import guestImage from '../assets/guest.png'; // Ajusta la ruta si es necesario
-import defaultProfileImage from '../assets/guest.png'; // Cambia esto si tienes una imagen predeterminada de perfil
-import { registerUserInStrapi, findUserInStrapi } from '../utils/strapiUserService';
+import guestImage from '../../assets/guest.png'; // Ajusta la ruta si es necesario
+import defaultProfileImage from '../../assets/guest.png'; // Cambia esto si tienes una imagen predeterminada de perfil
+import { registerUserInStrapi, findUserInStrapi } from '../../utils/strapiUserService.jsx';
 
 import { FaUniversity, FaDollarSign, FaWallet, FaCarSide, FaHamburger, FaStore } from 'react-icons/fa';
 import { AiOutlineApartment, AiFillApi, AiOutlineRobot } from "react-icons/ai";
 
-import BotonCircular from './BotonCircular.jsx';
+import BotonCircular from '../Usuarios/BotonCircular.jsx';
 
-import MenuIcon from './MenuIcon';
+import MenuIcon from './MenuIcon.jsx';
 
 import MessagesIcon from './MessagesIcon.jsx';
-import NotificationsIcon from './NotificationsIcon';
+import NotificationsIcon from './NotificationsIcon.jsx';
 
-import '../styles/App.css';
-import '../styles/NavBar.css';
-import '../styles/CuentaIcon.css';
-import '../styles/AccountMenu.css';
-import logo from '../assets/ciudadan_logo.png';
+import '../../styles/App.css';
+import '../../styles/NavBar.css';
+import '../../styles/CuentaIcon.css';
+import '../../styles/AccountMenu.css';
+import logo from '../../assets/ciudadan_logo.png';
 
 import { Link, useNavigate } from 'react-router-dom'; // Se agregó useNavigate junto con Link
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import Market from '../components/Market';
+import Market from '../components/Market/Market';
 
 const MarketRoute = () => {
   return (

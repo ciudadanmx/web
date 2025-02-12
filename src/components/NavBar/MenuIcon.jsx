@@ -4,9 +4,9 @@ import { TbHelpTriangleFilled } from "react-icons/tb";
 import MenuMenu from './MenuMenu';
 //import { gapi } from 'gapi-script';
 import { useAuth0 } from '@auth0/auth0-react';
-import { AuthProvider } from '../Contexts/AuthContext'; // Importa el contexto
+import { AuthProvider } from '../../Contexts/AuthContext'; // Importa el contexto
 
-import '../styles/MessagesIcon.css';
+import '../../styles/MessagesIcon.css';
  
 
 const MenuIcon = ({ count = 0 }) => {
