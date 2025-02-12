@@ -18,6 +18,7 @@ import '../styles/App.css';
 import '../styles/NavBar.css';
 import '../styles/CuentaIcon.css';
 import '../styles/AccountMenu.css';
+import logo from '../assets/ciudadan_logo.png';
 
 import { Link, useNavigate } from 'react-router-dom'; // Se agregó useNavigate junto con Link
 
@@ -73,12 +74,14 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
   return (
     <>
+    <a name="inicio"></a>
     <div className="navbar">
         <div className="nav-links">
 
             <div className="logo">
-                <img src="/ciudadan_logo.png" alt="Ciudadan Logo" className="logo-img" />
+            <a href="#inicio" onClick={() => handleNavigation('/')}> <img src={logo} alt="Ciudadan Logo" className="logo-img" onClick={() => handleNavigation('/')} /></a>
             </div>
+            
 
 
 
@@ -148,12 +151,12 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     <div className="account-menu.open">
                     {isAuthenticated ? (
                     <>
-                    <div>Bienvenido, {user.name}
-                        <ul>
-                            <li><Link to="/cuenta" >Tu cuenta</Link></li>
-                            <li><Link to="/ayuda" >Ayuda</Link></li>
-                            <li><div  onClick={handleLogout}>Salir</div></li>
-                        </ul>
+                    <div><div className="dropdown-item">Bienvenido, {user.name}</div>
+                        
+                            <div className="dropdown-item"><Link to="/cuenta" >Tu cuenta</Link></div>
+                            <div className="dropdown-item"><Link to="/ayuda" >Ayuda</Link></div>
+                            <div className="dropdown-item"  onClick={handleLogout}>Salir</div>
+                        
                     </div>
                     </>
                     ) : (
