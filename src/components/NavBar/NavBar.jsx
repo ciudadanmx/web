@@ -2,23 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import guestImage from '../../assets/guest.png'; // Ajusta la ruta si es necesario
 import defaultProfileImage from '../../assets/guest.png'; // Cambia esto si tienes una imagen predeterminada de perfil
-import { registerUserInStrapi, findUserInStrapi } from '../../utils/strapiUserService.jsx';
+import { registerUserInStrapi, findUserInStrapi } from '../../utils/strapiUserService';
 
 import { FaUniversity, FaDollarSign, FaWallet, FaCarSide, FaHamburger, FaStore } from 'react-icons/fa';
 import { AiOutlineApartment, AiFillApi, AiOutlineRobot } from "react-icons/ai";
 
-import BotonCircular from '../Usuarios/BotonCircular.jsx';
+import BotonCircular from './../Usuarios/BotonCircular.jsx';
 
-import MenuIcon from './MenuIcon.jsx';
+import MenuIcon from './MenuIcon';
 
-import MessagesIcon from './MessagesIcon.jsx';
-import NotificationsIcon from './NotificationsIcon.jsx';
+import MessagesIcon from './MessagesIcon';
+import NotificationsIcon from './NotificationsIcon';
 
 import '../../styles/App.css';
 import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
-import logo from '../../assets/ciudadan_logo.png';
 
 import { Link, useNavigate } from 'react-router-dom'; // Se agregó useNavigate junto con Link
 
@@ -27,13 +26,25 @@ const NavBar = ({ SetIsMenuOpen }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(SetIsMenuOpen || false);
   const navigate = useNavigate(); // Se instancia el hook useNavigate
 
+  // Estados para llevar la cuenta de la ruta y repeticiones (routeRepeat)
+  const [lastRoute, setLastRoute] = useState('');
+  const [routeRepeat, setRouteRepeat] = useState(0);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Ahora se utiliza navigate en lugar de window.location.href
+  // Ahora se utiliza useNavigate y se cuenta la repetición de la ruta (routeRepeat)
   const handleNavigation = (path) => {
-    navigate(path);
+    if (path === lastRoute) {
+      const newRepeat = routeRepeat + 1;
+      setRouteRepeat(newRepeat);
+      navigate(path, { state: { routeRepeat: newRepeat } });
+    } else {
+      setLastRoute(path);
+      setRouteRepeat(0);
+      navigate(path, { state: { routeRepeat: 0 } });
+    }
   };
 
   useEffect(() => {
@@ -74,14 +85,12 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
   return (
     <>
-    <a name="inicio"></a>
     <div className="navbar">
         <div className="nav-links">
 
             <div className="logo">
-            <a href="#inicio" onClick={() => handleNavigation('/')}> <img src={logo} alt="Ciudadan Logo" className="logo-img" onClick={() => handleNavigation('/')} /></a>
+                <img src="/ciudadan_logo.png" alt="Ciudadan Logo" className="logo-img" />
             </div>
-            
 
 
 
@@ -151,12 +160,12 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     <div className="account-menu.open">
                     {isAuthenticated ? (
                     <>
-                    <div><div className="dropdown-item">Bienvenido, {user.name}</div>
-                        
-                            <div className="dropdown-item"><Link to="/cuenta" >Tu cuenta</Link></div>
-                            <div className="dropdown-item"><Link to="/ayuda" >Ayuda</Link></div>
-                            <div className="dropdown-item"  onClick={handleLogout}>Salir</div>
-                        
+                    <div>Bienvenido, {user.name}
+                        <ul>
+                            <li><Link to="/cuenta" >Tu cuenta</Link></li>
+                            <li><Link to="/ayuda" >Ayuda</Link></li>
+                            <li><div  onClick={handleLogout}>Salir</div></li>
+                        </ul>
                     </div>
                     </>
                     ) : (

@@ -14,6 +14,7 @@ import AcademiaRoute from './Pages/AcademiaRoute';
 import ComunidadRoute from './Pages/ComunidadRoute';
 import GenRoute from './Pages/GenRoute';
 import OpWalletRoute from './Pages/OpWalletRoute';
+import { RolesProvider } from './Contexts/RolesContext'; 
 import App from './App.js'
 //import Layout from './components/Layout'.
 
@@ -38,21 +39,22 @@ root.render(
       clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
       redirectUri={window.location.origin}
     >
-      <Router>
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<HomeRoute />} />
-          <Route path="/gana" element={<GanaRoute />} />
-          <Route path="/taxis" element={<TaxisRoute />} />
-          <Route path="/comida" element={<RestaurantesRoute />} />
-          <Route path="/market" element={<MarketRoute />} />
-          <Route path="/academia" element={<AcademiaRoute />} />
-          <Route path="/comunidad" element={<ComunidadRoute />} />
-          <Route path="/gen" element={<GenRoute />} />
-          <Route path="/cartera" element={<OpWalletRoute />} />
-          {/* Agrega más rutas aquí según sea necesario */}
-        </Routes>
-      </Router>
+      <RolesProvider>
+        <Router>
+          <NavBar />
+          <Routes>
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/gana" element={<GanaRoute />} />
+            <Route path="/taxis" element={<TaxisRoute />} />
+            <Route path="/comida" element={<RestaurantesRoute />} />
+            <Route path="/market" element={<MarketRoute />} />
+            <Route path="/academia" element={<AcademiaRoute />} />
+            <Route path="/comunidad" element={<ComunidadRoute />} />
+            <Route path="/gen" element={<GenRoute />} />
+            <Route path="/cartera" element={<OpWalletRoute />} />
+          </Routes>
+        </Router>
+      </RolesProvider>
     </Auth0Provider>
   </React.StrictMode>
 );
