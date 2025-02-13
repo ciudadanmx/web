@@ -7,22 +7,20 @@ import formaters from '../../utils/formaters';
 import minutesSince from '../../utils/timeSince'
 import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../../utils/mapUtils';
 import taxiIcon from '../../assets/taxi_marker.png';
-//desempaquetado de los formateadores
-import UserLocation from '../Usuarios/UserLocation'
+import UserLocation from '../Usuarios/UserLocation';
 const { formatTime, formatPrice } = formaters;
 
-
-const Conductor = () => {
+const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab }) => { // Recibimos setShowTabs como prop
   const { user, isAuthenticated } = useAuth0();
   const [isWaiting, setIsWaiting] = useState(true);
   const [travelData, setTravelData] = useState([]);
   const [userId, setUserId] = useState(null);
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [consultedTravel, setConsultedTravel] = useState(null);
+  const [tabsHidden, setTabsHidden] = useState(false); // Nuevo estado para ocultar las tabs
   const zocaloCoords = { lat: 19.432607, lng: -99.133209 };
   const [userCoords, setUserCoords] = useState(null);
 
-  // Refs para el mapa, DirectionsRenderer y el marcador de recogida
   const mapRef = useRef(null);
   const directionsRendererRef = useRef(null);
   const pickupMarkerRef = useRef(null);
@@ -31,7 +29,6 @@ const Conductor = () => {
     return loadGoogleMaps(setGoogleMapsLoaded);
   }, []);
 
-  // Inicializar el mapa y guardarlo en mapRef.current
   useEffect(() => {
     if (googleMapsLoaded && window.google) {
       mapRef.current = new window.google.maps.Map(document.getElementById('map'), {
@@ -47,7 +44,6 @@ const Conductor = () => {
           scaledSize: new window.google.maps.Size(54,54 ),
         },
       });
-
     }
   }, [googleMapsLoaded, userCoords]);
 
@@ -57,13 +53,10 @@ const Conductor = () => {
         try {
           const response = await axios.get(
             `${process.env.REACT_APP_STRAPI_URL}/api/users`,
-            {
-              params: { 'filters[email]': user.email },
-            }
+            { params: { 'filters[email]': user.email } }
           );
           if (response.data.length > 0) {
             setUserId(response.data[0].id);
-            console.log('User ID from Strapi:', response.data[0].id);
           }
         } catch (error) {
           console.error('Error fetching user ID from Strapi:', error);
@@ -78,24 +71,18 @@ const Conductor = () => {
   useEffect(() => {
     const socket = io(process.env.REACT_APP_SOCKET_URL);
     if (userId) {
-      console.log('Estableciendo conexión con el socket...');
       socket.on('trip-request', (data) => {
-        console.log('Evento de solicitud recibido: ', data);
         if (data.driverId === userId) {
           setIsWaiting(false);
           setTravelData((prevTravelData) => [...prevTravelData, data]);
-          const minutosTranscurridos = minutesSince.getMinutesSince(data.requestTime, 'cdmx');
-          console.log(`Han pasado ${minutosTranscurridos} minutos.`);   
         }
       });
     }
     return () => {
       socket.disconnect();
-      console.log('Desconectando socket...');
     };
   }, [userId]);
 
-  //pinta la ruta para el viaje consultado
   useEffect(() => {
     if (
       consultedTravel !== null &&
@@ -110,16 +97,10 @@ const Conductor = () => {
         travel.destinationAdress &&
         travel.destinationAdress !== "sin datos"
       ) {
-        console.log('********************');
-        console.log(travel.route);
         const directionsService = new window.google.maps.DirectionsService();
-  
-        // Crear el DirectionsRenderer si aún no existe
         if (!directionsRendererRef.current) {
           directionsRendererRef.current = createDirectionsRenderer(mapRef);
         }
-  
-        // Llamamos a getDirections pasando también pickupMarkerRef
         getDirections(
           travel.originAdress,
           travel.destinationAdress,
@@ -129,23 +110,9 @@ const Conductor = () => {
           pickupMarkerRef
         );
       }
-    } else {
-      // Si no hay viaje seleccionado, quitar la ruta y el marcador del mapa
-      if (directionsRendererRef.current) {
-        directionsRendererRef.current.setMap(null);
-        directionsRendererRef.current = null;
-      }
-      if (pickupMarkerRef.current) {
-        pickupMarkerRef.current.setMap(null);
-        pickupMarkerRef.current = null;
-      }
-
-      resetMapZoom(mapRef, 14);
     }
   }, [consultedTravel, googleMapsLoaded, travelData]);
 
-  
-  //inicialización del mapa
   useEffect(() => {
     if (googleMapsLoaded && window.google && mapRef.current) {
         initializeMap(mapRef, userCoords);
@@ -153,24 +120,35 @@ const Conductor = () => {
     }
   }, [googleMapsLoaded, userCoords]);
 
-  
-  // Al hacer click en la card (envuelta en <a>) se guarda el índice del viaje seleccionado
   const handleTravelCardClick = (index) => {
-    console.log('Datos del viaje:', travelData[index]);
     setConsultedTravel(index);
   };
 
-  // El botón cerrar elimina la card de la lista
+  const handlePasajero = () => {
+    setShowTabs(true);
+    setActiveTab('pasajero');
+  };
+  const handleConductor = () => {
+    setShowTabs(false);
+    setActiveTab('conductor');
+  }
+
+  const handleAcceptTrip = () => {
+    setHideTabs(true);
+    setTabsHidden(true); // Ocultar las tabs cuando el conductor acepte el viaje
+    setShowTabs(false); // Actualizar el estado en el componente padre
+
+    // Aquí agregamos más lógica si es necesario para el evento de aceptar el viaje.
+  };
+
   const handleCloseButtonClick = (index) => {
     setTravelData((prevData) => prevData.filter((_, i) => i !== index));
   };
 
-  // El botón Atrás vuelve a mostrar la lista de viajes y limpia la ruta del mapa
   const handleBackButtonClick = () => {
     setConsultedTravel(null);
   };
 
-  // Aquí agregamos el cronómetro que muestra hace cuantos minutos y segundos se solicitó el viaje
   const ElapsedTimer = ({ startTime }) => {
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -190,91 +168,38 @@ const Conductor = () => {
 
     return (
       <span>
-        {minutes}:{seconds < 10 ? '0' : ''}
-        {seconds}
+        {minutes}:{seconds < 10 ? '0' : ''}{seconds}
       </span>
     );
   };
 
   return (
     <div className="creciente">
-    <div className="conductor-layout">
-      {googleMapsLoaded && mapRef.current && (
-        <UserLocation onLocation={setUserCoords} map={mapRef.current} />
-      )}
-      {isWaiting ? (
-        <div>
-          <p>Esperando viajes...</p>
-        </div>
-      ) : (
-        <div className="travel-list">
-          {consultedTravel === null ? (
-            travelData.map((travel, index) => (
-              <a
-                href="#"
-                key={index}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleTravelCardClick(index);
-                }}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                <div className="travel-container">
-                  <button
-                    className="close-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCloseButtonClick(index);
-                    }}
-                  >
-                    ✖
-                  </button>
-                  <div className="travel-header">
-                    <div className="travel-info-container">
-                      <div className="travel-row">
-                        <p className="travel-label"><strong>De:</strong></p>
-                        <p className="travel-info">{travel.originAdress}</p>
-                      </div>
-                      <div className="travel-row">
-                        <p className="travel-label"><strong>A:</strong></p>
-                        <p className="travel-info">{travel.destinationAdress || 'sin datos'}</p>
-                      </div>
-                    </div>
-                    <div className="travel-price">
-                      <span className="price-amount">
-                        $ {formatPrice(travel.price, 'enteros')}. 
-                        <sup>{formatPrice(travel.price, 'decimales')}</sup>
-                      </span>
-                      <span className="travel-distance">
-                        {(travel.totalDistance / 1000).toFixed(2)} km – {formatTime(travel.totalTime)} min
-                      </span>
-                      <span className="travel-time">
-                        <ElapsedTimer startTime={travel.requestTime} />
-                      </span>
-                    </div>
-                  </div>
-                  <div className="travel-buttons">
-                    <button className="change-button">✏️ Cambiar</button>
-                    <button className="accept-button">➕ Aceptar Viaje</button>
-                  </div>
-                </div>
-              </a>
-            ))
-          ) : (
-            <div className="single-travel-container">
-              <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                
-                {travelData[consultedTravel] ? (
+      <div className="conductor-layout">
+        {googleMapsLoaded && mapRef.current && (
+          <UserLocation onLocation={setUserCoords} map={mapRef.current} />
+        )}
+        {isWaiting ? (
+          <div>Esperando viajes...</div>
+        ) : (
+          <div className="travel-list">
+            {consultedTravel === null ? (
+              travelData.map((travel, index) => (
+                <a
+                  href="#"
+                  key={index}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleTravelCardClick(index);
+                  }}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                   <div className="travel-container">
                     <button
                       className="close-button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCloseButtonClick(consultedTravel);
+                        handleCloseButtonClick(index);
                       }}
                     >
                       ✖
@@ -283,53 +208,62 @@ const Conductor = () => {
                       <div className="travel-info-container">
                         <div className="travel-row">
                           <p className="travel-label"><strong>De:</strong></p>
-                          <p className="travel-info">
-                            {travelData[consultedTravel]?.originAdress || 'Dirección no disponible'}
-                          </p>
+                          <p className="travel-info">{travel.originAdress}</p>
                         </div>
                         <div className="travel-row">
                           <p className="travel-label"><strong>A:</strong></p>
-                          <p className="travel-info">
-                            {travelData[consultedTravel]?.destinationAdress || 'sin datos'}
-                          </p>
-
+                          <p className="travel-info">{travel.destinationAdress || 'sin datos'}</p>
                         </div>
                       </div>
                       <div className="travel-price">
                         <span className="price-amount">
-                          $ {formatPrice(travelData[consultedTravel]?.price, 'enteros') || '0'}
-                          <sup>{formatPrice(travelData[consultedTravel]?.price, 'decimales') || '00'}</sup>
+                          $ {formatPrice(travel.price, 'enteros')}. 
+                          <sup>{formatPrice(travel.price, 'decimales')}</sup>
                         </span>
                         <span className="travel-distance">
-                          {(travelData[consultedTravel]?.totalDistance / 1000)?.toFixed(2) || '0.00'} km – {formatTime(travelData[consultedTravel]?.totalTime) || '0'} min
+                          {(travel.totalDistance / 1000).toFixed(2)} km – {formatTime(travel.totalTime)} min
                         </span>
                         <span className="travel-time">
-                          {travelData[consultedTravel]?.totalTime || '0'}
+                          <ElapsedTimer startTime={travel.requestTime} />
                         </span>
                       </div>
-
                     </div>
                     <div className="travel-buttons">
                       <button className="change-button">✏️ Cambiar</button>
-                      <button className="accept-button">➕ Aceptar Viaje</button>
+                      <button className="accept-button" onClick={handleAcceptTrip}>➕ Aceptar Viaje</button>
                     </div>
                   </div>
-                  
-                  
-                    ):(<div></div>)}
-
-
-
-              </a>
-              <button className="back-button" onClick={handleBackButtonClick}>🔙 Atrás</button>
-            </div>
-          )}
+                </a>
+              ))
+            ) : (
+              <div className="single-travel-container">
+                {/* Aquí se mostraría el detalle del viaje seleccionado */}
+                <button className="back-button" onClick={handleBackButtonClick}>🔙 Atrás</button>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="taxis-map">
+          <div id="map" style={{ width: '100%', height: '100%' }}></div>
         </div>
-      )}
-      <div className="taxis-map">
-        <div id="map" style={{ width: '100%', height: '100%' }}></div>
+        
+        {!showTabs && !hideTabs ? (
+            <div>
+              <h3>  
+                <a onClick={handlePasajero}>Solicitar un viaje como pasajero.</a>
+              </h3>
+            </div>
+          ) : (
+            <div>
+              <h3>  
+                <a onClick={handleConductor}>Ocultar Módulo de Pasajero.</a>
+              </h3>
+            </div>
+          )
+        }
+ 
       </div>
-    </div>
+      
     </div>
   );
 };

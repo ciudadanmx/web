@@ -15,6 +15,7 @@ const TaxisRoute = () => {
 
   const [activeTab, setActiveTab] = useState('');
   const [showTabs, setShowTabs] = useState(false);
+  const [HideTabs, setHideTabs] = useState(false);  // Estado para ocultar las tabs
 
   console.log('🔹 Estado inicial de activeTab:', activeTab);
 
@@ -46,7 +47,8 @@ const TaxisRoute = () => {
 
   return (
     <div style={{ width: '90%', height: '100vh', overflow: 'hidden', padding: '20px' }}>
-      {actualRoles.includes("conductor") && showTabs && (
+      {/* Mostrar tabs solo si showTabs es true y HideTabs es false */}
+      {actualRoles.includes("conductor") && showTabs && !HideTabs && (
         <div style={{ display: 'flex', borderBottom: '2px solid #ccc', marginBottom: '20px' }}>
           <button
             onClick={() => setActiveTab('pasajero')}
@@ -64,7 +66,13 @@ const TaxisRoute = () => {
       )}
 
       {actualRoles.includes("conductor") ? (
-        activeTab === 'pasajero' ? <Pasajero /> : <Conductor />
+        activeTab === 'pasajero' ? <Pasajero /> : <Conductor
+         setHideTabs={setHideTabs}
+         setShowTabs={setShowTabs}
+         showTabs={showTabs}
+         hideTabs={HideTabs}
+         setActiveTab={setActiveTab}
+         />
       ) : (
         <Pasajero />
       )}
