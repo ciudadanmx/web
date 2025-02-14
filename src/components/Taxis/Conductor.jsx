@@ -25,10 +25,11 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab 
   const directionsRendererRef = useRef(null);
   const pickupMarkerRef = useRef(null);
 
+  //Carga del mapa
   useEffect(() => {
     return loadGoogleMaps(setGoogleMapsLoaded);
   }, []);
-
+  //Renderizado del mapa
   useEffect(() => {
     if (googleMapsLoaded && window.google) {
       mapRef.current = new window.google.maps.Map(document.getElementById('map'), {

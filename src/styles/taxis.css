@@ -89,6 +89,7 @@
     margin: 20px 0; /* Alineado a la izquierda */
     display: flex;
     flex-direction: column;
+    margin: auto;
 }
 
 .travel-details {
