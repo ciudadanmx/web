@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/taxis.css';
+import { initAutocomplete } from '../../utils/autocompleteMaps';
 
 let desde;
 let hasta;
-
 
 const Pasajero = () => {
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
@@ -67,14 +67,11 @@ const Pasajero = () => {
         toMarker.setPosition({ lat: newLat, lng: newLng });
       });
 
-      const fromInput = document.getElementById('from-input');
-      const toInput = document.getElementById('to-input');
-      const fromAutocomplete = new window.google.maps.places.Autocomplete(fromInput);
-      const toAutocomplete = new window.google.maps.places.Autocomplete(toInput);
-
-      fromAutocomplete.addListener('place_changed', () => {
-        const fromPlace = fromAutocomplete.getPlace();
-        if (fromPlace.geometry) {
+      // Usamos el helper para inicializar el Autocomplete en los inputs
+      initAutocomplete({
+        fromInputId: 'from-input',
+        toInputId: 'to-input',
+        onFromChanged: (fromPlace) => {
           const newFromLat = fromPlace.geometry.location.lat();
           const newFromLng = fromPlace.geometry.location.lng();
 
@@ -85,12 +82,8 @@ const Pasajero = () => {
           setFromAddress(fromPlace.formatted_address);
           desde = fromPlace.formatted_address;
           console.log(`Origen: ${fromPlace.formatted_address}`);
-        }
-      });
-
-      toAutocomplete.addListener('place_changed', () => {
-        const toPlace = toAutocomplete.getPlace();
-        if (toPlace.geometry) {
+        },
+        onToChanged: (toPlace) => {
           const newToLat = toPlace.geometry.location.lat();
           const newToLng = toPlace.geometry.location.lng();
 
@@ -101,7 +94,7 @@ const Pasajero = () => {
           setToAddress(toPlace.formatted_address);
           hasta = toPlace.formatted_address;
           console.log(`Destino: ${toPlace.formatted_address}`);
-        }
+        },
       });
     }
   }, [googleMapsLoaded, fromCoordinates]);
@@ -116,7 +109,7 @@ const Pasajero = () => {
       destinationAdress: hasta,
     };
 
-    console.log(`----- ${ JSON.stringify(payload)} ------- `);
+    console.log(`----- ${JSON.stringify(payload)} ------- `);
 
     try {
       const response = await fetch(`${process.env.REACT_APP_STRAPI_URL}/api/conductores-cercanos`, {
@@ -140,7 +133,9 @@ const Pasajero = () => {
 
   return (
     <div className='taxis-container'>
-      <span className='formulario-pasajero trip-title'> <center>Buscar un viaje</center></span>
+      <span className='formulario-pasajero trip-title'>
+        <center>Buscar un viaje</center>
+      </span>
       <input
         id="from-input"
         type="text"
@@ -177,7 +172,9 @@ const Pasajero = () => {
         <p><strong>Longitud:</strong> {fromCoordinates.lng}</p>
       </div>
 
-      <div className='separador-final'>aaa<p>aaaaa</p>aaa<p>aaaaa</p>aaa<p>aaaaa</p></div>
+      <div className='separador-final'>
+        aaa<p>aaaaa</p>aaa<p>aaaaa</p>aaa<p>aaaaa</p>
+      </div>
     </div>
   );
 };

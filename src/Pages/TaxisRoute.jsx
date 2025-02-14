@@ -72,7 +72,11 @@ const TaxisRoute = () => {
       )}
 
       {actualRoles.includes("conductor") ? (
-        activeTab === 'pasajero' ? <Pasajero /> : <Conductor
+        activeTab === 'pasajero' ? <Pasajero setHideTabs={setHideTabs}
+        setShowTabs={setShowTabs}
+        showTabs={showTabs}
+        hideTabs={HideTabs}
+        setActiveTab={setActiveTab} /> : <Conductor
          setHideTabs={setHideTabs}
          setShowTabs={setShowTabs}
          showTabs={showTabs}
