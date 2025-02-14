@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useRoles } from '../Contexts/RolesContext';
 import Conductor from '../components/Taxis/Conductor';
 import Pasajero from '../components/Taxis/Pasajero';
+import Invitado from '../components/Taxis/Invitado'; // Nuevo componente agregado
 
 const TaxisRoute = () => {
   const location = useLocation();
@@ -15,7 +16,7 @@ const TaxisRoute = () => {
 
   const [activeTab, setActiveTab] = useState('');
   const [showTabs, setShowTabs] = useState(false);
-  const [HideTabs, setHideTabs] = useState(false);  // Estado para ocultar las tabs
+  const [HideTabs, setHideTabs] = useState(false); // Estado para ocultar las tabs
 
   console.log('🔹 Estado inicial de activeTab:', activeTab);
 
@@ -44,6 +45,11 @@ const TaxisRoute = () => {
       setActiveTab(newActiveTab);
     }
   }, [routeRepeat, roles]);
+
+  // Si el usuario no está autenticado o no tiene los roles "pasajero" o "conductor", mostrar <Invitado />
+  if (!actualRoles.includes("conductor") && !actualRoles.includes("pasajero")) {
+    return <Invitado />;
+  }
 
   return (
     <div style={{ width: '90%', height: '100vh', overflow: 'hidden', padding: '20px' }}>

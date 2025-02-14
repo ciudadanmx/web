@@ -16,7 +16,7 @@ export const RolesProvider = ({ children }) => {
     if (isAuthenticated && user) {
       try {
         console.log('🔍 Buscando roles en el servidor...');
-        const response = await fetch(`${STRAPI_URL}/api/users?email=${user.email}`);
+        const response = await fetch(`${STRAPI_URL}/api/users?filters[email][$contains]=${user.email}`);
         const data = await response.json();
         
         if (data.length > 0 && data[0].roles) {
