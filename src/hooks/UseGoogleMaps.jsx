@@ -1,4 +1,3 @@
-// src/hooks/useGoogleMaps.js
 import { useEffect } from 'react';
 import { initAutocomplete } from '../utils/autocompleteMaps';
 

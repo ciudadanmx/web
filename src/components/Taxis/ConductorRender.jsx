@@ -87,8 +87,15 @@ const ConductorRender = ({
                     </div>
                   </div>
                   <div className="travel-buttons">
-                    <button className="change-button">✏️ Cambiar</button>
-                    <button className="accept-button" onClick={handleAcceptTrip}>➕ Aceptar Viaje</button>
+                  <button
+                    className="accept-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAcceptTrip(index); // Pasar el índice correcto
+                    }}
+                  >
+                    ➕ Aceptar Viaje
+                  </button>
                   </div>
                 </div>
               </a>

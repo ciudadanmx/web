@@ -28,11 +28,12 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
   const directionsRendererRef = useRef(null);
   const pickupMarkerRef = useRef(null);
 
-  //Carga del mapa
+  // Carga del mapa
   useEffect(() => {
     return loadGoogleMaps(setGoogleMapsLoaded);
   }, []);
-  //Renderizado del mapa
+  
+  // Renderizado del mapa
   useEffect(() => {
     if (googleMapsLoaded && window.google) {
       // Se usa getElementById en el componente de presentación; se espera que exista el div con id="map"
@@ -120,8 +121,8 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
 
   useEffect(() => {
     if (googleMapsLoaded && window.google && mapRef.current) {
-        initializeMap(mapRef, userCoords);
-        addTaxiMarker(mapRef, userCoords, taxiIcon);
+      initializeMap(mapRef, userCoords);
+      addTaxiMarker(mapRef, userCoords, taxiIcon);
     }
   }, [googleMapsLoaded, userCoords]);
 
@@ -133,18 +134,75 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
     setShowTabs(true);
     setActiveTab('pasajero');
   };
+  
   const handleConductor = () => {
     setShowTabs(false);
     setActiveTab('conductor');
     setShiftToPasajero(true);
   };
 
-  const handleAcceptTrip = () => {
+  // Modificación en el handler de aceptar viaje
+  const handleAcceptTrip = (index) => {
+    const handleAcceptTrip = (index) => {
+      console.log("🚖 aceptandooooooooooo");
+      console.log("🔎 Índice recibido:", index);
+      console.log("📦 travelData actual:", travelData);
+    
+      if (!Array.isArray(travelData)) {
+        console.error("❌ travelData no es un array");
+        return;
+      }
+    
+      const selectedTrip = travelData[index]; // Accedemos al viaje correcto
+    
+      console.log("📍 Viaje seleccionado:", selectedTrip);
+    
+      if (!selectedTrip) {
+        console.error(`❌ Error: No hay un viaje válido en travelData[${index}]`);
+        return;
+      }
+    
+      setConsultedTravel(selectedTrip);
+      console.log("✅ Viaje aceptado:", selectedTrip);
+    };
+    
+    
+    console.log('aceptandooooooooooo');
     setHideTabs(true);
-    setTabsHidden(true); // Ocultar las tabs cuando el conductor acepte el viaje
-    setShowTabs(false); // Actualizar el estado en el componente padre
-    // Aquí agregamos más lógica si es necesario para el evento de aceptar el viaje.
-  };
+    setTabsHidden(true);
+    setShowTabs(false);
+
+    console.log('consultedTravel:', consultedTravel);
+    console.log('travelData:', travelData);
+    console.log('travelData[consultedTravel]:', travelData[consultedTravel]);
+
+    let travel = travelData[consultedTravel];
+
+    if (!travel) {
+        console.error('❌ Error: No hay un viaje válido en travelData[consultedTravel]');
+        return;
+    }
+
+    console.log('✅ Travel encontrado:', travel);
+
+    const socket = io(process.env.REACT_APP_SOCKET_URL);
+    socket.emit('oferta', {
+        driverId: userId,
+        travelId: travel.id,
+        originAddress: travel.originAdress,
+        destinationAddress: travel.destinationAdress,
+        steps: travel.steps,
+        coordinates: userCoords,
+    });
+
+    console.log('📤 Oferta enviada:', {
+        driverId: userId,
+        travelId: travel.id,
+        originAddress: travel.originAdress,
+        destinationAddress: travel.destinationAdress,
+        steps: travel.steps,
+    });
+};
 
   const handleCloseButtonClick = (index) => {
     setTravelData((prevData) => prevData.filter((_, i) => i !== index));
