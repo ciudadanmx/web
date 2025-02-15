@@ -148,6 +148,7 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
 
   const handleCloseButtonClick = (index) => {
     setTravelData((prevData) => prevData.filter((_, i) => i !== index));
+    setIsWaiting(true); 
   };
 
   const handleBackButtonClick = () => {
