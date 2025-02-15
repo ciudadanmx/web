@@ -17,10 +17,12 @@ const TaxisRoute = () => {
   const [activeTab, setActiveTab] = useState('');
   const [showTabs, setShowTabs] = useState(false);
   const [HideTabs, setHideTabs] = useState(false); // Estado para ocultar las tabs
+  const [shiftToPasajero, setShiftToPasajero] = useState(false);
 
   console.log('🔹 Estado inicial de activeTab:', activeTab);
 
   const routeRepeat = location.state?.routeRepeat || 0;
+  //let routeRepeatActualizado = routeRepeat;
 
   useEffect(() => {
     console.log('🌀 Ejecutando useEffect en TaxisRoute...');
@@ -34,6 +36,10 @@ const TaxisRoute = () => {
       setShowTabs(false);
     } else {
       setShowTabs(true);
+    }
+
+    if (shiftToPasajero == true) {
+        setShowTabs(!showTabs)
     }
 
     console.log('🟠 Roles actuales:', actualRoles);
@@ -82,6 +88,8 @@ const TaxisRoute = () => {
          showTabs={showTabs}
          hideTabs={HideTabs}
          setActiveTab={setActiveTab}
+         shiftToPasajero={shiftToPasajero}
+         setShiftToPasajero={setShiftToPasajero}
          />
       ) : (
         <Pasajero />

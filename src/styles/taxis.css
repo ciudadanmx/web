@@ -91,6 +91,8 @@
     flex-direction: column;
     margin: auto;
 }
+.col {
+color:#c1f3a6}
 
 .travel-details {
   font-family: Arial, sans-serif;

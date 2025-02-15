@@ -8,9 +8,11 @@ import minutesSince from '../../utils/timeSince'
 import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../../utils/mapUtils';
 import taxiIcon from '../../assets/taxi_marker.png';
 import UserLocation from '../Usuarios/UserLocation';
+import { RolPasajero, RolConductor } from './Roles';
+
 const { formatTime, formatPrice } = formaters;
 
-const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab }) => { // Recibimos setShowTabs como prop
+const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab, shiftToPasajero, setShiftToPasajero }) => { // Recibimos setShowTabs como prop
   const { user, isAuthenticated } = useAuth0();
   const [isWaiting, setIsWaiting] = useState(true);
   const [travelData, setTravelData] = useState([]);
@@ -132,6 +134,7 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab 
   const handleConductor = () => {
     setShowTabs(false);
     setActiveTab('conductor');
+    setShiftToPasajero(true);
   }
 
   const handleAcceptTrip = () => {
@@ -249,17 +252,17 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab 
         </div>
         
         {!showTabs && !hideTabs ? (
-            <div>
-              <h3>  
-                <a onClick={handlePasajero}>Solicitar un viaje como pasajero.</a>
-              </h3>
-            </div>
+            <RolPasajero 
+              handlePasajero={handlePasajero}
+              handleConductor={handleConductor}
+              rol='pasajero'
+            />
           ) : (
-            <div>
-              <h3>  
-                <a onClick={handleConductor}>Ocultar Módulo de Pasajero.</a>
-              </h3>
-            </div>
+            <RolConductor
+              handlePasajero={handlePasajero}
+              handleConductor={handleConductor}
+              rol='conductor'
+             />
           )
         }
  

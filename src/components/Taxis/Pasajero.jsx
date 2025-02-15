@@ -171,10 +171,7 @@ const Pasajero = () => {
         <p><strong>Latitud:</strong> {fromCoordinates.lat}</p>
         <p><strong>Longitud:</strong> {fromCoordinates.lng}</p>
       </div>
-
-      <div className='separador-final'>
-        aaa<p>aaaaa</p>aaa<p>aaaaa</p>aaa<p>aaaaa</p>
-      </div>
+      
     </div>
   );
 };
