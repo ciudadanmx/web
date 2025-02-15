@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/taxis.css';
-import { initAutocomplete } from '../../utils/autocompleteMaps';
-
-let desde;
-let hasta;
+import useGoogleMaps from '../../hooks/UseGoogleMaps';
 
 const Pasajero = () => {
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
@@ -14,90 +11,19 @@ const Pasajero = () => {
   const [fromAddress, setFromAddress] = useState("");
   const [toAddress, setToAddress] = useState("");
 
-  useEffect(() => {
-    if (window.google) {
-      setGoogleMapsLoaded(true);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_PLACES_KEY}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setGoogleMapsLoaded(true);
-    script.onerror = (error) => {
-      console.error("Error al cargar Google Maps API:", error);
-    };
-
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (googleMapsLoaded && window.google) {
-      const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
-        center: fromCoordinates,
-        zoom: 17,
-      });
-
-      const fromMarker = new window.google.maps.Marker({
-        map: mapInstance,
-        position: fromCoordinates,
-      });
-
-      const toMarker = new window.google.maps.Marker({
-        map: mapInstance,
-        position: toCoordinates,
-      });
-
-      window.google.maps.event.addListener(mapInstance, 'click', (event) => {
-        const { latLng } = event;
-        const newLat = latLng.lat();
-        const newLng = latLng.lng();
-
-        setFromCoordinates({ lat: newLat, lng: newLng });
-        setToCoordinates({ lat: newLat, lng: newLng });
-        setFromMarkerPosition({ lat: newLat, lng: newLng });
-        setToMarkerPosition({ lat: newLat, lng: newLng });
-
-        fromMarker.setPosition({ lat: newLat, lng: newLng });
-        toMarker.setPosition({ lat: newLat, lng: newLng });
-      });
-
-      // Usamos el helper para inicializar el Autocomplete en los inputs
-      initAutocomplete({
-        fromInputId: 'from-input',
-        toInputId: 'to-input',
-        onFromChanged: (fromPlace) => {
-          const newFromLat = fromPlace.geometry.location.lat();
-          const newFromLng = fromPlace.geometry.location.lng();
-
-          setFromCoordinates({ lat: newFromLat, lng: newFromLng });
-          setFromMarkerPosition({ lat: newFromLat, lng: newFromLng });
-          fromMarker.setPosition({ lat: newFromLat, lng: newFromLng });
-
-          setFromAddress(fromPlace.formatted_address);
-          desde = fromPlace.formatted_address;
-          console.log(`Origen: ${fromPlace.formatted_address}`);
-        },
-        onToChanged: (toPlace) => {
-          const newToLat = toPlace.geometry.location.lat();
-          const newToLng = toPlace.geometry.location.lng();
-
-          setToCoordinates({ lat: newToLat, lng: newToLng });
-          setToMarkerPosition({ lat: newToLat, lng: newToLng });
-          toMarker.setPosition({ lat: newToLat, lng: newToLng });
-
-          setToAddress(toPlace.formatted_address);
-          hasta = toPlace.formatted_address;
-          console.log(`Destino: ${toPlace.formatted_address}`);
-        },
-      });
-    }
-  }, [googleMapsLoaded, fromCoordinates]);
+  // Llamamos al hook para manejar la carga del mapa y la lógica relacionada
+  useGoogleMaps(
+    fromCoordinates,
+    setFromCoordinates,
+    setFromMarkerPosition,
+    toCoordinates,
+    setToCoordinates,
+    setToMarkerPosition,
+    setFromAddress,
+    setToAddress,
+    setGoogleMapsLoaded,
+    googleMapsLoaded // Pasamos googleMapsLoaded como parámetro
+  );
 
   const buscarTaxistas = async () => {
     console.log("Buscando taxistas cercanos...");
@@ -105,11 +31,9 @@ const Pasajero = () => {
     const payload = {
       origin: fromCoordinates,
       destination: toCoordinates,
-      originAdress: desde,
-      destinationAdress: hasta,
+      originAdress: fromAddress,
+      destinationAdress: toAddress,
     };
-
-    console.log(`----- ${JSON.stringify(payload)} ------- `);
 
     try {
       const response = await fetch(`${process.env.REACT_APP_STRAPI_URL}/api/conductores-cercanos`, {
@@ -125,7 +49,7 @@ const Pasajero = () => {
       }
 
       const data = await response.json();
-      console.log("Taxistas encontrados:", data);
+      console.log("Taxis encontrados:", data);
     } catch (error) {
       console.error("Error al buscar taxistas:", error);
     }
