@@ -4,6 +4,7 @@ import formaters from '../../utils/formaters';
 import UserLocation from '../Usuarios/UserLocation';
 import { RolPasajero, RolConductor } from './Roles';
 import ConductorContainer from './ConductorContainer';
+import EsperandoViaje from './EsperandoViaje.jsx';
 
 const { formatTime, formatPrice } = formaters;
 
@@ -31,7 +32,13 @@ const ConductorRender = ({
         <UserLocation onLocation={setUserCoords} map={mapRef.current} />
       )}
       {isWaiting ? (
-        <div>Esperando viajes...</div>
+        <div>
+          <EsperandoViaje
+          handlePasajero={handlePasajero}
+          handleConductor={handleConductor}
+          rol='conductor'
+        />
+        </div>
       ) : (
         <div className="travel-list">
           {consultedTravel === null ? (
