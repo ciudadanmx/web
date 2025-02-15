@@ -8,6 +8,7 @@ import NavBar from './components/NavBar/NavBar.jsx';
 import Conductor from './components/Taxis/Conductor';
 import Pasajero from './components/Taxis/Pasajero';
 import TaxisRoute from './Pages/TaxisRoute';
+import RtaxisRoute from './Pages/RtaxisRoute';
 import RestaurantesRoute from './Pages/RestaurantesRoute';
 import MarketRoute from './Pages/MarketRoute';
 import AcademiaRoute from './Pages/AcademiaRoute';
@@ -46,6 +47,7 @@ root.render(
             <Route path="/" element={<HomeRoute />} />
             <Route path="/gana" element={<GanaRoute />} />
             <Route path="/taxis" element={<TaxisRoute />} />
+            <Route path="/rtaxis" element={<RtaxisRoute />} />
             <Route path="/comida" element={<RestaurantesRoute />} />
             <Route path="/market" element={<MarketRoute />} />
             <Route path="/academia" element={<AcademiaRoute />} />
