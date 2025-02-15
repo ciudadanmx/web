@@ -4,11 +4,12 @@ import { useAuth0 } from '@auth0/auth0-react';
 import io from 'socket.io-client';
 import '../../styles/taxis.css';
 import formaters from '../../utils/formaters';
-import minutesSince from '../../utils/timeSince'
+import minutesSince from '../../utils/timeSince';
 import { initializeMap, addTaxiMarker, loadGoogleMaps, createDirectionsRenderer, updatePickupMarker, getDirections, resetMapZoom } from '../../utils/mapUtils';
 import taxiIcon from '../../assets/taxi_marker.png';
 import UserLocation from '../Usuarios/UserLocation';
 import { RolPasajero, RolConductor } from './Roles';
+import ConductorPresentation from './ConductorRender';
 
 const { formatTime, formatPrice } = formaters;
 
@@ -34,6 +35,7 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
   //Renderizado del mapa
   useEffect(() => {
     if (googleMapsLoaded && window.google) {
+      // Se usa getElementById en el componente de presentación; se espera que exista el div con id="map"
       mapRef.current = new window.google.maps.Map(document.getElementById('map'), {
         center: zocaloCoords,
         zoom: 14,
@@ -135,13 +137,12 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
     setShowTabs(false);
     setActiveTab('conductor');
     setShiftToPasajero(true);
-  }
+  };
 
   const handleAcceptTrip = () => {
     setHideTabs(true);
     setTabsHidden(true); // Ocultar las tabs cuando el conductor acepte el viaje
     setShowTabs(false); // Actualizar el estado en el componente padre
-
     // Aquí agregamos más lógica si es necesario para el evento de aceptar el viaje.
   };
 
@@ -178,97 +179,24 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
   };
 
   return (
-    <div className="creciente">
-      <div className="conductor-layout">
-        {googleMapsLoaded && mapRef.current && (
-          <UserLocation onLocation={setUserCoords} map={mapRef.current} />
-        )}
-        {isWaiting ? (
-          <div>Esperando viajes...</div>
-        ) : (
-          <div className="travel-list">
-            {consultedTravel === null ? (
-              travelData.map((travel, index) => (
-                <a
-                  href="#"
-                  key={index}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleTravelCardClick(index);
-                  }}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <div className="travel-container">
-                    <button
-                      className="close-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCloseButtonClick(index);
-                      }}
-                    >
-                      ✖
-                    </button>
-                    <div className="travel-header">
-                      <div className="travel-info-container">
-                        <div className="travel-row">
-                          <p className="travel-label"><strong>De:</strong></p>
-                          <p className="travel-info">{travel.originAdress}</p>
-                        </div>
-                        <div className="travel-row">
-                          <p className="travel-label"><strong>A:</strong></p>
-                          <p className="travel-info">{travel.destinationAdress || 'sin datos'}</p>
-                        </div>
-                      </div>
-                      <div className="travel-price">
-                        <span className="price-amount">
-                          $ {formatPrice(travel.price, 'enteros')}. 
-                          <sup>{formatPrice(travel.price, 'decimales')}</sup>
-                        </span>
-                        <span className="travel-distance">
-                          {(travel.totalDistance / 1000).toFixed(2)} km – {formatTime(travel.totalTime)} min
-                        </span>
-                        <span className="travel-time">
-                          <ElapsedTimer startTime={travel.requestTime} />
-                        </span>
-                      </div>
-                    </div>
-                    <div className="travel-buttons">
-                      <button className="change-button">✏️ Cambiar</button>
-                      <button className="accept-button" onClick={handleAcceptTrip}>➕ Aceptar Viaje</button>
-                    </div>
-                  </div>
-                </a>
-              ))
-            ) : (
-              <div className="single-travel-container">
-                {/* Aquí se mostraría el detalle del viaje seleccionado */}
-                <button className="back-button" onClick={handleBackButtonClick}>🔙 Atrás</button>
-              </div>
-            )}
-          </div>
-        )}
-        <div className="taxis-map">
-          <div id="map" style={{ width: '100%', height: '100%' }}></div>
-        </div>
-        
-        {!showTabs && !hideTabs ? (
-            <RolPasajero 
-              handlePasajero={handlePasajero}
-              handleConductor={handleConductor}
-              rol='pasajero'
-            />
-          ) : (
-            <RolConductor
-              handlePasajero={handlePasajero}
-              handleConductor={handleConductor}
-              rol='conductor'
-             />
-          )
-        }
- 
-      </div>
-      
-    </div>
+    <ConductorPresentation
+      isWaiting={isWaiting}
+      googleMapsLoaded={googleMapsLoaded}
+      mapRef={mapRef}
+      userCoords={userCoords}
+      setUserCoords={setUserCoords}
+      travelData={travelData}
+      consultedTravel={consultedTravel}
+      handleTravelCardClick={handleTravelCardClick}
+      handleBackButtonClick={handleBackButtonClick}
+      handleCloseButtonClick={handleCloseButtonClick}
+      handleAcceptTrip={handleAcceptTrip}
+      handlePasajero={handlePasajero}
+      handleConductor={handleConductor}
+      ElapsedTimer={ElapsedTimer}
+      showTabs={showTabs}
+      hideTabs={hideTabs}
+    />
   );
 };
 

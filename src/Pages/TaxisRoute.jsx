@@ -21,7 +21,7 @@ const TaxisRoute = () => {
 
   console.log('🔹 Estado inicial de activeTab:', activeTab);
 
-  const routeRepeat = location.state?.routeRepeat || 0;
+  const routeRepeat = location.state?.routeRepeat + 1 || 1;
   //let routeRepeatActualizado = routeRepeat;
 
   useEffect(() => {
@@ -33,9 +33,9 @@ const TaxisRoute = () => {
     }
 
     if (routeRepeat % 2 === 0) {
-      setShowTabs(false);
-    } else {
       setShowTabs(true);
+    } else {
+      setShowTabs(false);
     }
 
     if (shiftToPasajero == true) {
