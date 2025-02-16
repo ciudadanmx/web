@@ -6,6 +6,7 @@ import { registerUserInStrapi, findUserInStrapi } from '../../utils/strapiUserSe
 
 import { FaUniversity, FaDollarSign, FaWallet, FaCarSide, FaHamburger, FaStore } from 'react-icons/fa';
 import { AiOutlineApartment, AiFillApi, AiOutlineRobot } from "react-icons/ai";
+import { BsBriefcaseFill } from "react-icons/bs";
 
 import BotonCircular from './../Usuarios/BotonCircular.jsx';
 
@@ -19,23 +20,38 @@ import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
 
-import { Link, useNavigate } from 'react-router-dom'; // Se agregó useNavigate junto con Link
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // Se agregó useNavigate junto con Link
 
 const NavBar = ({ SetIsMenuOpen }) => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const [isMenuOpen, setIsMenuOpen] = useState(SetIsMenuOpen || false);
-  const navigate = useNavigate(); // Se instancia el hook useNavigate
+  const navigate = useNavigate();
 
   // Estados para llevar la cuenta de la ruta y repeticiones (routeRepeat)
   const [lastRoute, setLastRoute] = useState('');
   const [routeRepeat, setRouteRepeat] = useState(0);
 
+  // Estado para la pestaña activa
+  const [activeTab, setActiveTab] = useState('');
+  const location = useLocation();
+  const isHomeOrInfo = location.pathname === '/' || location.pathname.startsWith('/info/');
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Ahora se utiliza useNavigate y se cuenta la repetición de la ruta (routeRepeat)
+  useEffect(() => {
+    // Extrae la ruta base: "/taxis" de "/taxis/pasajero/registro"
+    const segments = location.pathname.split('/');
+    const baseRoute = segments.length > 1 ? `/${segments[1]}` : location.pathname;
+    setActiveTab(baseRoute);
+  }, [location.pathname]);
+  
+
+
+  // Actualizamos activeTab en el evento onClick y navegamos
   const handleNavigation = (path) => {
+    setActiveTab(path);
     if (path === lastRoute) {
       const newRepeat = routeRepeat + 1;
       setRouteRepeat(newRepeat);
@@ -51,11 +67,8 @@ const NavBar = ({ SetIsMenuOpen }) => {
     const handleUserRegistration = async () => {
       if (isAuthenticated && user) {
         const userEmail = user.email;
-        
         try {
           const existingUsers = await findUserInStrapi(userEmail);
-  
-          // Verificar si existingUsers es un array antes de acceder a .length
           if (Array.isArray(existingUsers) && existingUsers.length === 0) {
             const result = await registerUserInStrapi(userEmail, user.name);
             console.log('Usuario registrado en Strapi:', result);
@@ -65,7 +78,6 @@ const NavBar = ({ SetIsMenuOpen }) => {
         }
       }
     };
-
     handleUserRegistration();
   }, [isAuthenticated, user]);
 
@@ -75,153 +87,143 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
   const handleLogout = () => {
     logout({ returnTo: window.location.origin });
-    setIsMenuOpen(false); // Cierra el menú desplegable al salir
+    setIsMenuOpen(false);
   };
 
   const handleLogin = () => {
     loginWithRedirect();
-    setIsMenuOpen(false); // Cierra el menú desplegable al iniciar sesión
+    setIsMenuOpen(false);
   };
 
   return (
     <>
-    <div className="navbar">
+      <div className="navbar">
         <div className="nav-links">
+        <div className="logo-container" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <img 
+            src="/ciudadan_logo.png" 
+            alt="Ciudadan Logo" 
+            className={`logo-img ${isHomeOrInfo ? 'en-home' : ''}`} 
+          />
+        </div>
 
-            <div className="logo">
-                <img src="/ciudadan_logo.png" alt="Ciudadan Logo" className="logo-img" />
-            </div>
+          <div className="nav-link correte">
+            <span>
+              <input
+                type="text"
+                placeholder="Buscar/Chatear/Controlar con I.A."
+                className="nav-input"
+                style={{ width: '333px', maxWidth: '400px', padding: '8px' }}
+              />
+              <span><BotonCircular clase="boton-busca" /></span>
+            </span>
+          </div>
 
+          <div className="nav-linky">
+            <MenuIcon
+              isOpen={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              authenticated={isAuthenticated}
+              userData={user}
+              className="cuenta-icon"
+            />
+          </div>
 
+          <div className="nav-linky">
+            <MessagesIcon
+              isOpen={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              authenticated={isAuthenticated}
+              userData={user}
+              className="cuenta-icon"
+            />
+          </div>
 
-            <div className="nav-link correte">
-                <span>
-                    <input
-                        type="text"
-                        placeholder="Buscar/Chatear/Controlar con I.A."
-                        className="nav-input"
-                        style={{ width: '333px', maxWidth: '400px', padding: '8px' }}
-                    />
-                    <span><BotonCircular clase="boton-busca"/></span>
-                </span>
-            </div>
+          <div className="nav-linky">
+            <NotificationsIcon
+              isOpen={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              authenticated={isAuthenticated}
+              userData={user}
+              className="cuenta-icon"
+            />
+          </div>
 
-
-
-            <div className="nav-linky">
-              <MenuIcon 
-                isOpen={isMenuOpen}
-                onClose={() => setIsMenuOpen(false)}
-                authenticated={isAuthenticated}
-                userData={user}
+          <div className="nav-linky">
+            <div className="cuenta-icon-container" onClick={toggleDropdown}>
+              <img
+                src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
+                alt="Profile"
                 className="cuenta-icon"
               />
             </div>
-
-            <div className="nav-linky">
-                <MessagesIcon 
-                    isOpen={isMenuOpen}
-                    onClose={() => setIsMenuOpen(false)}
-                    authenticated={isAuthenticated}
-                    userData={user}
-                    className="cuenta-icon"
-
-                />
-            </div>
-                
-
-            <div className="nav-linky">
-                <NotificationsIcon 
-                    isOpen={isMenuOpen}
-                    onClose={() => setIsMenuOpen(false)}
-                    authenticated={isAuthenticated}
-                    userData={user}
-                    className="cuenta-icon"
-
-                />
-            </div>
-
-
-
-            <div className='nav-linky'>
-                <div className="cuenta-icon-container" onClick={toggleDropdown}>
-                    <img
-                        src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
-                        alt="Profile"
-
-                        className="cuenta-icon"
-                    />
-                </div>
-            
-            </div>
-            <div className='padre'>
-                <div className={`account-menu-contenedor ${isMenuOpen ? 'open' : 'closed'}`}>
-                    {isMenuOpen && (
-                    <div className="account-menu.open">
-                    {isAuthenticated ? (
+          </div>
+          <div className="padre">
+            <div className={`account-menu-contenedor ${isMenuOpen ? 'open' : 'closed'}`}>
+              {isMenuOpen && (
+                <div className="account-menu.open">
+                  {isAuthenticated ? (
                     <>
-                    <div>Bienvenido, {user.name}
+                      <div>Bienvenido, {user.name}
                         <ul>
-                            <li><Link to="/cuenta" >Tu cuenta</Link></li>
-                            <li><Link to="/ayuda" >Ayuda</Link></li>
-                            <li><div  onClick={handleLogout}>Salir</div></li>
+                          <li><Link to="/cuenta">Tu cuenta</Link></li>
+                          <li><Link to="/ayuda">Ayuda</Link></li>
+                          <li><div onClick={handleLogout}>Salir</div></li>
                         </ul>
-                    </div>
+                      </div>
                     </>
-                    ) : (
+                  ) : (
                     <>
-                    <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
-                    <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
-                    <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
+                      <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
+                      <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
+                      <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
                     </>
-                    )}
-                    </div>   
-        
-      )
-      
-      }
-                 </div>
+                  )}
+                </div>
+              )}
             </div>
+          </div>
+        </div>
 
-</div>
-
-
-
-    <div className="nav-links">
-        <div className="nav-link" onClick={() => handleNavigation('/gana')} style={{ cursor: 'pointer' }}>
+        <div className="nav-links">
+          <div className={`nav-link ${activeTab === '/gana' ? 'active' : ''}`} onClick={() => handleNavigation('/gana')} style={{ cursor: 'pointer' }}>
             <span className="iko"><FaDollarSign /></span>
             <span className="nav-text">Ganar</span>
-        </div>
-        <div className="nav-link" onClick={() => handleNavigation('/cartera')} style={{ cursor: 'pointer' }}>
+          </div>
+          <div className={`nav-link ${activeTab === '/cartera' ? 'active' : ''}`} onClick={() => handleNavigation('/cartera')} style={{ cursor: 'pointer' }}>
             <span className="iko"><FaWallet /></span>
             <span className="nav-text">Cartera</span>
-        </div>
-        <div className="nav-link subido" onClick={() => handleNavigation('/taxis')} style={{ cursor: 'pointer' }}>
+          </div>
+          <div className={`nav-link ${activeTab === '/taxis' ? 'active' : ''} subido`} onClick={() => handleNavigation('/taxis')} style={{ cursor: 'pointer' }}>
             <span className="iko2 bajado"><FaCarSide /></span>
             <span className="nav-text subido">Taxis</span>
-        </div>
-        <div className="nav-link" onClick={() => handleNavigation('/comida')} style={{ cursor: 'pointer' }}>
+          </div>
+          <div className={`nav-link ${activeTab === '/comida' ? 'active' : ''}`} onClick={() => handleNavigation('/comida')} style={{ cursor: 'pointer' }}>
             <span className="iko"><FaHamburger /></span>
             <span className="nav-text">Comida</span>
-        </div>
-        <div className="nav-link" onClick={() => handleNavigation('/market')} style={{ cursor: 'pointer' }}>
+          </div>
+          <div className={`nav-link ${activeTab === '/market' ? 'active' : ''}`} onClick={() => handleNavigation('/market')} style={{ cursor: 'pointer' }}>
             <span className="iko"><FaStore /></span>
             <span className="nav-text">Market</span>
-        </div>
-        <div className="nav-link" onClick={() => handleNavigation('/academia')} style={{ cursor: 'pointer' }}>
+          </div>
+          <div className={`nav-link ${activeTab === '/oficina' ? 'active' : ''}`} onClick={() => handleNavigation('/oficina')} style={{ cursor: 'pointer' }}>
+            <span className="iko"><BsBriefcaseFill /></span>
+            <span className="nav-text">Oficina</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/academia' ? 'active' : ''}`} onClick={() => handleNavigation('/academia')} style={{ cursor: 'pointer' }}>
             <span className="iko"><FaUniversity /></span>
             <span className="nav-text">Academia</span>
-        </div>
-        <div className="nav-link" onClick={() => handleNavigation('/comunidad')} style={{ cursor: 'pointer' }}>
+          </div>
+          <div className={`nav-link ${activeTab === '/comunidad' ? 'active' : ''}`} onClick={() => handleNavigation('/comunidad')} style={{ cursor: 'pointer' }}>
             <span className="iko"><AiOutlineApartment /></span>
             <span className="nav-text">Comunidad</span>
+          </div>
         </div>
-    </div>
 
-      <div className="auth-buttons">
-        
+        <div className="auth-buttons">
+          {/* Aquí puedes agregar botones adicionales de autenticación */}
+        </div>
       </div>
-    </div>
     </>
   );
 };

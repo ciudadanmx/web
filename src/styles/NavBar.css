@@ -92,7 +92,7 @@
   }
   
   .subido {
-    margin-top: -6px !important;
+    margin-top: -11px !important;
   }
   .bajado {
     margin-top: 16px !important;
@@ -247,7 +247,7 @@
       margin-right: 0px;
     }
   
-  @media (max-width: 342px) {
+  @media (max-width: 450px) {
   
     .logo-img {
       width: 130px; /* Tamaño grande del logo, ajusta según sea necesario */
@@ -276,3 +276,98 @@
   }
   
   }
+
+
+
+/* Línea inferior que aparece solo en la pestaña activa */
+.nav-link.active .material-icons::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 2px;
+  background-color: #fff200;
+  border-radius: 1px;
+}
+
+/* Aumento del tamaño de los iconos en escritorio */
+@media (min-width: 1024px) {
+  .nav-link .material-icons {
+    font-size: 36px;
+  }
+}
+
+/* Ajuste adicional: si el icono de taxis tenía estilos extra, asegúrate de que ya no existan márgenes o posiciones especiales */
+.iko {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+  
+
+/* Pestaña activa: contorno rosa estilizado y glow */
+.nav-link.active {
+  text-shadow: 0 0 8px #ff4dff;  /* Glow rosa refinado */
+  position: relative;             /* Para posicionar la raya inferior */
+}
+
+/* Glow solo en el icono */
+.nav-link.active .iko svg,
+.nav-link.active .iko2 svg {
+  filter: drop-shadow(0 0 8px #ff4dff);
+}
+
+/* Raya inferior en la pestaña activa */
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;                           
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;                          
+  height: 4px;                         
+  background-color: #ff4dff;  /* Mismo rosa estilizado */
+}
+
+
+
+
+/* Efecto para cuando el usuario está en Home o en /info/*** */
+.logo.en-home {
+  filter: drop-shadow(0 0 12px #ff4dff); /* Glow rosa refinado */
+  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+}
+
+/* Al pasar el cursor, cambia a mano y crece suavemente */
+.logo:hover, .logo:focus {
+  cursor: pointer;
+  transform: scale(1.08); /* Efecto de crecimiento sutil */
+  filter: drop-shadow(0 0 16px #ff4dff); /* Glow más fuerte en hover */
+}
+
+/* Efecto clic sofisticado con un rebote elegante */
+.logo:active {
+  transform: scale(0.95); /* Ligero "rebote" al hacer clic */
+  filter: drop-shadow(0 0 20px #ff00ff); /* Glow más intenso momentáneo */
+}
+
+.logo-img {
+  transition: all 0.3s ease-in-out;
+}
+
+.logo-container:hover .logo-img,
+.logo-container:focus .logo-img {
+  transform: scale(1.1);
+}
+
+.en-home {
+  
+  filter: drop-shadow(0px 0px 3px #ff69b4) drop-shadow(0px 0px 2px #ff69b4);
+  display: inline-block; /* Evita que el padding expanda la caja */
+  padding: 3px; /* Ajusta el espacio sin agrandar demasiado */
+  transition: all 0.3s ease-in-out;
+}
+

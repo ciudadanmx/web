@@ -55,8 +55,8 @@ root.render(
               <Route path="/" element={<HomeRoute />} />
               <Route path="/gana" element={<GanaRoute />} />
               <Route path="/taxis" element={<TaxisRoute />} />
-              <Route path="/conductor/registro" element={<RegistroConductor />} />
-              <Route path="/pasajero/registro" element={<RegistroPasajero />} />
+              <Route path="/taxis/conductor/registro" element={<RegistroConductor />} />
+              <Route path="/taxis/pasajero/registro" element={<RegistroPasajero />} />
               <Route path="/comida" element={<RestaurantesRoute />} />
               <Route path="/market" element={<MarketRoute />} />
               <Route path="/academia" element={<AcademiaRoute />} />

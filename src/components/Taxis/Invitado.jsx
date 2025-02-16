@@ -265,7 +265,7 @@ const Invitado = () => {
             fontFamily: "'molto', sans-serif",
             color: "yellow",
           }}
-          onClick={() => handleNavigation('/pasajero/registro')}
+          onClick={() => handleNavigation('/taxis/pasajero/registro')}
           component={motion.button}
           whileHover={{
             scale: 1.1,
@@ -281,7 +281,7 @@ const Invitado = () => {
           Únete y Viaja Seguro
         </Button>
         <div className="conoces-taxi ct1">
-        <a onClick={() => handleNavigation('/conductor/registro')} href="#"> ¿ Eres  Conductor de Taxi Concesionado en CDMX ?</a>
+        <a onClick={() => handleNavigation('/taxis/conductor/registro')} href="#"> ¿ Eres  Conductor de Taxi Concesionado en CDMX ?</a>
         </div>
         
       </Paper>
