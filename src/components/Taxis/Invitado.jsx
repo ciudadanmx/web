@@ -16,7 +16,7 @@ const Invitado = ({ onRegister }) => {
         position: "relative",
         width: "100%",
         // Ajuste de altura para tablet
-        height: isMobile ? "200vh" : isTablet ? "120vh" : "100vh",
+        height: isMobile ? "420vh" : isTablet ? "279vh" : "166vh",
         overflow: "hidden",
         display: "flex",
         justifyContent: "center",
@@ -26,7 +26,9 @@ const Invitado = ({ onRegister }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <MapAnimation />
+      <MapAnimation taxiMovilPosicionY="40%" direction="left" />
+      <MapAnimation taxiMovilPosicionY="20%" direction="right" />
+      <MapAnimation taxiMovilPosicionY="60%" direction="right" />
 
       <Paper
         component={motion.div}
@@ -37,13 +39,15 @@ const Invitado = ({ onRegister }) => {
           textAlign: "center",
           borderRadius: "10px",
           padding: "20px",
-          background: `linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.70)), url(${mapa})`,
+          background: `linear-gradient(rgba(232, 50, 201, 0.7), rgba(255, 255, 255, 0.70)), url(${mapa})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           // Integración de breakpoint tablet (sm) en MUI
           width: { xs: "80%", sm: "90%", md: "90%" },
-          height: { xs: "180vh", sm: "110vh", md: "88vh" },
+          minHeight: { xs: "420vh", sm: "276vh", md: "163vh" },
+          display: "flex",
+          flexDirection: "column",
         }}
         initial={{ scale: 0.4, opacity: 0 }}
         animate={{ scale: 1, opacity: 0.8 }}
@@ -56,23 +60,32 @@ const Invitado = ({ onRegister }) => {
           component={motion.div}
           animate={{ scale: [1, 1.03, 1] }}
           sx={{
-             fontFamily: "'schwager-sans', sans-serif",
+            fontFamily: "'schwager-sans', sans-serif",
             fontWeight: 700,
             letterSpacing: "3px",
-            color: "#f09fba",
+            color: "rgba(236, 232, 29, 0.88)",
             textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
             height: { xs: 70, md: 110 },
-            width: "auto",
-            marginBottom: { xs: "10px", sm: "-12px", md: "-25px" },
+            width: "90%", // Se asegurará de ocupar el 90% del contenedor padre
+            display: "flex", // Asegura que se estire en horizontal
+            justifyContent: "center", // Centra el texto horizontalmente
+            alignItems: "center", // Centra verticalmente dentro del contenedor
+            textAlign: "center", // Centra el texto si hay varias líneas
+            marginBottom: { xs: "10px", sm: "0px", md: "0px" },
             textTransform: "capitalize",
             fontSize: { xs: "0.7rem", sm: "1.1rem", md: "2.6rem" },
+            //whiteSpace: "nowrap", // **Fuerza a que el texto esté en 1 sola línea**
+            overflow: "hidden", // Evita que el texto se salga
+            textOverflow: "ellipsis", // Muestra "..." si no cabe
+            wordWrap: "break-word", // Permite que el texto se divida en varias líneas
           }}
+          
           transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
         >
-            <i className="material-icons" style={{ fontSize: "40px", verticalAlign: "middle" }}>
+            <i className="material-icons" style={{ color:"yellow", fontSize: "40px", verticalAlign: "middle" }}>
             local_taxi
           </i>{" "}
-          Taxi Ciudadano: Tradición y Modernidad
+          Ciudadan Taxi:<small style={{ display: "block", marginTop: "5px", fontSize: "1rem" }}> Tradición Económica y Comodidad Móvil.</small>
         </Typography>
 
         <Typography
@@ -81,9 +94,10 @@ const Invitado = ({ onRegister }) => {
             marginBottom: "20px",
             fontFamily: "'molto', sans-serif",
             fontSize: "1.1rem",
+            color: "rgba(247, 243, 243, 0.86)"
           }}
         >
-          Experimenta la fusión perfecta entre la tradición de los taxis concesionados y la
+          Experimenta la fusión perfecta entre la excelente tarifa tradicional de los taxis concesionados y la
           innovación de los servicios por aplicación en CDMX. Para disfrutar de todos estos
           beneficios, es necesario registrarse con tu teléfono.
         </Typography>
@@ -102,8 +116,9 @@ const Invitado = ({ onRegister }) => {
             textAlign: "left",
             borderRadius: "8px",
             padding: "8px",
-            borderLeft: "4px solid #f09fba",
+            borderLeft: "4px solid rgba(228, 243, 16, 0.87)",
             paddingLeft: "12px",
+            width: "44%",
           }}
         >
           <Typography
@@ -116,18 +131,18 @@ const Invitado = ({ onRegister }) => {
             }}
           >
             <ListItemIcon sx={{ minWidth: 0, marginRight: "8px" }}>
-              <i className="material-icons" style={{ color: "#f09fba" }}>
+              <i className="material-icons" style={{ color: "yellow" }}>
                 attach_money
               </i>
             </ListItemIcon>
-            Taxis concesionados con precios competitivos
+            Taxis concesionados al mejor precio de la ciudad.
           </Typography>
           <Typography
             variant="subtitle2"
             color="textSecondary"
             sx={{ fontFamily: "'molto', sans-serif" }}
           >
-            Disfruta de tarifas justas y promociones exclusivas para un viaje sin sorpresas.
+            Las comodidades de los taxis de aplicación ahora con el precio de los taxis de concesión que brindan este servicio autogestivo cooperativista 6.0.
           </Typography>
         </motion.div>
 
@@ -145,8 +160,10 @@ const Invitado = ({ onRegister }) => {
             textAlign: "right",
             borderRadius: "8px",
             padding: "8px",
-            borderRight: "4px solid #f09fba",
+            borderRight: "4px solid rgba(252,249,250,0.9)",
             paddingRight: "12px",
+            width: "44%",
+            marginLeft: "auto",
           }}
         >
           <Typography
@@ -160,7 +177,7 @@ const Invitado = ({ onRegister }) => {
             }}
           >
             <ListItemIcon sx={{ minWidth: 0, marginRight: "8px" }}>
-              <i className="material-icons" style={{ color: "#f09fba" }}>
+              <i className="material-icons" style={{ color: "rgba(252,249,250,0.9)" }}>
                 security
               </i>
             </ListItemIcon>
@@ -171,7 +188,7 @@ const Invitado = ({ onRegister }) => {
             color="textSecondary"
             sx={{ fontFamily: "'molto', sans-serif" }}
           >
-            Tu seguridad es nuestra prioridad. Seguimiento en tiempo real y verificación constante
+            Tu seguridad es nuestra prioridad. Seguimiento en tiempo real, compartir recorrido con contacto solidario, verificación constante y otras medidas de seguridad de primera.
             de conductores.
           </Typography>
         </motion.div>
@@ -190,8 +207,9 @@ const Invitado = ({ onRegister }) => {
             textAlign: "left",
             borderRadius: "8px",
             padding: "8px",
-            borderLeft: "4px solid #f09fba",
+            borderLeft: "4px solid yellow",
             paddingLeft: "12px",
+            width: "30%",
           }}
         >
           <Typography
@@ -204,19 +222,19 @@ const Invitado = ({ onRegister }) => {
             }}
           >
             <ListItemIcon sx={{ minWidth: 0, marginRight: "8px" }}>
-              <i className="material-icons" style={{ color: "#f09fba" }}>
-                loyalty
-              </i>
+            <i className="material-icons" style={{ color: "yellow" }}>account_balance_wallet</i>
+
             </ListItemIcon>
-            Beneficios exclusivos en CDMX
+            Ahorra Pagando con Laborys
           </Typography>
           <Typography
             variant="subtitle2"
             color="textSecondary"
             sx={{ fontFamily: "'molto', sans-serif" }}
           >
-            Paga solo el 10% de tus viajes con Laborys y accede a servicios premium para el
-            ciudadano moderno.
+            Paga hasta un 10% del importe de tus viajes con Laborys, la Moneda de Ciudadan.org
+            <br />
+            ¿ Cómo Ganar Laborys ?
           </Typography>
         </motion.div>
 
@@ -231,16 +249,17 @@ const Invitado = ({ onRegister }) => {
             padding: "10px 20px",
             fontSize: "1rem",
             fontFamily: "'molto', sans-serif",
+            color: "yellow",
           }}
           onClick={onRegister}
           component={motion.button}
           whileHover={{
             scale: 1.1,
-            boxShadow: "0px 0px 12px rgba(255, 255, 0, 0.9)",
+            boxShadow: "0px 0px 12px white",
           }}
           transition={{ duration: 0.3 }}
           startIcon={
-            <i className="material-icons" style={{ color: "white", fontSize: "1.3rem" }}>
+            <i className="material-icons" style={{ color: "yellow", fontSize: "1.3rem" }}>
               person_pin_circle
             </i>
           }

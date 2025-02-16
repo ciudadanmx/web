@@ -15,7 +15,7 @@ const RegistroConductores = ({ onRegister }) => {
       style={{
         position: "relative",
         width: "100%",
-        height: isMobile ? "200vh" : isTablet ? "120vh" : "100vh",
+        height: isMobile ? "260vh" : isTablet ? "164vh" : "133vh",
         overflow: "hidden",
         display: "flex",
         justifyContent: "center",
@@ -25,7 +25,9 @@ const RegistroConductores = ({ onRegister }) => {
       animate={{ opacity: 0.8, y: 0 }}
       transition={{ duration: 1.3, ease: "easeOut" }}
     >
-    <MapAnimation />
+    <MapAnimation taxiMovilPosicionY="40%" direction="right" />
+    <MapAnimation taxiMovilPosicionY="20%" direction="left" />
+    <MapAnimation taxiMovilPosicionY="60%" direction="left" />
 
       <Paper
         component={motion.div}
@@ -42,7 +44,7 @@ const RegistroConductores = ({ onRegister }) => {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           width: { xs: "80%", sm: "90%", md: "90%" },
-          height: { xs: "180vh", sm: "110vh", md: "88vh" },
+          height: { xs: "260vh", sm: "164vh", md: "133vh" },
         }}
         initial={{ scale: 0.4, opacity: 0 }}
         animate={{ scale: 1, opacity: 0.7 }}
@@ -62,7 +64,7 @@ const RegistroConductores = ({ onRegister }) => {
             fontFamily: "'schwager-sans', sans-serif",
             fontWeight: 700,
             letterSpacing: "2px",
-            color: "#f0f005",
+            color: "yellow",
             textShadow: "2px 2px 12px rgba(8, 8, 8, 0.96)",
             fontSize: { xs: "1.3rem", sm: "1.8rem", md: "2.2rem" },
             //border: "2px solidrgb(26, 24, 25)",
@@ -75,6 +77,10 @@ const RegistroConductores = ({ onRegister }) => {
         }}
         transition={{ repeat: Infinity, duration: 3.3, ease: "easeInOut" }}
         >
+             <i className="material-icons" style={{ color:"yellow", fontSize: "40px", verticalAlign: "middle" }}>
+            local_taxi
+          </i>{" "}
+
         ¿Eres taxista concesionado en CDMX?
         </Typography>
 
@@ -85,6 +91,13 @@ const RegistroConductores = ({ onRegister }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
           zIndex="2500"
+          style={{
+            marginBottom: "20px",
+            marginTop: "4vh",
+            fontFamily: "'molto', sans-serif",
+            fontSize: "1.1rem",
+            color: "rgb(18, 53, 14)"
+          }}
         >
           Olvídate de las comisiones abusivas y las tarifas que no decides tú. Con nuestra plataforma, 
           tú fijas el precio, eliges los viajes y solo pagas una tarifa plana de $200 MXN al mes. 

@@ -1,7 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const MapAnimation = () => {
+const MapAnimation = ({taxiMovilPosicionY, direction = "right"}) => {
+    //const TaxiMovilPosicionY = "20%";
     return (
       <div className="map-animation-wrapper">
         {/* Fondo con imagen de mapa */}
@@ -75,24 +76,24 @@ const MapAnimation = () => {
   
         {/* Ícono de taxi desplazándose horizontalmente */}
         <motion.div
-          className="taxi-icon"
-          initial={{ x: -50 }}
-          animate={{ x: 800 }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut",
-          }}
-          style={{
-
-            top:"20%",
-          }}
-        >
-          <i className="material-icons" style={{ fontSize: "40px", color: "#e05c88" }}>
-            local_taxi
-          </i>
-        </motion.div>
+      className="taxi-icon"
+      initial={{ x: direction === "right" ? -50 : 800 }} // Empieza desde la izquierda o la derecha
+      animate={{ x: direction === "right" ? 800 : -50 }} // Se mueve hacia la derecha o la izquierda
+      transition={{
+        duration: 6,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut",
+      }}
+      style={{
+        top: taxiMovilPosicionY,
+        zIndex: 2000,
+      }}
+    >
+      <i className="material-icons" style={{ fontSize: "40px", color: "#e05c88" }}>
+        local_taxi
+      </i>
+    </motion.div>
       </div>
     );
   };
