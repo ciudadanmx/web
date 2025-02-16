@@ -13,8 +13,10 @@ const Invitado = () => {
     const navigate = useNavigate();
     const isMobile = useMediaQuery("(max-width:600px)");
     // Integración para tablet
-    const isTablet = useMediaQuery("(min-width:601px) and (max-width:1024px)");
-    const laboryPosition = isMobile ? "33%" : isTablet ? "33%" : "50%";
+    const isTablet = useMediaQuery("(min-width:601px) and (max-width:900px)");
+    const laboryPositionX = isMobile ? "33%" : isTablet ? "33%" : "45%";
+    const laboryPositionY = isMobile ? "26%" : isTablet ? "26%" : "40%";
+    
 
     const handleNavigation = (path) => {
     
@@ -195,7 +197,7 @@ const Invitado = () => {
             }}
           >
             <ListItemIcon sx={{ minWidth: 0, marginRight: "8px" }}>
-              <i className="material-icons" style={{ color: "rgba(252,249,250,0.9)" }}>
+              <i className="material-icons" style={{ color: "yellow" }}>
                 security
               </i>
             </ListItemIcon>
@@ -213,17 +215,19 @@ const Invitado = () => {
 
 
         
-        <div 
-            style={{ 
-                position: "absolute", 
-                top: "26%", 
-                left: laboryPosition,
-                transform: "translate(-50%, -50%)",
-                marginRight: "10px"
-            }}
-        >
-            <LaboryBadge />
-        </div>
+        <a onClick={() => handleNavigation('/cartera/labory')} href="#">
+          <div 
+              style={{ 
+                  position: "absolute", 
+                  top: laboryPositionY, 
+                  left: laboryPositionX,
+                  transform: "translate(-50%, -50%)",
+                  marginRight: "10px"
+              }}
+          >
+              <LaboryBadge />
+          </div>
+        </a>
 
 
 
@@ -271,7 +275,9 @@ const Invitado = () => {
           >
             Paga hasta un 10% del importe de tus viajes con Laborys, la Moneda de Ciudadan.org
             <br />
-            ¿ Cómo Ganar Laborys ?
+            <a onClick={() => handleNavigation('/gana')} href="#">
+              ¿ Cómo Ganar Laborys ?
+            </a>
           </Typography>
         </motion.div>
 
