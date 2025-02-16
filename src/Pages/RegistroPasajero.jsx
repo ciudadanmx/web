@@ -79,6 +79,7 @@ const RegistroPasajero = ({ onRegister }) => {
         justifyContent: "center",
         alignItems: "center",
         height: "auto",
+        backgroundColor: "#afcf20",
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -87,7 +88,7 @@ const RegistroPasajero = ({ onRegister }) => {
       <Paper
         elevation={10}
         sx={{
-          width: isMobile ? "95%" : "60%",
+          width: isMobile ? "95%" : "73%",
           minHeight: "80vh",
           background: `linear-gradient(rgba(232, 50, 201, 0.7), rgba(255, 255, 255, 0.85)), url(${mapa})`,
           backgroundSize: "cover",
