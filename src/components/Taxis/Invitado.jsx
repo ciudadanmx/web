@@ -2,7 +2,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button, Typography, Paper, ListItemIcon, useMediaQuery } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
+
 import "./MapAnimation.css";
+
+import LaboryBadge from '../LaboryBadge';
 import mapa from "../../assets/mapa.png";
 import MapAnimation from './MapAnimation';
 
@@ -11,6 +14,7 @@ const Invitado = () => {
     const isMobile = useMediaQuery("(max-width:600px)");
     // Integración para tablet
     const isTablet = useMediaQuery("(min-width:601px) and (max-width:1024px)");
+    const laboryPosition = isMobile ? "33%" : isTablet ? "33%" : "50%";
 
     const handleNavigation = (path) => {
     
@@ -207,6 +211,24 @@ const Invitado = () => {
           </Typography>
         </motion.div>
 
+
+        
+        <div 
+            style={{ 
+                position: "absolute", 
+                top: "26%", 
+                left: laboryPosition,
+                transform: "translate(-50%, -50%)",
+                marginRight: "10px"
+            }}
+        >
+            <LaboryBadge />
+        </div>
+
+
+
+
+
         {/* Sección 3 - Alineada a la izquierda */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -217,6 +239,7 @@ const Invitado = () => {
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
           }}
           style={{
+            marginLeft: "10px",
             marginBottom: "20px",
             textAlign: "left",
             borderRadius: "8px",
