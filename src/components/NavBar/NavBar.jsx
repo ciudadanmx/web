@@ -113,7 +113,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                 type="text"
                 placeholder="Buscar/Chatear/Controlar con I.A."
                 className="nav-input"
-                style={{ width: '333px', maxWidth: '400px', padding: '8px' }}
+                style={{ width: '333px', maxWidth: '400px', padding: '8px', top: '-6px' }}
               />
               <span><BotonCircular clase="boton-busca" /></span>
             </span>
@@ -164,13 +164,11 @@ const NavBar = ({ SetIsMenuOpen }) => {
                 <div className="account-menu.open">
                   {isAuthenticated ? (
                     <>
-                      <div>Bienvenido, {user.name}
-                        <ul>
-                          <li><Link to="/cuenta">Tu cuenta</Link></li>
-                          <li><Link to="/ayuda">Ayuda</Link></li>
-                          <li><div onClick={handleLogout}>Salir</div></li>
-                        </ul>
-                      </div>
+                    <div>Bienvenido, {user.name}</div>
+                     <div className="dropdown-item" onClick={handleLogin}>Tu Cuenta</div>
+                      <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
+                      <div className="dropdown-item" onClick={handleLogin}>Salir</div>
+
                     </>
                   ) : (
                     <>
