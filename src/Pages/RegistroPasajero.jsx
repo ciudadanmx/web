@@ -12,15 +12,22 @@ import {
   useMediaQuery,
   Grid,
   Box,
+  Checkbox,
+  FormControlLabel,
+  Modal,
+  InputAdornment,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import mapa from "../assets/mapa.png";
 import paises from "../assets/paises.json";
+import PasajeroTermsModal from '../components/Taxis/PasajeroTermsModal';
 
 const RegistroPasajero = ({ onRegister }) => {
   const isMobile = useMediaQuery("(max-width:600px)");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
 
   const [formData, setFormData] = useState({
     nombres: "",
@@ -29,41 +36,30 @@ const RegistroPasajero = ({ onRegister }) => {
     telefono: "",
     codigoPais: "+52",
     fechaNacimiento: null,
+    // Se eliminaron email y dirección
   });
 
   const [errors, setErrors] = useState({});
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
-    setErrors({ ...errors, [field]: "" }); // Limpia error al modificar campo
+    setErrors({ ...errors, [field]: "" });
   };
 
   const validarFormulario = () => {
     let newErrors = {};
-
-    // Validación de campos de nombre
-    if (!formData.nombres.trim()) {
+    if (!formData.nombres.trim())
       newErrors.nombres = "El nombre es obligatorio";
-    }
-    if (!formData.apellidoPaterno.trim()) {
+    if (!formData.apellidoPaterno.trim())
       newErrors.apellidoPaterno = "El apellido paterno es obligatorio";
-    }
-    // El apellido materno puede ser opcional; no lo forzamos.
-
-    // Validación de teléfono
-    if (!formData.telefono.match(/^\d{10}$/)) {
-      newErrors.telefono = "Ingresa un número válido (10 dígitos)";
-    }
-
-    // Validación de fecha de nacimiento
-    const edad = formData.fechaNacimiento
-      ? dayjs().diff(dayjs(formData.fechaNacimiento), "year")
-      : 0;
+    if (!formData.telefono.match(/^\d{10}$/))
+      newErrors.telefono = "Número inválido (10 dígitos)";
     if (!formData.fechaNacimiento) {
       newErrors.fechaNacimiento = "Selecciona tu fecha de nacimiento";
-    } else if (edad < 18) {
+    } else if (dayjs().diff(dayjs(formData.fechaNacimiento), "year") < 18) {
       newErrors.fechaNacimiento = "Debes ser mayor de 18 años";
     }
+    if (!aceptaTerminos) newErrors.aceptaTerminos = "Debes aceptar los términos";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -78,7 +74,6 @@ const RegistroPasajero = ({ onRegister }) => {
 
   return (
     <motion.div
-      // Contenedor que ocupa casi toda la pantalla
       style={{
         display: "flex",
         justifyContent: "center",
@@ -92,22 +87,18 @@ const RegistroPasajero = ({ onRegister }) => {
       <Paper
         elevation={10}
         sx={{
-          // Más ancho y altura mínima
           width: isMobile ? "95%" : "60%",
-          minHeight: { xs: "80vh", sm: "80vh", md: "80vh" },
-          // Fondo rosa con el mapa
+          minHeight: "80vh",
           background: `linear-gradient(rgba(232, 50, 201, 0.7), rgba(255, 255, 255, 0.85)), url(${mapa})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backdropFilter: "blur(6px)",
           borderRadius: "12px",
           textAlign: "center",
-          // Centrado vertical interno
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           p: 4,
-          top: {xs: "13px", sm: "13px", md: "1px"},
           position: "relative",
         }}
         component={motion.div}
@@ -115,55 +106,36 @@ const RegistroPasajero = ({ onRegister }) => {
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Título sin animación de scale */}
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          color="white"
-          mb={3}
-          style = {{
-            position: "relative",
-            top: { xs: "30px", sm:"30px", md:"-60em" },
-          }}
-        >
+        <Typography variant="h4" fontWeight="bold" color="white" mb={3}>
           🚖 Registro de Pasajero
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          {/* Nombre(s), Apellido Paterno, Apellido Materno */}
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <TextField
                 label="Nombre(s)"
-                variant="outlined"
                 fullWidth
-                margin="dense"
                 value={formData.nombres}
                 onChange={(e) => handleChange("nombres", e.target.value)}
                 error={!!errors.nombres}
                 helperText={errors.nombres}
-                
               />
             </Grid>
             <Grid item xs={12} md={4}>
               <TextField
                 label="Apellido Paterno"
-                variant="outlined"
                 fullWidth
-                margin="dense"
                 value={formData.apellidoPaterno}
                 onChange={(e) => handleChange("apellidoPaterno", e.target.value)}
                 error={!!errors.apellidoPaterno}
                 helperText={errors.apellidoPaterno}
-                
               />
             </Grid>
             <Grid item xs={12} md={4}>
               <TextField
                 label="Apellido Materno (Opcional)"
-                variant="outlined"
                 fullWidth
-                margin="dense"
                 value={formData.apellidoMaterno}
                 onChange={(e) =>
                   handleChange("apellidoMaterno", e.target.value)
@@ -172,12 +144,16 @@ const RegistroPasajero = ({ onRegister }) => {
             </Grid>
           </Grid>
 
-          {/* Código de país y teléfono */}
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={4} sm={3}>
               <FormControl fullWidth margin="dense">
-                <InputLabel>Código</InputLabel>
+                <InputLabel
+                  sx={{ position: "relative", top: "-14px" }}
+                >
+                  Código
+                </InputLabel>
                 <Select
+                  sx={{ position: "relative", top: "-30px" }}
                   value={formData.codigoPais}
                   onChange={(e) => handleChange("codigoPais", e.target.value)}
                 >
@@ -199,23 +175,30 @@ const RegistroPasajero = ({ onRegister }) => {
             <Grid item xs={8} sm={9}>
               <TextField
                 label="Teléfono"
-                variant="outlined"
                 fullWidth
-                margin="dense"
-                type="tel"
                 value={formData.telefono}
                 onChange={(e) => handleChange("telefono", e.target.value)}
                 error={!!errors.telefono}
                 helperText={errors.telefono}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <i className="material-icons">phone</i>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
           </Grid>
 
-          {/* Fecha de nacimiento */}
           <DatePicker
+            openTo="year"
+            views={["year", "month", "day"]}
             label="Fecha de Nacimiento"
             value={formData.fechaNacimiento}
-            onChange={(newValue) => handleChange("fechaNacimiento", newValue)}
+            onChange={(newValue) =>
+              handleChange("fechaNacimiento", newValue)
+            }
             disableFuture
             renderInput={(params) => (
               <TextField
@@ -225,30 +208,85 @@ const RegistroPasajero = ({ onRegister }) => {
                 error={!!errors.fechaNacimiento}
                 helperText={errors.fechaNacimiento}
                 sx={{ mt: 2 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <i className="material-icons">calendar_today</i>
+                    </InputAdornment>
+                  ),
+                }}
               />
             )}
           />
 
-          {/* Botón de registro */}
+          {/* Checkbox en nueva línea */}
+          <Box sx={{ mt: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={aceptaTerminos}
+                  onChange={(e) => setAceptaTerminos(e.target.checked)}
+                />
+              }
+              label={
+                <span>
+                  Acepto los{" "}
+                  <span
+                    style={{ color: "blue", cursor: "pointer" }}
+                    onClick={() => setModalOpen(true)}
+                  >
+                    términos y condiciones
+                  </span>
+                </span>
+              }
+            />
+            {errors.aceptaTerminos && (
+              <Typography color="error" variant="caption">
+                {errors.aceptaTerminos}
+              </Typography>
+            )}
+          </Box>
+
           <Button
             type="submit"
             variant="contained"
             fullWidth
-            sx={{
-              mt: 3,
-              bgcolor: "#ff4081",
-              color: "white",
-              fontWeight: "bold",
-              "&:hover": { bgcolor: "#e91e63" },
-            }}
-            component={motion.button}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            sx={{ mt: 3, bgcolor: "#ff4081", color: "white" }}
           >
             Registrarme
           </Button>
         </form>
       </Paper>
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "10px",
+            zIndex: 999999999,
+          }}
+        >
+          <Typography variant="h4">Términos y Condiciones</Typography>
+          <Typography variant="body1">
+            
+            <PasajeroTermsModal 
+                modalOpen={modalOpen}
+                setModalOpen={setModalOpen}
+            />
+
+          </Typography>
+          <Button onClick={() => setModalOpen(false)} sx={{ mt: 2 }}>
+            Cerrar
+          </Button>
+        </Box>
+      </Modal>
     </motion.div>
   );
 };

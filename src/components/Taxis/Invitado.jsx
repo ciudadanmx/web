@@ -1,24 +1,28 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Button, Typography, Paper, ListItemIcon, useMediaQuery } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 import "./MapAnimation.css";
 import mapa from "../../assets/mapa.png";
 import MapAnimation from './MapAnimation';
 
 const Invitado = () => {  
-  const isMobile = useMediaQuery("(max-width:600px)");
-  // Integración para tablet
-  const isTablet = useMediaQuery("(min-width:601px) and (max-width:1024px)");
-  const handleNavigation = (path) => {
-    window.location.href = path;
+    const navigate = useNavigate();
+    const isMobile = useMediaQuery("(max-width:600px)");
+    // Integración para tablet
+    const isTablet = useMediaQuery("(min-width:601px) and (max-width:1024px)");
+
+    const handleNavigation = (path) => {
+    
+    navigate(path);
   };
 
-  const handleRegistrar = () => {
+  /* const handleRegistrar = () => {
     window.location.href = '/pasajero/registro';
   }
   const handleTaxista = () => {
     window.location.href = '/conductor/registro';
-  }
+  } */
 
   return (
     <motion.div
@@ -261,7 +265,7 @@ const Invitado = () => {
             fontFamily: "'molto', sans-serif",
             color: "yellow",
           }}
-          onClick={handleRegistrar}
+          onClick={() => handleNavigation('/pasajero/registro')}
           component={motion.button}
           whileHover={{
             scale: 1.1,
