@@ -1,7 +1,7 @@
 import React from 'react';
 import Taxis from '../components/Taxis/Taxis.jsx';
 
-const RtaxisRoute = () => {
+const RegistroConductor = () => {
   return (
     <div>
       <Taxis />
@@ -9,4 +9,4 @@ const RtaxisRoute = () => {
   );
 };
 
-export default RtaxisRoute;
+export default RegistroConductor;

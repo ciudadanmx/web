@@ -5,10 +5,20 @@ import "./MapAnimation.css";
 import mapa from "../../assets/mapa.png";
 import MapAnimation from './MapAnimation';
 
-const Invitado = ({ onRegister }) => {
+const Invitado = () => {  
   const isMobile = useMediaQuery("(max-width:600px)");
   // Integración para tablet
   const isTablet = useMediaQuery("(min-width:601px) and (max-width:1024px)");
+  const handleNavigation = (path) => {
+    window.location.href = path;
+  };
+
+  const handleRegistrar = () => {
+    window.location.href = '/pasajero/registro';
+  }
+  const handleTaxista = () => {
+    window.location.href = '/conductor/registro';
+  }
 
   return (
     <motion.div
@@ -251,7 +261,7 @@ const Invitado = ({ onRegister }) => {
             fontFamily: "'molto', sans-serif",
             color: "yellow",
           }}
-          onClick={onRegister}
+          onClick={handleRegistrar}
           component={motion.button}
           whileHover={{
             scale: 1.1,
@@ -266,6 +276,10 @@ const Invitado = ({ onRegister }) => {
         >
           Únete y Viaja Seguro
         </Button>
+        <div className="conoces-taxi ct1">
+        <a onClick={() => handleNavigation('/conductor/registro')} href="#"> ¿ Eres  Conductor de Taxi Concesionado en CDMX ?</a>
+        </div>
+        
       </Paper>
     </motion.div>
   );
