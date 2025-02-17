@@ -11,6 +11,7 @@ import BotonCircular from './../Usuarios/BotonCircular.jsx';
 import MenuIcon from './MenuIcon';
 import MessagesIcon from './MessagesIcon';
 import NotificationsIcon from './NotificationsIcon';
+import UserMenu from './UserMenu.jsx';
 import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
@@ -180,41 +181,26 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   />
                 </div>
               </div>
-              <div className="padre">
-                <div className={`account-menu-contenedor ${isMenuOpen ? 'open' : 'closed'}`}>
-                  {isMenuOpen && (
-                    <div className="account-menu.open">
-                      {isAuthenticated ? (
-                        <>
-                          <div className="dropdown-item profile-container">
-                          <a onClick={() => handleLinkClick(`/perfil/${user.name.replace(/\s+/g, '-')}`)} href="#">
-                          
-                            <span className="usuario-nombre"><img
-                              src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
-                              alt="Profile"
-                              className="cuenta-icon perfil-imagen"
-                            /></span>
-                            <span className="usuario-nombre">
-                              {user.name}
-                            </span>
-                            </a>
-                            </div>
-                          
-                          <div className="dropdown-item" onClick={handleLogin}>Tu Cuenta</div>
-                          
-                          <div className="dropdown-item" onClick={handleLogout}>Salir</div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
-                          <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
-                          <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
+              
+
+
+
+
+              <UserMenu 
+                handleLogin={handleLogin}
+                isMenuOpen={isMenuOpen}
+                setIsMenuOpen={setIsMenuOpen}
+                handleLogout={handleLogout}
+                
+                handleLinkClick={handleLinkClick}
+                defaultProfileImage={defaultProfileImage}
+                guestImage={guestImage}
+                Link={Link}
+              />
+
+
+
+
             
             </div>
           </div>
@@ -223,7 +209,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
         
 
-        <div className="nav-links anchote">
+        <div className="nav-links wraper">
           <div className={`nav-link ${activeTab === '/gana' ? 'active' : ''}`} onClick={() => handleNavigation('/gana')} style={{ cursor: 'pointer' }}>
             <span className="small-icon"><FaDollarSign /></span>
             <span className="nav-text">Ganar</span>

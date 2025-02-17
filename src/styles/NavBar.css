@@ -141,6 +141,89 @@
   margin-top: 5px;
   font-weight: 600;
 }
+
+
+/* Pestaña activa: contorno rosa estilizado y glow */
+.nav-link.active {
+  text-shadow: 0 0 8px #ff4dff;  /* Glow rosa refinado */
+  position: relative;             /* Para posicionar la raya inferior */
+}
+
+/* Glow solo en el icono */
+.nav-link.active .iko svg,
+.nav-link.active .iko2 svg {
+  filter: drop-shadow(0 0 8px #ff4dff);
+}
+
+/* Raya inferior en la pestaña activa */
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;                           
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;                          
+  height: 4px;                         
+  background-color: #ff4dff;  /* Mismo rosa estilizado */
+}
+
+/*estilos de las 3 columnas de la fila superior de la navbar */
+.columnas {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-width: 100%;
+
+}
+
+.columna3 {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  top: 6px;
+}
+
+.columna2 {
+  position: relative;
+  top: -3px;
+  max-width: 80%;
+  left: -6%;
+}
+
+
+.nav-input {
+  min-width: 30vw; /* O ajusta el valor según sea necesario */
+  max-width: 400px; /* Establece un ancho máximo si lo deseas */
+  padding: 2px; /* Añade padding para mejorar la apariencia */
+  border: 1px solid #ccc; /* Añade un borde para que sea más visible */
+  border-radius: 24px; /* Opcional: añade bordes redondeados */
+  box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
+  margin-top: -30px;
+  margin-left: 20px;
+}
+
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+  justify-content: center;
+  width: 100%;
+  margin-top: -8px;
+  margin-bottom: -8px;
+
+}
+
+
+.wraper {
+  width: 100vw; /* Ocupa todo el ancho de la pantalla */
+  margin-left: 0; /* Asegúrate de que no haya márgenes a la izquierda */
+  margin-right: 0; /* Asegúrate de que no haya márgenes a la derecha */
+  display: flez;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: nowrap;
+}
   
 /* Responsividad para pantallas pequeñas */
 @media (max-width: 1268px) {
@@ -256,37 +339,6 @@
 
 
 
-/* Ajuste adicional: si el icono de taxis tenía estilos extra, asegúrate de que ya no existan márgenes o posiciones especiales */
-
-  
-
-/* Pestaña activa: contorno rosa estilizado y glow */
-.nav-link.active {
-  text-shadow: 0 0 8px #ff4dff;  /* Glow rosa refinado */
-  position: relative;             /* Para posicionar la raya inferior */
-}
-
-/* Glow solo en el icono */
-.nav-link.active .iko svg,
-.nav-link.active .iko2 svg {
-  filter: drop-shadow(0 0 8px #ff4dff);
-}
-
-/* Raya inferior en la pestaña activa */
-.nav-link.active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;                           
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;                          
-  height: 4px;                         
-  background-color: #ff4dff;  /* Mismo rosa estilizado */
-}
-
-
-
-
 
 @media (max-width: 510px) {
   .nav-text {
@@ -295,70 +347,6 @@
 }
 
 
-
-
-
-
-.columnas {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  min-width: 100%;
-
-}
-
-.columna3 {
-  display: flex;
-  flex-direction: row;
-  position: relative;
-  top: 6px;
-}
-
-.columna2 {
-  position: relative;
-  top: -3px;
-  max-width: 80%;
-  left: -6%;
-}
-
-
-
-
-
-
-.nav-input {
-  min-width: 30vw; /* O ajusta el valor según sea necesario */
-  max-width: 400px; /* Establece un ancho máximo si lo deseas */
-  padding: 2px; /* Añade padding para mejorar la apariencia */
-  border: 1px solid #ccc; /* Añade un borde para que sea más visible */
-  border-radius: 24px; /* Opcional: añade bordes redondeados */
-  box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
-  margin-top: -30px;
-  margin-left: 20px;
-}
-
-
-.nav-links {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
-  justify-content: center;
-  width: 100%;
-  margin-top: -8px;
-  margin-bottom: -8px;
-
-}
-
-
-.anchote {
-  width: 100vw; /* Ocupa todo el ancho de la pantalla */
-  margin-left: 0; /* Asegúrate de que no haya márgenes a la izquierda */
-  margin-right: 0; /* Asegúrate de que no haya márgenes a la derecha */
-  display: flez;
-  flex-direction: row;
-  justify-content: stretch;
-  flex-wrap: nowrap;
-}
 
 @media (max-width: 378px) {
   
