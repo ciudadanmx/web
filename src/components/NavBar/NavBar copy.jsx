@@ -12,7 +12,6 @@ import MenuIcon from './MenuIcon';
 import MessagesIcon from './MessagesIcon';
 import NotificationsIcon from './NotificationsIcon';
 import UserMenu from './UserMenu.jsx';
-import NavButton from './NavButton.jsx';
 import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
@@ -31,18 +30,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
   const location = useLocation();
   const isHomeOrInfo = location.pathname === '/' || location.pathname.startsWith('/info/');
 
-  const iconMap = {
-    gana: <FaDollarSign />,
-    cartera: <FaWallet />,
-    taxis: <FaCarSide />,
-    comida: <FaHamburger />,
-    market: <FaStore />,
-    oficina: <BsBriefcaseFill />,
-    academia: <FaUniversity />,
-    comunidad: <AiOutlineApartment />,
-  };
-
-  /*   const toggleMenu = () => {
+/*   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   }; */
 
@@ -69,9 +57,11 @@ const NavBar = ({ SetIsMenuOpen }) => {
     }
   };
 
+
   const handleLinkClick = (path) => {
     // Realiza la navegación
     handleNavigation(path);
+    
     // Cierra el menú
     setIsMenuOpen(false);
   };
@@ -121,8 +111,10 @@ const NavBar = ({ SetIsMenuOpen }) => {
     <>
       <section className="navbar">
         <div className="nav-links">
+          
           <div className='columnas'>
             <div className="columnax">
+            
               <div className="logo-container" alt="Ciudadan.org --> Cooperativismo 6.0" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
                 <img 
                   src="/ciudadan_logo.png" 
@@ -131,8 +123,10 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   className={`logo-img ${isHomeOrInfo ? 'en-home' : ''}`} 
                 />
               </div>
+            
             </div>
             <div className='columnax columna2'>
+
               <div className="nav-link correte">
                 <span>
                   <input
@@ -142,16 +136,12 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     style={{ width: '333px', maxWidth: '400px', padding: '8px', top: '-11px' }}
                   />
                   <span><BotonCircular clase="boton-busca" /></span>
-                  
                 </span>
               </div>
+            
             </div>
             <div className="columnax columna3">
-            <div className="nav-linky">
-                <span className='robot-mobile'>
-                  <BotonCircular clase="boton-ia" />
-                </span>
-              </div>
+
               <div className="nav-linky">
                 <MenuIcon
                   isOpen={isMenuOpen}
@@ -161,6 +151,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   className="cuenta-icon"
                 />
               </div>
+
               <div className="nav-linky">
                 <MessagesIcon
                   isOpen={isMenuOpen}
@@ -170,6 +161,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   className="cuenta-icon"
                 />
               </div>
+
               <div className="nav-linky">
                 <NotificationsIcon
                   isOpen={isMenuOpen}
@@ -179,6 +171,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   className="cuenta-icon"
                 />
               </div>
+
               <div className="nav-linky">
                 <div className="cuenta-icon-container" onClick={() => { isAuthenticated ? toggleDropdown() : handleLogin(); }}>
                   <img
@@ -188,28 +181,71 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   />
                 </div>
               </div>
+              
+
+
+
+
               <UserMenu 
                 handleLogin={handleLogin}
                 isMenuOpen={isMenuOpen}
                 setIsMenuOpen={setIsMenuOpen}
                 handleLogout={handleLogout}
+                
                 handleLinkClick={handleLinkClick}
                 defaultProfileImage={defaultProfileImage}
                 guestImage={guestImage}
                 Link={Link}
               />
+
+
+
+
+            
             </div>
           </div>
+
         </div>
+
+        
+
         <div className="nav-links wraper">
-        {["gana", "cartera", "taxis", "comida", "market", "oficina", "academia", "comunidad"].map((section) => (
-  <NavButton
-    key={section}
-    section={section}
-    activeTab={activeTab}
-    handleNavigation={handleNavigation}
-  />
-))}
+          <div className={`nav-link ${activeTab === '/gana' ? 'active' : ''}`} onClick={() => handleNavigation('/gana')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><FaDollarSign /></span>
+            <span className="nav-text">Ganar</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/cartera' ? 'active' : ''}`} onClick={() => handleNavigation('/cartera')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><FaWallet /></span>
+            <span className="nav-text">Cartera</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/taxis' ? 'active' : ''} `} onClick={() => handleNavigation('/taxis')} style={{ cursor: 'pointer' }}>
+            <span className="big-icon "><FaCarSide /></span>
+            <span className="nav-text taxi-subido ">Taxis</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/comida' ? 'active' : ''}`} onClick={() => handleNavigation('/comida')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><FaHamburger /></span>
+            <span className="nav-text">Comida</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/market' ? 'active' : ''}`} onClick={() => handleNavigation('/market')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><FaStore /></span>
+            <span className="nav-text">Market</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/oficina' ? 'active' : ''}`} onClick={() => handleNavigation('/oficina')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><BsBriefcaseFill /></span>
+            <span className="nav-text">Oficina</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/academia' ? 'active' : ''}`} onClick={() => handleNavigation('/academia')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><FaUniversity /></span>
+            <span className="nav-text">Academia</span>
+          </div>
+          <div className={`nav-link ${activeTab === '/comunidad' ? 'active' : ''}`} onClick={() => handleNavigation('/comunidad')} style={{ cursor: 'pointer' }}>
+            <span className="small-icon"><AiOutlineApartment /></span>
+            <span className="nav-text">Comunidad</span>
+          </div>
+        </div>
+
+        <div className="auth-buttons">
+          {/* Aquí puedes agregar botones adicionales de autenticación */}
         </div>
       </section>
     </>

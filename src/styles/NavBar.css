@@ -58,8 +58,33 @@
 }
 
 .boton-ia {
-  display: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+  justify-content: center;
+  width: 10%;
+  margin-top: -8px;
+  margin-bottom: -8px;
+  
+  font-size: 33px; /* Tamaño del icono */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000; /* Fondo negro */
+  border-radius: 50%; /* Para hacer el botón circular */
+  width: 36px; /* Ajusta el tamaño del botón */
+  height: 36px; /* Ajusta el tamaño del botón */
+  color: #fff; /* Color del icono (blanco) */
+  cursor: pointer; /* Cursor de mano al pasar sobre el botón */
+  border: none; /* Sin borde */
+  outline: none; /* Sin borde de enfoque */
+  transition: background-color 0.3s; /* Suaviza cambios de color */
+  font-weight: 900;
+  max-width: 4vw !important;
+  height: auto !important;
+  display: none !important;
 }
+
 .boton-busca {
   position:relative;
   
@@ -184,6 +209,28 @@
   background-color: #ff4dff;  /* Mismo rosa estilizado */
 }
 
+
+.nav-link .message-count {
+  position: absolute;
+  top: -13px;
+  right: -25px;
+  
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 13px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #D4A5A5; /* Rosa pastel */
+  border: 1px solid #B38282; /* Rosa más oscuro */
+  color: yellow; /* Negro para el número */
+  
+}
+
+
 /* 3 Columnas de la fila superrior de la NavBar */
 .columnas {
   display: flex;
@@ -257,6 +304,10 @@
     display: block; /* Mostrar el texto debajo de cada ícono en móvil */
   }
 
+  .nav-link {
+    margin-top: 21px;
+  }
+
   .nav-link i {
     font-size: 30px; /* Tamaño de los iconos en móvil */
   }
@@ -267,6 +318,21 @@
     color: #000;
     margin: 0; /* Sin margen entre íconos en móvil */
   }
+
+    .columna3 {
+    gap: 1.5vw !important;
+    margin-right: -6vw !important;
+  }
+
+  .correte {
+    margin-top: -10px !important;
+    margin-left: 7px !important;
+  }
+
+  .boton-ia{
+    display: flex;
+  }
+
 }
  
 /* Dispositivos Móviles */
@@ -275,8 +341,10 @@
     display: none !important;
   }
 
-  .boton-busca {
-    display: none;
+  .boton-ia {
+    display: block !important;
+    width: 100vw !important;
+    height: auto !important;
   }
 
   .boton-ia {
@@ -284,7 +352,7 @@
     flex-direction: row;
     flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
     justify-content: center;
-    width: 100%;
+    width: 10%;
     margin-top: -8px;
     margin-bottom: -8px;
     
@@ -302,63 +370,95 @@
     outline: none; /* Sin borde de enfoque */
     transition: background-color 0.3s; /* Suaviza cambios de color */
     font-weight: 900;
-  
+    max-width: 4vw !important;
+    height: auto !important;
   }
+
+
+
+  /* Oculta los contadores individuales de cada sección */
+  .nav-link .message-count {
+    display: none;
+  }
+  .columna3 {
+    gap: 20px !important;
+  }
+
 }
 
 /* Pantallas muy pequeñas en dispositivos Móviles */
 @media (max-width: 378px) {
   
   .logo-img {
-    width: 200px; /* Tamaño grande del logo, ajusta según sea necesario */
+    max-width: 45vw; /* Tamaño grande del logo, ajusta según sea necesario */
     height: auto;
+    margin-right: -7vw;
     margin-bottom: 10px;
   }
 
 
-  .nav-text {
-    display: block; /* Mostrar el texto debajo del ícono en escritorio */
-    margin-top: 5px;
-    font-size: 13px;
-    font-weight: 700;
-  }
 
+
+  .nav-text {
+    display: none !important; /* Mostrar el texto debajo del ícono en escritorio */
+  }
+  /*íconos */
   .nav-link {
     font-size: 12px;
     margin-left: 0px;
     margin-right: 0px;
   }
 
+  .columna3 {
+    margin: 2px;
+    padding: 2px;
+    left: 10px;
+  }
+
+  .cuenta-icon-container {
+    position: relative;
+    
+    height: auto !important;
+    right: -1vw !important;
+    margin-left: -10px;
+    
+
+  }
+}
+
   /* Ajuste fino del tamaño del Logo */
-  @media (max-width: 450px) {
+  @media (max-width: 490px) {
 
-  .logo-img {
-    width: 130px; /* Tamaño grande del logo, ajusta según sea necesario */
-    height: auto;
-    margin-bottom: 10px;
+    .logo-img {
+      width: 180px; /* Tamaño grande del logo, ajusta según sea necesario */
+      height: auto;
+      margin-bottom: 10px;
+    }
+  
+  
+    .nav-text {
+  
+      display: none !important;
+    }
+  
+    .nav-link {
+      font-size: 10px;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+  
+    
+  
+    .boton-busca {
+      display: block !important;
+      font-size: 21px !important; /* Tamaño del icono */
+      width: 30px !important; /* Ajusta el tamaño del botón */
+      height: 30px !important; /* Ajusta el tamaño del botón */
+    }
+  
   }
 
 
-  .nav-text {
-
-    display: none !important;
-  }
-
-  .nav-link {
-    font-size: 10px;
-    margin-left: 0px;
-    margin-right: 0px;
-  }
-
-  .boton-busca {
-    font-size: 21px; /* Tamaño del icono */
-    width: 30px; /* Ajusta el tamaño del botón */
-    height: 30px; /* Ajusta el tamaño del botón */
-  }
-
-}
-
-}
 
 /* Aumento del tamaño de los iconos en escritorio */
 @media (min-width: 1024px) {
