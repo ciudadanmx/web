@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-//import { IoIosNotifications } from "react-icons/io";
 import { AiFillMessage } from "react-icons/ai";
-//import { SiGoogletasks } from "react-icons/si";
+import { useAuth0 } from '@auth0/auth0-react';
+import '../../styles/MessagesIcon.css';
 import MessagesMenu from './MessagesMenu.jsx';
 import axios from 'axios';
-import '../../styles/MessagesIcon.css';
-import { useAuth0 } from '@auth0/auth0-react';
 
 const MessagesIcon =  () => {
     const { user, isAuthenticated } = useAuth0();

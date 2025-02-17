@@ -11,7 +11,7 @@
     
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 200px;
+    width: 400px;
     
     z-index: 1000;
 }
@@ -25,24 +25,26 @@
 
 .account-menu {
     position: absolute;
-
     top: 30%; /* Alinea el menú justo debajo del ícono */
-    right: -90%;  /* Alínea a la izquierda */
-    right: 0; /* Alínea a la derecha */
+    right: 230px; /* Alínea a la derecha del contenedor */
     margin-top: 5px;
     
+    width: 90vw; /* Fijo en 600px de ancho */
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    width: 200px;
     display: none;
     z-index: 1000;
+    box-sizing: border-box; /* Asegura que el padding y borde se incluyan en el tamaño total */
 }
 
+
+
 .account-menu.open {
-    display: block;
+    display: block; /* Muestra el menú cuando tenga la clase 'open' */
 }
+
 
 .account-menu ul {
     list-style: none;
@@ -117,4 +119,44 @@
         width: 100%; /* Ajusta el ancho del menú para ocupar el 100% del contenedor */
         margin-top: 5px; /* Espacio entre el ícono y el menú */
     }
+}
+
+
+
+
+
+
+
+
+/*##########
+
+/* Clase para la imagen del perfil */
+
+
+.profile-container {
+    min-width: 600px;
+    width: 600px;
+}
+.perfil-imagen {
+    max-width: 30px; /* Tamaño adecuado */
+    max-height: 30px; /* Tamaño adecuado */
+    border-radius: 50%; /* Efecto círculo */
+    margin-right: 10px; /* Espacio entre la imagen y el nombre */
+    object-fit: cover; /* Mantiene la imagen ajustada */
+    display: inline-block; /* Para mantenerla en la misma línea */
+  }
+  
+  /* Clase para el nombre del usuario */
+  .usuario-nombre {
+    white-space: nowrap; /* Evita que el nombre se divida en varias líneas */
+    overflow: hidden; /* Oculta el texto que se sale del contenedor */
+    text-overflow: ellipsis; /* Muestra "..." si el texto se desborda */
+    display: inline-block; /* Hace que la imagen y el texto estén en la misma línea */
+    max-width: 150px; /* Limita el ancho máximo del nombre */
+    vertical-align: middle; /* Alineación vertical para centrar la imagen y el texto */
+  }
+  
+
+  .account-menu.open {
+    display: block; /* Muestra el menú cuando tiene la clase 'open' */
 }

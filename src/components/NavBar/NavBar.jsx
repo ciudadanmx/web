@@ -173,7 +173,16 @@ const NavBar = ({ SetIsMenuOpen }) => {
                 <div className="account-menu.open">
                   {isAuthenticated ? (
                     <>
-                      <div>Bienvenido, {user.name}</div>
+                      <div className="dropdown-item profile-container">
+                        <img
+                          src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
+                          alt="Profile"
+                          className="cuenta-icon perfil-imagen"
+                        />
+                        <span className="usuario-nombre">
+                          {user.name}
+                        </span>
+                      </div>
                       <div className="dropdown-item" onClick={handleLogin}>Tu Cuenta</div>
                       <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
                       <div className="dropdown-item" onClick={handleLogout}>Salir</div>
