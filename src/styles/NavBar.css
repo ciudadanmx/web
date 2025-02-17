@@ -288,8 +288,11 @@
 
 
 
-
-
+@media (max-width: 510px) {
+  .nav-text {
+    display: none !important;
+  }
+}
 
 
 
