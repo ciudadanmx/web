@@ -2,22 +2,13 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import NavBar from './NavBar/NavBar';
+import App from '../App.js';
 
 const Layout = () => {
-
-    console.log('/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*');
-      useEffect(()=>{
-        console.log('*/*/*/*/*/*/*/*//*/********///// ');
-      }, []);
-    
-
   return (
     <>
-    <div>
       <NavBar />
-      <h1> Outlet !!! </h1>
-      <Outlet />
-      </div>
+      <App />
     </>
   );
 };

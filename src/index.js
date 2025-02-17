@@ -29,14 +29,8 @@ import "dayjs/locale/es"; // Importar el idioma español
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
 
-const Layout = () => {
-  return (
-    <>
-      <NavBar />
-      <App />
-    </>
-  );
-};
+import Layout from './components/Layout.jsx'
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
