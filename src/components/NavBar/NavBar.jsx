@@ -148,8 +148,8 @@ const NavBar = ({ SetIsMenuOpen }) => {
             </div>
             <div className="columnax columna3">
             <div className="nav-linky">
-                <span className='robot-mobile'>
-                  <BotonCircular clase="boton-ia" />
+                <span className="robot-mobile">
+                  <BotonCircular clase="boton-ia" mediaQ={true} />
                 </span>
               </div>
               <div className="nav-linky">

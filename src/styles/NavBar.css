@@ -58,32 +58,31 @@
 }
 
 .boton-ia {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
-  justify-content: center;
-  width: 10%;
-  margin-top: -8px;
-  margin-bottom: -8px;
+  position:relative;
   
-  font-size: 33px; /* Tamaño del icono */
+
+  font-size: 20px; /* Tamaño del icono */
   display: inline-flex;
-  justify-content: center;
-  align-items: center;
   background-color: #000; /* Fondo negro */
   border-radius: 50%; /* Para hacer el botón circular */
-  width: 36px; /* Ajusta el tamaño del botón */
-  height: 36px; /* Ajusta el tamaño del botón */
+
   color: #fff; /* Color del icono (blanco) */
   cursor: pointer; /* Cursor de mano al pasar sobre el botón */
   border: none; /* Sin borde */
   outline: none; /* Sin borde de enfoque */
   transition: background-color 0.3s; /* Suaviza cambios de color */
   font-weight: 900;
-  max-width: 4vw !important;
-  height: auto !important;
+  top: 10px;
   display: none !important;
+  stroke: #377a31; /* Amarillo brillante */
+  stroke-width: 2px; /* Ajusta el grosor del contorno */
+  filter: drop-shadow(0 0 5px #24a81f); /* Efecto de brillo */
+  transition: filter 0.3s ease-in-out;
+  width: 23px !important; /* Ajusta el tamaño del botón */
+  height: 23px !important; /* Ajusta el tamaño del botón */
 }
+
+
 
 .boton-busca {
   position:relative;
@@ -348,30 +347,29 @@
   }
 
   .boton-ia {
-    display: flex;
+   
     flex-direction: row;
     flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
     justify-content: center;
-    width: 10%;
-    margin-top: -8px;
-    margin-bottom: -8px;
     
-    font-size: 33px; /* Tamaño del icono */
+    
+    font-size: 30px; /* Tamaño del icono */
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    background-color: #000; /* Fondo negro */
+    background-color: #F4A261; /* Fondo negro */
     border-radius: 50%; /* Para hacer el botón circular */
-    width: 36px; /* Ajusta el tamaño del botón */
-    height: 36px; /* Ajusta el tamaño del botón */
-    color: #fff; /* Color del icono (blanco) */
+    
+    color: #4e394a; /* Color del icono (blanco) */
     cursor: pointer; /* Cursor de mano al pasar sobre el botón */
     border: none; /* Sin borde */
     outline: none; /* Sin borde de enfoque */
     transition: background-color 0.3s; /* Suaviza cambios de color */
     font-weight: 900;
-    max-width: 4vw !important;
-    height: auto !important;
+    max-width: 7vw !important;
+    top: -3px;
+    left: -2vw;
+    
   }
 
 
@@ -470,3 +468,14 @@
 
 
 
+
+.boton-ia svg path {
+  stroke: #fff200; /* Amarillo brillante */
+  stroke-width: 10px; /* Ajusta el grosor del contorno */
+  filter: drop-shadow(0 0 5px #3bad4e); /* Efecto de brillo */
+  transition: filter 0.3s ease-in-out;
+}
+
+.boton-ia:hover svg path {
+  filter: drop-shadow(0 0 10px #359c32); /* Brillo más intenso al pasar el mouse */
+}
