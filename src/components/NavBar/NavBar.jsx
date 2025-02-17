@@ -167,7 +167,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
                     <div>Bienvenido, {user.name}</div>
                      <div className="dropdown-item" onClick={handleLogin}>Tu Cuenta</div>
                       <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
-                      <div className="dropdown-item" onClick={handleLogin}>Salir</div>
+                      <div className="dropdown-item" onClick={handleLogout}>Salir</div>
 
                     </>
                   ) : (
