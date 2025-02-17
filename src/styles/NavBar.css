@@ -406,3 +406,14 @@
   margin-bottom: -8px;
 
 }
+
+
+.anchote {
+  width: 100vw; /* Ocupa todo el ancho de la pantalla */
+  margin-left: 0; /* Asegúrate de que no haya márgenes a la izquierda */
+  margin-right: 0; /* Asegúrate de que no haya márgenes a la derecha */
+  display: flez;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: nowrap;
+}

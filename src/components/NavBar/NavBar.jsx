@@ -223,7 +223,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
         
 
-        <div className="nav-links">
+        <div className="nav-links anchote">
           <div className={`nav-link ${activeTab === '/gana' ? 'active' : ''}`} onClick={() => handleNavigation('/gana')} style={{ cursor: 'pointer' }}>
             <span className="iko"><FaDollarSign /></span>
             <span className="nav-text">Ganar</span>
