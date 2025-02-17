@@ -21,8 +21,15 @@ import AcademiaRoute from './Pages/AcademiaRoute';
 import ComunidadRoute from './Pages/ComunidadRoute';
 import GenRoute from './Pages/GenRoute';
 import OpWalletRoute from './Pages/OpWalletRoute';
+import CallbackPage from './Pages/CallbackPage';
 import dayjs from "dayjs";
 import "dayjs/locale/es"; // Importar el idioma español
+
+// Función global para leer la cookie
+const getReturnUrl = () => {
+  const match = document.cookie.match(new RegExp('(^| )returnTo=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : '/gana';
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -31,7 +38,14 @@ root.render(
     <Auth0Provider
       domain={process.env.REACT_APP_AUTH0_DOMAIN}
       clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
-      redirectUri={window.location.origin}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+      onRedirectCallback={(appState) => {
+        const returnTo = getReturnUrl();
+        console.log("***************** URL de retorno obtenida:", returnTo);
+        window.location.replace(returnTo);
+        document.cookie = "returnTo=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        console.log("* * - - - URL guardada eliminada de la cookie.");
+      }}
     >
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
         <RolesProvider>
@@ -39,6 +53,7 @@ root.render(
             <NavBar />
             <Routes>
               <Route path="/" element={<HomeRoute />} />
+              <Route path="/callback" element={<CallbackPage />} />
               <Route path="/gana" element={<GanaRoute />} />
               <Route path="/taxis" element={<TaxisRoute />} />
               <Route path="/taxis/conductor/registro" element={<RegistroConductor />} />
