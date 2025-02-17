@@ -31,6 +31,7 @@ const getReturnUrl = () => {
   return match ? decodeURIComponent(match[2]) : '/gana';
 };
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(

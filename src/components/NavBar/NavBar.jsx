@@ -83,13 +83,24 @@ const NavBar = ({ SetIsMenuOpen }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogout = () => {
-    logout({ returnTo: window.location.origin });
+  const handleLogin = () => {
+    // Guarda la URL actual antes de hacer login
+    const currentUrl = window.location.pathname + window.location.search;
+    document.cookie = `returnTo=${encodeURIComponent(currentUrl)}; path=/; max-age=3600`;
+    console.log("URL guardada en cookie antes de login:", currentUrl);
+
+    // Redirige a Auth0
+    loginWithRedirect();
     setIsMenuOpen(false);
   };
 
-  const handleLogin = () => {
-    loginWithRedirect();
+  const handleLogout = () => {
+    // Elimina la cookie de retorno antes de cerrar sesión
+    document.cookie = "returnTo=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    console.log("Cookie de returnTo eliminada antes de logout");
+
+    // Redirige a la página principal después del logout
+    logout({ returnTo: window.location.origin });
     setIsMenuOpen(false);
   };
 
