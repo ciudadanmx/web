@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import '../../styles/GanarConCiudadan.css';
-import { AuthProvider } from '../../Contexts/AuthContext';
+
 
 // Importa las imágenes
 import publicidad from '../../assets/publicidad.png';

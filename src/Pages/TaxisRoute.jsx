@@ -38,7 +38,7 @@ const TaxisRoute = () => {
       setShowTabs(false);
     }
 
-    if (shiftToPasajero == true) {
+    if (shiftToPasajero === true) {
         setShowTabs(!showTabs)
     }
 

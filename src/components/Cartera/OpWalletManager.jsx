@@ -35,7 +35,7 @@ const OpWalletManager = () => {
       console.log('iniciando');
       if (isAuthenticated && user.email) {
         console.log('autenticado');
-        const userEmail = user.email ;
+        //const userEmail = user.email ;
         try {
           const response = await axios.get(
             `${process.env.REACT_APP_STRAPI_URL}/api/world-coin-wallets`,
