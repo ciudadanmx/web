@@ -13,13 +13,13 @@ import VideosImage from '../../assets/videos.png';
 const MenuMenu = ({ isOpen, onClose }) => {
   const items = [
     { href: "https://wiki.ciudadan.org", img: wikiImage, alt: "Wiki Ciudadan", label: "Wiki", target: "_blank" },
-    { href: "/quienes", img: quienesImage, alt: "¿Quiénes somos?", label: "¿Quiénes somos?" },
-    { href: "/blog", img: blogImage, alt: "Blog", label: "Blog" },
-    { href: "/whitepaper", img: whitePaperImage, alt: "LitePaper", label: "LitePaper" },
-    { href: "/tokens", img: tokensImage, alt: "Comprar Tokens", label: "Comprar Token$" },
-    { href: "/ayuda", img: helpImage, alt: "Ayuda", label: "Ayuda" },
-    { href: "/contacto", img: contactImage, alt: "Contacto", label: "Contactos" },
-    { href: "/videoteca", img: VideosImage, alt: "Videoteca", label: "Videoteca", target: "_blank" },
+    { href: "/info/quienes", img: quienesImage, alt: "¿Quiénes somos?", label: "¿Quiénes somos?" },
+    { href: "/info/blog", img: blogImage, alt: "Blog", label: "Blog" },
+    { href: "/info/whitepaper", img: whitePaperImage, alt: "LitePaper", label: "LitePaper" },
+    { href: "/cartera/tokens", img: tokensImage, alt: "Comprar Tokens", label: "Comprar Token$" },
+    { href: "/info/ayuda", img: helpImage, alt: "Ayuda", label: "Ayuda" },
+    { href: "/info/contacto", img: contactImage, alt: "Contacto", label: "Contactos" },
+    { href: "/info/videoteca", img: VideosImage, alt: "Videoteca", label: "Videoteca", target: "_blank" },
   ];
 
   return (
