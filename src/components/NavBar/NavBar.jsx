@@ -225,35 +225,35 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
         <div className="nav-links anchote">
           <div className={`nav-link ${activeTab === '/gana' ? 'active' : ''}`} onClick={() => handleNavigation('/gana')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><FaDollarSign /></span>
+            <span className="small-icon"><FaDollarSign /></span>
             <span className="nav-text">Ganar</span>
           </div>
           <div className={`nav-link ${activeTab === '/cartera' ? 'active' : ''}`} onClick={() => handleNavigation('/cartera')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><FaWallet /></span>
+            <span className="small-icon"><FaWallet /></span>
             <span className="nav-text">Cartera</span>
           </div>
           <div className={`nav-link ${activeTab === '/taxis' ? 'active' : ''} subido`} onClick={() => handleNavigation('/taxis')} style={{ cursor: 'pointer' }}>
-            <span className="iko2 bajado"><FaCarSide /></span>
+            <span className="big-icon bajado"><FaCarSide /></span>
             <span className="nav-text subido">Taxis</span>
           </div>
           <div className={`nav-link ${activeTab === '/comida' ? 'active' : ''}`} onClick={() => handleNavigation('/comida')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><FaHamburger /></span>
+            <span className="small-icon"><FaHamburger /></span>
             <span className="nav-text">Comida</span>
           </div>
           <div className={`nav-link ${activeTab === '/market' ? 'active' : ''}`} onClick={() => handleNavigation('/market')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><FaStore /></span>
+            <span className="small-icon"><FaStore /></span>
             <span className="nav-text">Market</span>
           </div>
           <div className={`nav-link ${activeTab === '/oficina' ? 'active' : ''}`} onClick={() => handleNavigation('/oficina')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><BsBriefcaseFill /></span>
+            <span className="small-icon"><BsBriefcaseFill /></span>
             <span className="nav-text">Oficina</span>
           </div>
           <div className={`nav-link ${activeTab === '/academia' ? 'active' : ''}`} onClick={() => handleNavigation('/academia')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><FaUniversity /></span>
+            <span className="small-icon"><FaUniversity /></span>
             <span className="nav-text">Academia</span>
           </div>
           <div className={`nav-link ${activeTab === '/comunidad' ? 'active' : ''}`} onClick={() => handleNavigation('/comunidad')} style={{ cursor: 'pointer' }}>
-            <span className="iko"><AiOutlineApartment /></span>
+            <span className="small-icon"><AiOutlineApartment /></span>
             <span className="nav-text">Comunidad</span>
           </div>
         </div>
