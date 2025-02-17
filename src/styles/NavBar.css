@@ -58,28 +58,8 @@
 }
 
 .boton-ia {
-  position:relative;
   
-
-  font-size: 20px; /* Tamaño del icono */
-  display: inline-flex;
-  background-color: #000; /* Fondo negro */
-  border-radius: 50%; /* Para hacer el botón circular */
-
-  color: #fff; /* Color del icono (blanco) */
-  cursor: pointer; /* Cursor de mano al pasar sobre el botón */
-  border: none; /* Sin borde */
-  outline: none; /* Sin borde de enfoque */
-  transition: background-color 0.3s; /* Suaviza cambios de color */
-  font-weight: 900;
-  top: 10px;
   display: none !important;
-  stroke: #377a31; /* Amarillo brillante */
-  stroke-width: 2px; /* Ajusta el grosor del contorno */
-  filter: drop-shadow(0 0 5px #24a81f); /* Efecto de brillo */
-  transition: filter 0.3s ease-in-out;
-  width: 23px !important; /* Ajusta el tamaño del botón */
-  height: 23px !important; /* Ajusta el tamaño del botón */
 }
 
 
@@ -329,7 +309,8 @@
   }
 
   .boton-ia{
-    display: flex;
+    display: none;
+    
   }
 
 }
@@ -341,9 +322,8 @@
   }
 
   .boton-ia {
-    display: block !important;
-    width: 100vw !important;
-    height: auto !important;
+    display: flex !important;
+   
   }
 
   .boton-ia {
@@ -428,7 +408,7 @@
   @media (max-width: 490px) {
 
     .logo-img {
-      width: 180px; /* Tamaño grande del logo, ajusta según sea necesario */
+      max-width: 13vw; /* Tamaño grande del logo, ajusta según sea necesario */
       height: auto;
       margin-bottom: 10px;
     }

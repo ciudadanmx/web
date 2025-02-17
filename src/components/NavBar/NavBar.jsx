@@ -31,6 +31,8 @@ const NavBar = ({ SetIsMenuOpen }) => {
   const location = useLocation();
   const isHomeOrInfo = location.pathname === '/' || location.pathname.startsWith('/info/');
 
+  const [logoSrc, setLogoSrc] = useState("");
+
   const iconMap = {
     gana: <FaDollarSign />,
     cartera: <FaWallet />,
@@ -47,11 +49,15 @@ const NavBar = ({ SetIsMenuOpen }) => {
   }; */
 
   useEffect(() => {
-    // Extrae la ruta base: ejemplo "/taxis" de "/taxis/pasajero/registro"
-    const segments = location.pathname.split('/');
-    const baseRoute = segments.length > 1 ? `/${segments[1]}` : location.pathname;
-    setActiveTab(baseRoute);
-  }, [location.pathname]);
+    const handleResize = () => {
+      setLogoSrc(window.innerWidth < 480 ? "/logo192.png" : "/ciudadan_logo.png");
+    };
+
+    handleResize(); // 🔥 Se ejecuta al montar el componente
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   
   // Actualizamos activeTab en el evento onClick y navegamos
   const handleNavigation = (path) => {
@@ -94,6 +100,13 @@ const NavBar = ({ SetIsMenuOpen }) => {
     handleUserRegistration();
   }, [isAuthenticated, user]);
 
+  
+  
+
+ 
+
+  
+
   const toggleDropdown = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -125,10 +138,10 @@ const NavBar = ({ SetIsMenuOpen }) => {
             <div className="columnax">
               <div className="logo-container" alt="Ciudadan.org --> Cooperativismo 6.0" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
                 <img 
-                  src="/ciudadan_logo.png" 
+                  src={logoSrc} 
                   alt="Ciudadan Logo" 
                   name="Ciudadan.Org - Cooperativismo 6.0 - Logo"
-                  className={`logo-img ${isHomeOrInfo ? 'en-home' : ''}`} 
+                  className={`logo-img ${isHomeOrInfo ? "en-home" : ""}`}
                 />
               </div>
             </div>
@@ -202,14 +215,14 @@ const NavBar = ({ SetIsMenuOpen }) => {
           </div>
         </div>
         <div className="nav-links wraper">
-        {["gana", "cartera", "taxis", "comida", "market", "oficina", "academia", "comunidad"].map((section) => (
-  <NavButton
-    key={section}
-    section={section}
-    activeTab={activeTab}
-    handleNavigation={handleNavigation}
-  />
-))}
+          {["gana", "cartera", "taxis", "comida", "market", "oficina", "academia", "comunidad"].map((section) => (
+            <NavButton
+              key={section}
+              section={section}
+              activeTab={activeTab}
+              handleNavigation={handleNavigation}
+            />
+          ))}
         </div>
       </section>
     </>
