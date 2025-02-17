@@ -54,11 +54,23 @@ const NavBar = ({ SetIsMenuOpen }) => {
       const newRepeat = routeRepeat + 1;
       setRouteRepeat(newRepeat);
       navigate(path, { state: { routeRepeat: newRepeat } });
+      setIsMenuOpen(false);
     } else {
       setLastRoute(path);
       setRouteRepeat(0);
       navigate(path, { state: { routeRepeat: 0 } });
+      setIsMenuOpen(false);
     }
+  };
+
+
+
+  const handleLinkClick = (path) => {
+    // Realiza la navegación
+    handleNavigation(path);
+    
+    // Cierra el menú
+    setIsMenuOpen(false);
   };
 
   useEffect(() => {
@@ -108,7 +120,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
     <>
       <div className="navbar">
         <div className="nav-links">
-          <div className="logo-container" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <div className="logo-container" alt="Ciudadan.org --> Cooperativismo 6.0" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <img 
               src="/ciudadan_logo.png" 
               alt="Ciudadan Logo" 
@@ -174,6 +186,8 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   {isAuthenticated ? (
                     <>
                       <div className="dropdown-item profile-container">
+                      <a onClick={() => handleLinkClick(`/perfil/${user.name.replace(/\s+/g, '-')}`)} href="#">
+                      
                         <span className="usuario-nombre"><img
                           src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
                           alt="Profile"
@@ -182,9 +196,11 @@ const NavBar = ({ SetIsMenuOpen }) => {
                         <span className="usuario-nombre">
                           {user.name}
                         </span>
-                      </div>
+                        </a>
+                        </div>
+                      
                       <div className="dropdown-item" onClick={handleLogin}>Tu Cuenta</div>
-                      <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
+                      
                       <div className="dropdown-item" onClick={handleLogout}>Salir</div>
                     </>
                   ) : (
