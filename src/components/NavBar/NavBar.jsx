@@ -218,9 +218,9 @@ const NavBar = ({ SetIsMenuOpen }) => {
             <span className="small-icon"><FaWallet /></span>
             <span className="nav-text">Cartera</span>
           </div>
-          <div className={`nav-link ${activeTab === '/taxis' ? 'active' : ''} subido`} onClick={() => handleNavigation('/taxis')} style={{ cursor: 'pointer' }}>
-            <span className="big-icon bajado"><FaCarSide /></span>
-            <span className="nav-text subido">Taxis</span>
+          <div className={`nav-link ${activeTab === '/taxis' ? 'active' : ''} `} onClick={() => handleNavigation('/taxis')} style={{ cursor: 'pointer' }}>
+            <span className="big-icon "><FaCarSide /></span>
+            <span className="nav-text taxi-subido ">Taxis</span>
           </div>
           <div className={`nav-link ${activeTab === '/comida' ? 'active' : ''}`} onClick={() => handleNavigation('/comida')} style={{ cursor: 'pointer' }}>
             <span className="small-icon"><FaHamburger /></span>

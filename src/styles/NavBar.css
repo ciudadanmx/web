@@ -110,15 +110,10 @@
   color: green;
 }
 
-
 /* acomodadno el botón de taki *** checar ************* */
-.subido {
-  margin-top: -11px !important;
+.taxi-subido {
+  margin-top: -7px !important;
 }
-.bajado {
-  margin-top: 16px !important;
-}
-
 
 
 .nav-links {
