@@ -1,36 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { RolesProvider } from './Contexts/RolesContext'; 
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
 import './styles/index.css';
+import Layout from './components/Layout.jsx'
 import HomeRoute from './Pages/HomeRoute';
 import GanaRoute from './Pages/GanaRoute';
 import NavBar from './components/NavBar/NavBar.jsx';
-
 import Conductor from './components/Taxis/Conductor';
 import Pasajero from './components/Taxis/Pasajero';
 import RegistroPasajero from './Pages/RegistroPasajero';
 import RegistroConductor from './Pages/RegistroConductor';
 import TaxisRoute from './Pages/TaxisRoute';
-//import RtaxisRoute from './Pages/RegistroConductor';
 import RestaurantesRoute from './Pages/RestaurantesRoute';
 import MarketRoute from './Pages/MarketRoute';
 import AcademiaRoute from './Pages/AcademiaRoute';
 import ComunidadRoute from './Pages/ComunidadRoute';
 import GenRoute from './Pages/GenRoute';
 import OpWalletRoute from './Pages/OpWalletRoute';
-import { RolesProvider } from './Contexts/RolesContext'; 
-import App from './App.js'
-//import Layout from './components/Layout'.
-
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es"; // Importar el idioma español
-
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Auth0Provider } from '@auth0/auth0-react';  // Importa Auth0Provider
-
-import Layout from './components/Layout.jsx'
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
