@@ -9,6 +9,7 @@ import './styles/index.css';
 import HomeRoute from './Pages/HomeRoute';
 import GanaRoute from './Pages/GanaRoute';
 import NavBar from './components/NavBar/NavBar.jsx';
+import Perfil from './components/Usuario/Perfil';
 import RegistroPasajero from './Pages/RegistroPasajero';
 import RegistroConductor from './Pages/RegistroConductor';
 import TaxisRoute from './Pages/TaxisRoute';
@@ -60,6 +61,7 @@ root.render(
               <Route path="/comunidad" element={<ComunidadRoute />} />
               <Route path="/gen" element={<GenRoute />} />
               <Route path="/cartera" element={<OpWalletRoute />} />
+              <Route path="/perfil/:username" element={<Perfil />} />
             </Routes>
           </Router>
         </RolesProvider>
