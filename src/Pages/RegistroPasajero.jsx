@@ -197,27 +197,27 @@ const RegistroPasajero = ({ onRegister }) => {
             views={["year", "month", "day"]}
             label="Fecha de Nacimiento"
             value={formData.fechaNacimiento}
-            onChange={(newValue) =>
-              handleChange("fechaNacimiento", newValue)
-            }
+            onChange={(newValue) => handleChange("fechaNacimiento", newValue)}
             disableFuture
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                fullWidth
-                margin="dense"
-                error={!!errors.fechaNacimiento}
-                helperText={errors.fechaNacimiento}
-                sx={{ mt: 2 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <i className="material-icons">calendar_today</i>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
+            slots={{
+              textField: (props) => (
+                <TextField
+                  {...props}
+                  fullWidth
+                  margin="dense"
+                  error={!!errors.fechaNacimiento}
+                  helperText={errors.fechaNacimiento}
+                  sx={{ mt: 2 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <i className="material-icons">calendar_today</i>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              ),
+            }}
           />
 
           {/* Checkbox en nueva línea */}

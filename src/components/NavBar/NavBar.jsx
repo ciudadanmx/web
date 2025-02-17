@@ -5,7 +5,7 @@ import defaultProfileImage from '../../assets/guest.png'; // Cambia esto si tien
 import { registerUserInStrapi, findUserInStrapi } from '../../utils/strapiUserService';
 
 import { FaUniversity, FaDollarSign, FaWallet, FaCarSide, FaHamburger, FaStore } from 'react-icons/fa';
-import { AiOutlineApartment, AiFillApi, AiOutlineRobot } from "react-icons/ai";
+import { AiOutlineApartment } from "react-icons/ai";
 import { BsBriefcaseFill } from "react-icons/bs";
 
 import BotonCircular from './../Usuarios/BotonCircular.jsx';
@@ -36,9 +36,9 @@ const NavBar = ({ SetIsMenuOpen }) => {
   const location = useLocation();
   const isHomeOrInfo = location.pathname === '/' || location.pathname.startsWith('/info/');
 
-  const toggleMenu = () => {
+/*   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
+  }; */
 
   useEffect(() => {
     // Extrae la ruta base: "/taxis" de "/taxis/pasajero/registro"

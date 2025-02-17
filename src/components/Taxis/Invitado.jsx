@@ -10,25 +10,18 @@ import mapa from "../../assets/mapa.png";
 import MapAnimation from './MapAnimation';
 
 const Invitado = () => {  
-    const navigate = useNavigate();
-    const isMobile = useMediaQuery("(max-width:600px)");
-    // Integración para tablet
-    const isTablet = useMediaQuery("(min-width:601px) and (max-width:900px)");
-    const laboryPositionX = isMobile ? "33%" : isTablet ? "33%" : "45%";
-    const laboryPositionY = isMobile ? "26%" : isTablet ? "26%" : "40%";
-    
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width:600px)");
+  // Integración para tablet
+  const isTablet = useMediaQuery("(min-width:601px) and (max-width:900px)");
+  const laboryPositionX = isMobile ? "33%" : isTablet ? "33%" : "45%";
+  const laboryPositionY = isMobile ? "26%" : isTablet ? "26%" : "40%";
+  
 
-    const handleNavigation = (path) => {
-    
+  const handleNavigation = (path) => {
+  
     navigate(path);
   };
-
-  /* const handleRegistrar = () => {
-    window.location.href = '/pasajero/registro';
-  }
-  const handleTaxista = () => {
-    window.location.href = '/conductor/registro';
-  } */
 
   return (
     <motion.div
