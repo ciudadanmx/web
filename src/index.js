@@ -38,10 +38,8 @@ root.render(
       authorizationParams={{ redirect_uri: window.location.origin }}
       onRedirectCallback={(appState) => {
         const returnTo = getReturnUrl();
-        console.log("***************** URL de retorno obtenida:", returnTo);
         window.location.replace(returnTo);
-        document.cookie = "returnTo=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        console.log("* * - - - URL guardada eliminada de la cookie.");
+        document.cookie = "returnTo=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";        
       }}
     >
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">

@@ -1,6 +1,6 @@
 .circular-image-sesion {
-    width: 50px; /* Ajusta el tamaño según tus necesidades */
-    height: 50px; /* Ajusta el tamaño según tus necesidades */
+    width: 50px; 
+    height: 50px; 
     border-radius: 50%;
     object-fit: cover; /* Asegura que la imagen se ajuste al contenedor sin distorsión */
     border: 2px solid #ddd; /* Añade un borde opcional alrededor de la imagen */
@@ -28,13 +28,12 @@
     display: none;
   }
   .boton-busca {
-    position:static;
+    position:relative;
+    
     margin-left: -23px;
     margin-right: -13%;
     font-size: 33px; /* Tamaño del icono */
     display: inline-flex;
-    justify-content: center;
-    align-items: center;
     background-color: #000; /* Fondo negro */
     border-radius: 50%; /* Para hacer el botón circular */
     width: 36px; /* Ajusta el tamaño del botón */
@@ -45,38 +44,21 @@
     outline: none; /* Sin borde de enfoque */
     transition: background-color 0.3s; /* Suaviza cambios de color */
     font-weight: 900;
+    top: 10px;
   }
   
   .boton-busca:hover {
-    background-color: #333; /* Cambia el color al pasar el cursor */
+    background-color: #c5287eea; /* Cambia el color al pasar el cursor */
   }
   
   
-  .nav-input {
-    width: 100%; /* O ajusta el valor según sea necesario */
-    max-width: 440px; /* Establece un ancho máximo si lo deseas */
-    padding: 2px; /* Añade padding para mejorar la apariencia */
-    border: 1px solid #ccc; /* Añade un borde para que sea más visible */
-    border-radius: 24px; /* Opcional: añade bordes redondeados */
-    box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
-    margin-top: -30px;
-    margin-left: 20px;
-  }
-  
-  .correte {
-    margin-left: 100px;
-  }
-  
-  .nav-links {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
-    justify-content: center;
-    width: 100%;
-    margin-top: -8px;
-    margin-bottom: -8px;
-  
-  }
+ 
+
+
+
+
+
+
   
   .iko {
     font-size: 28px;
@@ -371,3 +353,56 @@
   transition: all 0.3s ease-in-out;
 }
 
+
+
+
+
+
+
+
+.columnas {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-width: 100%;
+
+}
+
+.columna3 {
+  display: flex;
+  flex-direction: row;
+}
+
+.columna2 {
+  position: relative;
+  top: -13px;
+  max-width: 80%;
+}
+
+
+
+
+
+
+.nav-input {
+  min-width: 30vw; /* O ajusta el valor según sea necesario */
+  max-width: 400px; /* Establece un ancho máximo si lo deseas */
+  padding: 2px; /* Añade padding para mejorar la apariencia */
+  border: 1px solid #ccc; /* Añade un borde para que sea más visible */
+  border-radius: 24px; /* Opcional: añade bordes redondeados */
+  box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
+  margin-top: -30px;
+  margin-left: 20px;
+}
+
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+  justify-content: center;
+  width: 100%;
+  margin-top: -8px;
+  margin-bottom: -8px;
+
+}
