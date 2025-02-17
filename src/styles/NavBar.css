@@ -17,11 +17,6 @@
   margin-bottom: 0px;
 }
 
-  /* Efecto para cuando el usuario está en Home o en /info/*** */
-.logo.en-home {
-  filter: drop-shadow(0 0 12px #ff4dff); /* Glow rosa refinado */
-  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
-}
 
 /* Al pasar el cursor, cambia a mano y crece suavemente */
 .logo:hover, .logo:focus {
@@ -47,6 +42,12 @@
 .logo-container:focus .logo-img {
   transform: scale(1.1);
 }
+
+  /* Efecto para cuando el usuario está en Home o en /info/*** */
+  .logo.en-home {
+    filter: drop-shadow(0 0 12px #ff4dff); /* Glow rosa refinado */
+    transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+  }  
 
 .en-home {
   
@@ -83,8 +84,18 @@
   background-color: #c5287eea; /* Cambia el color al pasar el cursor */
 }
 
- 
+.nav-input {
+  min-width: 30vw; /* O ajusta el valor según sea necesario */
+  max-width: 400px; /* Establece un ancho máximo si lo deseas */
+  padding: 2px; /* Añade padding para mejorar la apariencia */
+  border: 1px solid #ccc; /* Añade un borde para que sea más visible */
+  border-radius: 24px; /* Opcional: añade bordes redondeados */
+  box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
+  margin-top: -30px;
+  margin-left: 20px;
+}
 
+/* Íconos de la Fila Inferior de la NavBar */
 .small-icon {
   font-size: 28px;
   color: green
@@ -100,8 +111,7 @@
 }
 
 
-
-
+/* acomodadno el botón de taki *** checar ************* */
 .subido {
   margin-top: -11px !important;
 }
@@ -109,15 +119,24 @@
   margin-top: 16px !important;
 }
 
-.shadow {
-  box-shadow: 5px 5px 4px #ff0000;
+
+
+.nav-links {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+  justify-content: center;
+  width: 100%;
+  margin-top: -8px;
+  margin-bottom: -8px;
+
 }
 
-  
+  /* texto de los botones */
 .nav-link {
   text-align: center;
   font-size: 24px;
-  color: #000; /* Color del texto */
+  color: rgb(3, 39, 3); /* Color del texto */
   margin: 10px; /* Margen entre íconos */
   margin-left: 40px;
   margin-right: 40px;
@@ -143,8 +162,68 @@
   margin-top: 5px;
   font-weight: 600;
 }
-  
-/* Responsividad para pantallas pequeñas */
+
+
+/* Pestaña activa: contorno rosa estilizado y glow */
+.nav-link.active {
+  text-shadow: 0 0 8px #ff4dff;  /* Glow rosa refinado */
+  position: relative;             /* Para posicionar la raya inferior */
+}
+
+/* Glow solo en el icono */
+.nav-link.active .big-icon svg,
+.nav-link.active .middium-icon svg,
+.nav-link.active .small-icon svg {
+  filter: drop-shadow(0 0 8px #ff4dff);
+}
+
+/* Raya inferior en la pestaña activa */
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;                           
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;                          
+  height: 4px;                         
+  background-color: #ff4dff;  /* Mismo rosa estilizado */
+}
+
+/* 3 Columnas de la fila superrior de la NavBar */
+.columnas {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-width: 100%;
+
+}
+
+.columna3 {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  top: 6px;
+}
+
+.columna2 {
+  position: relative;
+  top: -3px;
+  max-width: 80%;
+  left: -6%;
+}
+
+.wraper {
+  width: 100vw; /* Ocupa todo el ancho de la pantalla */
+  margin-left: 0; /* Asegúrate de que no haya márgenes a la izquierda */
+  margin-right: 0; /* Asegúrate de que no haya márgenes a la derecha */
+  display: flez;
+  flex-direction: row;
+  justify-content: stretch;
+  flex-wrap: nowrap;
+}
+
+/* M E D I A  --  Q U E R Y S */
+/* Responsividad para tabletas */
 @media (max-width: 1268px) {
 
   .logo-img {
@@ -168,8 +247,6 @@
     flex-direction: column;
     align-items: center;
   }
-
-
 
   .navbar {
     flex-direction: column;
@@ -196,7 +273,8 @@
     margin: 0; /* Sin margen entre íconos en móvil */
   }
 }
-  
+ 
+/* Dispositivos Móviles */
 @media (max-width: 800px) {
   .correte {
     display: none !important;
@@ -233,133 +311,7 @@
   }
 }
 
-  
-
-
-
-/* Línea inferior que aparece solo en la pestaña activa */
-.nav-link.active .material-icons::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50%;
-  height: 2px;
-  background-color: #fff200;
-  border-radius: 1px;
-}
-
-
-
-
-
-
-
-
-
-/* Ajuste adicional: si el icono de taxis tenía estilos extra, asegúrate de que ya no existan márgenes o posiciones especiales */
-
-  
-
-/* Pestaña activa: contorno rosa estilizado y glow */
-.nav-link.active {
-  text-shadow: 0 0 8px #ff4dff;  /* Glow rosa refinado */
-  position: relative;             /* Para posicionar la raya inferior */
-}
-
-/* Glow solo en el icono */
-.nav-link.active .big-icon svg,
-.nav-link.active .middium-icon svg,
-.nav-link.active .small-icon svg {
-  filter: drop-shadow(0 0 8px #ff4dff);
-}
-
-/* Raya inferior en la pestaña activa */
-.nav-link.active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;                           
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;                          
-  height: 4px;                         
-  background-color: #ff4dff;  /* Mismo rosa estilizado */
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-.columnas {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  min-width: 100%;
-
-}
-
-.columna3 {
-  display: flex;
-  flex-direction: row;
-  position: relative;
-  top: 6px;
-}
-
-.columna2 {
-  position: relative;
-  top: -3px;
-  max-width: 80%;
-  left: -6%;
-}
-
-
-
-
-
-
-.nav-input {
-  min-width: 30vw; /* O ajusta el valor según sea necesario */
-  max-width: 400px; /* Establece un ancho máximo si lo deseas */
-  padding: 2px; /* Añade padding para mejorar la apariencia */
-  border: 1px solid #ccc; /* Añade un borde para que sea más visible */
-  border-radius: 24px; /* Opcional: añade bordes redondeados */
-  box-sizing: border-box; /* Asegura que el padding y el borde se incluyan en el ancho total */
-  margin-top: -30px;
-  margin-left: 20px;
-}
-
-
-.nav-links {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
-  justify-content: center;
-  width: 100%;
-  margin-top: -8px;
-  margin-bottom: -8px;
-
-}
-
-
-.anchote {
-  width: 100vw; /* Ocupa todo el ancho de la pantalla */
-  margin-left: 0; /* Asegúrate de que no haya márgenes a la izquierda */
-  margin-right: 0; /* Asegúrate de que no haya márgenes a la derecha */
-  display: flez;
-  flex-direction: row;
-  justify-content: stretch;
-  flex-wrap: nowrap;
-}
-
+/* Pantallas muy pequeñas en dispositivos Móviles */
 @media (max-width: 378px) {
   
   .logo-img {
@@ -382,7 +334,8 @@
     margin-right: 0px;
   }
 
-@media (max-width: 450px) {
+  /* Ajuste fino del tamaño del Logo */
+  @media (max-width: 450px) {
 
   .logo-img {
     width: 130px; /* Tamaño grande del logo, ajusta según sea necesario */
@@ -418,5 +371,7 @@
     font-size: 36px;
   }
 }
+
+
 
 
