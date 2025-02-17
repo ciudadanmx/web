@@ -174,11 +174,11 @@ const NavBar = ({ SetIsMenuOpen }) => {
                   {isAuthenticated ? (
                     <>
                       <div className="dropdown-item profile-container">
-                        <img
+                        <span className="usuario-nombre"><img
                           src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
                           alt="Profile"
                           className="cuenta-icon perfil-imagen"
-                        />
+                        /></span>
                         <span className="usuario-nombre">
                           {user.name}
                         </span>

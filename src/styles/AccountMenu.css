@@ -11,7 +11,7 @@
     
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 400px;
+    width: 303px;
     
     z-index: 1000;
 }
@@ -29,7 +29,7 @@
     right: 230px; /* Alínea a la derecha del contenedor */
     margin-top: 5px;
     
-    width: 90vw; /* Fijo en 600px de ancho */
+    
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -134,8 +134,10 @@
 
 
 .profile-container {
-    min-width: 600px;
-    width: 600px;
+    min-width: 93%;
+    width: 93%;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 .perfil-imagen {
     max-width: 30px; /* Tamaño adecuado */
@@ -152,7 +154,7 @@
     overflow: hidden; /* Oculta el texto que se sale del contenedor */
     text-overflow: ellipsis; /* Muestra "..." si el texto se desborda */
     display: inline-block; /* Hace que la imagen y el texto estén en la misma línea */
-    max-width: 150px; /* Limita el ancho máximo del nombre */
+    max-width: 180px; /* Limita el ancho máximo del nombre */
     vertical-align: middle; /* Alineación vertical para centrar la imagen y el texto */
   }
   
