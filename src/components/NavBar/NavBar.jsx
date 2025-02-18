@@ -52,7 +52,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      setLogoSrc(window.innerWidth < 480 ? "/logo192.png" : "/ciudadan_logo.png");
+      setLogoSrc(window.innerWidth < 490 ? "/logo192.png" : "/ciudadan_logo.png");
     };
 
     handleResize(); // 🔥 Se ejecuta al montar el componente

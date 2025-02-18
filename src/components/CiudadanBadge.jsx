@@ -17,7 +17,7 @@ const CiudadanBadge = () => {
         <g className="ciudadan-text-group">
           <text className="ciudadan-text">
             <textPath href="#circle-path" startOffset="50%" textAnchor="middle">
-              C I U D A D A N .ORG
+              C I U D A D A N *ORG
             </textPath>
           </text>
         </g>

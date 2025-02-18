@@ -6,6 +6,14 @@
   border: 2px solid #ddd; /* Añade un borde opcional alrededor de la imagen */
 }
 
+.ciudadan-text {
+  display: none;
+}
+
+.ciudadan-svg {
+  display: none;
+}
+
 /* Estilo general para la barra de navegación */
 .navbar {
   display: flex;
@@ -61,6 +69,18 @@
   
   display: none !important;
 }
+
+.boton-ia svg path {
+  stroke: #fff200; /* Amarillo brillante */
+  stroke-width: 10px; /* Ajusta el grosor del contorno */
+  filter: drop-shadow(0 0 5px #3bad4e); /* Efecto de brillo */
+  transition: filter 0.3s ease-in-out;
+}
+
+.boton-ia:hover svg path {
+  filter: drop-shadow(0 0 10px #359c32); /* Brillo más intenso al pasar el mouse */
+}
+
 
 
 
@@ -374,9 +394,6 @@
     margin-bottom: 10px;
   }
 
-
-
-
   .nav-text {
     display: none !important; /* Mostrar el texto debajo del ícono en escritorio */
   }
@@ -432,7 +449,14 @@
       margin-left: 0px;
       margin-right: 0px;
     }
-  
+    
+
+    .ciudadan-text {
+      display: block
+    }
+    .ciudadan-svg {
+      display: block
+    }
     
   
     .boton-busca {
@@ -451,19 +475,4 @@
   .nav-link .material-icons {
     font-size: 36px;
   }
-}
-
-
-
-
-
-.boton-ia svg path {
-  stroke: #fff200; /* Amarillo brillante */
-  stroke-width: 10px; /* Ajusta el grosor del contorno */
-  filter: drop-shadow(0 0 5px #3bad4e); /* Efecto de brillo */
-  transition: filter 0.3s ease-in-out;
-}
-
-.boton-ia:hover svg path {
-  filter: drop-shadow(0 0 10px #359c32); /* Brillo más intenso al pasar el mouse */
 }

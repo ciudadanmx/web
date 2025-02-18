@@ -6,7 +6,7 @@
     text-transform: uppercase;
     letter-spacing: 3px;
     z-index: 9999;
-    transform: rotate(-90deg) translate(-15px, -5px); /* Ajuste fino */
+    
     transform-origin: center center; /* Ajuste del punto de giro */
     overflow: visible; /* Evita recortes */
 }
@@ -14,10 +14,10 @@
 /* Ajuste del contenedor del texto */
 .ciudadan-svg {
     position: absolute;
-    top: 50%;
-    left: 45%;
-    width: 70px;
-    height: 70px;
+    top: 8vw;
+    left: 6.5vw;
+    width: 18vw;
+    height: 17vw;
     transform: translate(-50%, -50%);
     z-index: 10;
     pointer-events: none;
