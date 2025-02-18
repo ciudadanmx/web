@@ -7,15 +7,15 @@ function BotonCircular({ clase, mediaQ }) {
   if (mediaQ) {
     return (
       <button className={clase}>
-        <BotonMovil className="robot"/>
+        <BotonMovil className="asistente-ia"/>
       </button>
     );
   }
 
   else {
     return (
-      <button className={clase}>
-        <BotonMovil className="robot blanco"/>
+      <button className={clase } >
+        <BotonMovil className="asistente-ia asistente-ia-svg"/>
       </button>
     );
   }

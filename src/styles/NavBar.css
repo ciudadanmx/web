@@ -90,24 +90,44 @@
   
   margin-left: -23px;
   margin-right: -13%;
-  font-size: 33px; /* Tamaño del icono */
   display: inline-flex;
-  background-color: #b9883e; /* Fondo negro */
-  border-radius: 50%; /* Para hacer el botón circular */
   width: 36px; /* Ajusta el tamaño del botón */
   height: 36px; /* Ajusta el tamaño del botón */
-  color: #ffffff; /* Color del icono (blanco) */
+  top: 10px;
+  flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
+  justify-content: center;  
+  font-size: 30px; /* Tamaño del icono */
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #F4A261; /* Fondo negro */
+  border-radius: 50%; /* Para hacer el botón circular */
+  color: #fcf8fb; /* Color del icono (blanco) */
   cursor: pointer; /* Cursor de mano al pasar sobre el botón */
   border: none; /* Sin borde */
   outline: none; /* Sin borde de enfoque */
   transition: background-color 0.3s; /* Suaviza cambios de color */
   font-weight: 900;
-  top: 10px;
+  max-width: 7vw !important;
+  filter: drop-shadow(0 0 7px #b2c767); /* Glow más intenso momentáneo */
 }
 
 .boton-busca:hover {
   color: white;
   background-color: #c5287eea; /* Cambia el color al pasar el cursor */
+}
+
+.asistente-ia {
+  fill: rgb(244, 245, 244);
+}
+
+.asistente-ia-svg {
+  fill: white;
+  width: 80%;
+  left: auto;
+  top: 0px;
+  position: absolute;
 }
 
 .nav-input {
@@ -332,7 +352,8 @@
 
   .boton-ia{
     display: none;
-    
+    max-width: 5vw !important;
+    max-height: 5vw !important;    
   }
 
 }
@@ -345,16 +366,8 @@
 
   .boton-ia {
     display: flex !important;
-   
-  }
-
-  .boton-ia {
-   
     flex-direction: row;
-    flex-wrap: wrap; /* Permite que los íconos y texto se envuelvan en múltiples líneas */
     justify-content: center;
-    
-    
     font-size: 30px; /* Tamaño del icono */
     display: inline-flex;
     justify-content: center;
@@ -368,7 +381,8 @@
     outline: none; /* Sin borde de enfoque */
     transition: background-color 0.3s; /* Suaviza cambios de color */
     font-weight: 900;
-    max-width: 7vw !important;
+    max-width: 9vw !important;
+    max-height: 9vw !important;
     top: -3px;
     left: -2vw;
 
@@ -421,8 +435,6 @@
     height: auto !important;
     right: -1vw !important;
     margin-left: -10px;
-    
-
   }
 }
 
@@ -482,16 +494,17 @@
   }
 }
 
-
-
-.robot {
-  fill: rgb(54, 119, 16);
+@media (min-width: 420px) {
+  .boton-ia{
+    display: none;
+    max-width: 7vw !important;
+    max-height: 7vw !important;    
+  }
 }
-
-.blanco {
-  fill: white;
-  width: 80%;
-  left: auto;
-  top: 0px;
-  position: absolute;
+@media (min-width: 560px) {
+  .boton-ia{
+    display: none;
+    max-width: 5vw !important;
+    max-height: 5vw !important;    
+  }
 }
