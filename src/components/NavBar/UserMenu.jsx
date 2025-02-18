@@ -47,6 +47,20 @@ const UserMenu = ({handleLogin, handleLogout, isMenuOpen, setIsMenuOpen, handleL
 
                           </div>
                           
+                          <div className="account-dropdown-item" onClick={handleLogin}>
+
+                           Tu Dashboard
+
+                          </div>
+                          
+                          <div className="account-dropdown-item" onClick={handleLogin}>
+
+                           Publia Publicidad
+
+                          </div>
+                          
+
+
                           <div className="account-dropdown-item" onClick={handleLogout}>Salir</div>
                         </>
                       ) : (

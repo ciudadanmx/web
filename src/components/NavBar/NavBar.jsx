@@ -41,7 +41,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
     taxis: <FaCarSide />,
     comida: <FaHamburger />,
     market: <FaStore />,
-    oficina: <BsBriefcaseFill />,
+    mCowork: <BsBriefcaseFill />,
     academia: <FaUniversity />,
     comunidad: <AiOutlineApartment />,
   };
@@ -220,7 +220,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
           </div>
         </div>
         <div className="nav-links wraper">
-          {["gana", "cartera", "taxis", "comida", "market", "oficina", "academia", "comunidad"].map((section) => (
+          {["gana", "cartera", "taxis", "comida", "market", "mCowork", "academia", "comunidad"].map((section) => (
             <NavButton
               key={section}
               section={section}

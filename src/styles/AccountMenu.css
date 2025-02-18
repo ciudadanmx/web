@@ -191,7 +191,7 @@
 @media (min-width: 1280px) {
     .account-menu-contenedor {
         position: absolute;
-        top: 3.5vw; /* Alinea el menú justo debajo del ícono */
+        top: 3.2vw; /* Alinea el menú justo debajo del ícono */
         display: none;
         right: -5vw;
         margin-left: auto;
@@ -199,7 +199,7 @@
 
         border-radius: 4px;
         width: 13vw;
-        padding: 4vw;
+        padding: 1.5vw;
 
         z-index: 1000;
         max-height: 90vh;
