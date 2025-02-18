@@ -4,16 +4,18 @@
 
 .account-menu-contenedor {
     position: absolute;
-    top: 33%; /* Alinea el menú justo debajo del ícono */
-    right: 20%; /* Se adapta al tamaño del contenedor padre */
+    top: 5vw; /* Alinea el menú justo debajo del ícono */
+    right: 2vw; /* Se adapta al tamaño del contenedor padre */
     background-color: white;
     display: none;
-    
+
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 303px;
-    
+    min-width: 42vw;
+
     z-index: 1000;
+    border-radius: 6%;
+
 }
 
 
@@ -28,8 +30,8 @@
     top: 30%; /* Alinea el menú justo debajo del ícono */
     right: 230px; /* Alínea a la derecha del contenedor */
     margin-top: 5px;
-    
-    
+
+
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -99,14 +101,14 @@
     background-color: #f0f0f0;
 }
 
-.dropdown-item {
+.account-dropdown-item {
     padding: 10px;
     cursor: pointer;
     border-bottom: 1px solid #eee;
     display: block; /* Asegúrate de que esté visible */
 }
 
-.dropdown-item:hover {
+.account-dropdown-item:hover {
     background-color: #f0f0f0;
 }
 
@@ -147,7 +149,7 @@
     object-fit: cover; /* Mantiene la imagen ajustada */
     display: inline-block; /* Para mantenerla en la misma línea */
   }
-  
+
   /* Clase para el nombre del usuario */
   .usuario-nombre {
     white-space: nowrap; /* Evita que el nombre se divida en varias líneas */
@@ -157,8 +159,52 @@
     max-width: 180px; /* Limita el ancho máximo del nombre */
     vertical-align: middle; /* Alineación vertical para centrar la imagen y el texto */
   }
-  
+
 
   .account-menu.open {
     display: block; /* Muestra el menú cuando tiene la clase 'open' */
+}
+
+
+@media (max-width: 799px) {
+    .account-menu-contenedor {
+        position: absolute;
+        top: 8vw; /* Alinea el menú justo debajo del ícono */
+        display: none;
+        right: -4vw;
+        margin-left: auto;
+        margin-right: auto;
+
+        border-radius: 4px;
+        width: 100vw;
+        padding: 4vw;
+
+        z-index: 1000;
+        min-height: 90vh;
+        border-radius: 2%;
+    }
+
+
+}
+
+
+@media (min-width: 1280px) {
+    .account-menu-contenedor {
+        position: absolute;
+        top: 3.5vw; /* Alinea el menú justo debajo del ícono */
+        display: none;
+        right: -5vw;
+        margin-left: auto;
+        margin-right: auto;
+
+        border-radius: 4px;
+        width: 13vw;
+        padding: 4vw;
+
+        z-index: 1000;
+        max-height: 90vh;
+        border-radius: 2%;
+    }
+
+
 }

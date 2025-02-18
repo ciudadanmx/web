@@ -26,15 +26,34 @@ const UserMenu = ({handleLogin, handleLogout, isMenuOpen, setIsMenuOpen, handleL
                             </a>
                             </div>
                           
-                          <div className="dropdown-item" onClick={handleLogin}>Tu Cuenta</div>
+                          <div className="account-dropdown-item" onClick={handleLogin}>
+
+                            Tienes 0 Laborys en tu Cartera<br />
+                            Tienes 0 Ciudadan Investment Tokens <br />
+                            Acumulado Mensual de Rendimientos
+
+                          </div>
                           
-                          <div className="dropdown-item" onClick={handleLogout}>Salir</div>
+                          <div className="account-dropdown-item" onClick={handleLogin}>
+
+                            Adquirir Membresía <br />
+                            No cuentas con una membresía
+
+                          </div>
+                          
+                          <div className="account-dropdown-item" onClick={handleLogin}>
+
+                           Configuración de tu Cuenta
+
+                          </div>
+                          
+                          <div className="account-dropdown-item" onClick={handleLogout}>Salir</div>
                         </>
                       ) : (
                         <>
-                          <div className="dropdown-item" onClick={handleLogin}>Acceder</div>
+                          <div className="account-dropdown-item" onClick={handleLogin}>Acceder</div>
                           <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
-                          <div className="dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
+                          <div className="account-dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
                         </>
                       )}
                     </div>
