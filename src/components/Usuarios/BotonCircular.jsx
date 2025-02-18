@@ -7,7 +7,7 @@ function BotonCircular({ clase, mediaQ }) {
   if (mediaQ) {
     return (
       <button className={clase}>
-        <BotonMovil />
+        <BotonMovil className="robot"/>
       </button>
     );
   }
@@ -15,7 +15,7 @@ function BotonCircular({ clase, mediaQ }) {
   else {
     return (
       <button className={clase}>
-        <AiOutlineRobot />
+        <BotonMovil className="robot blanco"/>
       </button>
     );
   }

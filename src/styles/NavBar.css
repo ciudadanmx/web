@@ -70,6 +70,7 @@
   display: none !important;
 }
 
+/* éste es para los móviles */
 .boton-ia svg path {
   stroke: #fff200; /* Amarillo brillante */
   stroke-width: 10px; /* Ajusta el grosor del contorno */
@@ -91,11 +92,11 @@
   margin-right: -13%;
   font-size: 33px; /* Tamaño del icono */
   display: inline-flex;
-  background-color: #000; /* Fondo negro */
+  background-color: #b9883e; /* Fondo negro */
   border-radius: 50%; /* Para hacer el botón circular */
   width: 36px; /* Ajusta el tamaño del botón */
   height: 36px; /* Ajusta el tamaño del botón */
-  color: #fff; /* Color del icono (blanco) */
+  color: #ffffff; /* Color del icono (blanco) */
   cursor: pointer; /* Cursor de mano al pasar sobre el botón */
   border: none; /* Sin borde */
   outline: none; /* Sin borde de enfoque */
@@ -105,6 +106,7 @@
 }
 
 .boton-busca:hover {
+  color: white;
   background-color: #c5287eea; /* Cambia el color al pasar el cursor */
 }
 
@@ -360,7 +362,7 @@
     background-color: #F4A261; /* Fondo negro */
     border-radius: 50%; /* Para hacer el botón circular */
     
-    color: #4e394a; /* Color del icono (blanco) */
+    color: #fcf8fb; /* Color del icono (blanco) */
     cursor: pointer; /* Cursor de mano al pasar sobre el botón */
     border: none; /* Sin borde */
     outline: none; /* Sin borde de enfoque */
@@ -369,6 +371,9 @@
     max-width: 7vw !important;
     top: -3px;
     left: -2vw;
+
+    filter: drop-shadow(0 0 4px #b2c767); /* Glow más intenso momentáneo */
+    
     
   }
 
@@ -475,4 +480,18 @@
   .nav-link .material-icons {
     font-size: 36px;
   }
+}
+
+
+
+.robot {
+  fill: rgb(54, 119, 16);
+}
+
+.blanco {
+  fill: white;
+  width: 80%;
+  left: auto;
+  top: 0px;
+  position: absolute;
 }
