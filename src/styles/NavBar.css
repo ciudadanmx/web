@@ -410,9 +410,17 @@
     .logo-img {
       max-width: 13vw; /* Tamaño grande del logo, ajusta según sea necesario */
       height: auto;
-      margin-bottom: 10px;
+      
+      position: absolute; 
+      left: 4vw;
+      top: 2.5vw;
+      margin-bottom: 20px;
+
     }
   
+    .nav-links {
+      margin-top: 3px !important;
+    }
   
     .nav-text {
   

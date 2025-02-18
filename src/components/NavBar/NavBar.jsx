@@ -17,6 +17,8 @@ import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
 
+import CiudadanBadge from '../CiudadanBadge';
+
 const NavBar = ({ SetIsMenuOpen }) => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const [isMenuOpen, setIsMenuOpen] = useState(SetIsMenuOpen || false);
@@ -137,12 +139,15 @@ const NavBar = ({ SetIsMenuOpen }) => {
           <div className='columnas'>
             <div className="columnax">
               <div className="logo-container" alt="Ciudadan.org --> Cooperativismo 6.0" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                <img 
+
+              <img 
                   src={logoSrc} 
                   alt="Ciudadan Logo" 
                   name="Ciudadan.Org - Cooperativismo 6.0 - Logo"
                   className={`logo-img ${isHomeOrInfo ? "en-home" : ""}`}
                 />
+                
+                <CiudadanBadge />
               </div>
             </div>
             <div className='columnax columna2'>
