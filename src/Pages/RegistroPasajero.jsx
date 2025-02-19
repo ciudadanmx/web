@@ -22,9 +22,11 @@ import dayjs from "dayjs";
 import "dayjs/locale/es";
 import mapa from "../assets/mapa.png";
 import paises from "../assets/paises.json";
-import PasajeroTermsModal from '../components/Taxis/PasajeroTermsModal';
+import PasajeroTermsModal from "../components/Taxis/PasajeroTermsModal";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const RegistroPasajero = ({ onRegister }) => {
+  const { isAuthenticated, loginWithRedirect } = useAuth0();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [modalOpen, setModalOpen] = useState(false);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
@@ -107,156 +109,164 @@ const RegistroPasajero = ({ onRegister }) => {
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Typography variant="h4" fontWeight="bold" color="white" mb={3}>
-          🚖 Registro de Pasajero
-        </Typography>
+        {!isAuthenticated ? (
+          <>
+            <Typography variant="h5" color="white" mb={2}>
+              Para registrarte como pasajero, primero accede con tu cuenta de Google.
+            </Typography>
+            <Button variant="contained" color="primary" onClick={() => loginWithRedirect()}>
+              Iniciar sesión
+            </Button>
+          </>
+        ) : (
+          <>
+            <Typography variant="h4" fontWeight="bold" color="white" mb={3}>
+              🚖 Registro de Pasajero
+            </Typography>
 
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Nombre(s)"
-                fullWidth
-                value={formData.nombres}
-                onChange={(e) => handleChange("nombres", e.target.value)}
-                error={!!errors.nombres}
-                helperText={errors.nombres}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Apellido Paterno"
-                fullWidth
-                value={formData.apellidoPaterno}
-                onChange={(e) => handleChange("apellidoPaterno", e.target.value)}
-                error={!!errors.apellidoPaterno}
-                helperText={errors.apellidoPaterno}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Apellido Materno (Opcional)"
-                fullWidth
-                value={formData.apellidoMaterno}
-                onChange={(e) =>
-                  handleChange("apellidoMaterno", e.target.value)
-                }
-              />
-            </Grid>
-          </Grid>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    label="Nombre(s)"
+                    fullWidth
+                    value={formData.nombres}
+                    onChange={(e) => handleChange("nombres", e.target.value)}
+                    error={!!errors.nombres}
+                    helperText={errors.nombres}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    label="Apellido Paterno"
+                    fullWidth
+                    value={formData.apellidoPaterno}
+                    onChange={(e) => handleChange("apellidoPaterno", e.target.value)}
+                    error={!!errors.apellidoPaterno}
+                    helperText={errors.apellidoPaterno}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    label="Apellido Materno (Opcional)"
+                    fullWidth
+                    value={formData.apellidoMaterno}
+                    onChange={(e) => handleChange("apellidoMaterno", e.target.value)}
+                  />
+                </Grid>
+              </Grid>
 
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={4} sm={3}>
-              <FormControl fullWidth margin="dense">
-                <InputLabel
-                  sx={{ position: "relative", top: "-14px" }}
-                >
-                  Código
-                </InputLabel>
-                <Select
-                  sx={{ position: "relative", top: "-30px" }}
-                  value={formData.codigoPais}
-                  onChange={(e) => handleChange("codigoPais", e.target.value)}
-                >
-                  {paises.map((option) => (
-                    <MenuItem key={option.code} value={option.code}>
-                      <Box display="flex" alignItems="center">
-                        <img
-                          src={option.flag}
-                          alt={option.code}
-                          style={{ width: 24, height: 16, marginRight: 8 }}
-                        />
-                        {option.label}
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={8} sm={9}>
-              <TextField
-                label="Teléfono"
-                fullWidth
-                value={formData.telefono}
-                onChange={(e) => handleChange("telefono", e.target.value)}
-                error={!!errors.telefono}
-                helperText={errors.telefono}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <i className="material-icons">phone</i>
-                    </InputAdornment>
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid item xs={4} sm={3}>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel sx={{ position: "relative", top: "-14px" }}>
+                      Código
+                    </InputLabel>
+                    <Select
+                      sx={{ position: "relative", top: "-30px" }}
+                      value={formData.codigoPais}
+                      onChange={(e) => handleChange("codigoPais", e.target.value)}
+                    >
+                      {paises.map((option) => (
+                        <MenuItem key={option.code} value={option.code}>
+                          <Box display="flex" alignItems="center">
+                            <img
+                              src={option.flag}
+                              alt={option.code}
+                              style={{ width: 24, height: 16, marginRight: 8 }}
+                            />
+                            {option.label}
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={8} sm={9}>
+                  <TextField
+                    label="Teléfono"
+                    fullWidth
+                    value={formData.telefono}
+                    onChange={(e) => handleChange("telefono", e.target.value)}
+                    error={!!errors.telefono}
+                    helperText={errors.telefono}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <i className="material-icons">phone</i>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+              </Grid>
+
+              <DatePicker
+                openTo="year"
+                views={["year", "month", "day"]}
+                label="Fecha de Nacimiento"
+                value={formData.fechaNacimiento}
+                onChange={(newValue) => handleChange("fechaNacimiento", newValue)}
+                disableFuture
+                slots={{
+                  textField: (props) => (
+                    <TextField
+                      {...props}
+                      fullWidth
+                      margin="dense"
+                      error={!!errors.fechaNacimiento}
+                      helperText={errors.fechaNacimiento}
+                      sx={{ mt: 2 }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="material-icons">calendar_today</i>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
                   ),
                 }}
               />
-            </Grid>
-          </Grid>
 
-          <DatePicker
-            openTo="year"
-            views={["year", "month", "day"]}
-            label="Fecha de Nacimiento"
-            value={formData.fechaNacimiento}
-            onChange={(newValue) => handleChange("fechaNacimiento", newValue)}
-            disableFuture
-            slots={{
-              textField: (props) => (
-                <TextField
-                  {...props}
-                  fullWidth
-                  margin="dense"
-                  error={!!errors.fechaNacimiento}
-                  helperText={errors.fechaNacimiento}
-                  sx={{ mt: 2 }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <i className="material-icons">calendar_today</i>
-                      </InputAdornment>
-                    ),
-                  }}
+              <Box sx={{ mt: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={aceptaTerminos}
+                      onChange={(e) => setAceptaTerminos(e.target.checked)}
+                    />
+                  }
+                  label={
+                    <span>
+                      Acepto los{" "}
+                      <span
+                        style={{ color: "blue", cursor: "pointer" }}
+                        onClick={() => setModalOpen(true)}
+                      >
+                        términos y condiciones
+                      </span>
+                    </span>
+                  }
                 />
-              ),
-            }}
-          />
+                {errors.aceptaTerminos && (
+                  <Typography color="error" variant="caption">
+                    {errors.aceptaTerminos}
+                  </Typography>
+                )}
+              </Box>
 
-          {/* Checkbox en nueva línea */}
-          <Box sx={{ mt: 2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={aceptaTerminos}
-                  onChange={(e) => setAceptaTerminos(e.target.checked)}
-                />
-              }
-              label={
-                <span>
-                  Acepto los{" "}
-                  <span
-                    style={{ color: "blue", cursor: "pointer" }}
-                    onClick={() => setModalOpen(true)}
-                  >
-                    términos y condiciones
-                  </span>
-                </span>
-              }
-            />
-            {errors.aceptaTerminos && (
-              <Typography color="error" variant="caption">
-                {errors.aceptaTerminos}
-              </Typography>
-            )}
-          </Box>
-
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3, bgcolor: "#ff4081", color: "white" }}
-          >
-            Registrarme
-          </Button>
-        </form>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                sx={{ mt: 3, bgcolor: "#ff4081", color: "white" }}
+              >
+                Registrarme
+              </Button>
+            </form>
+          </>
+        )}
       </Paper>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
@@ -276,12 +286,7 @@ const RegistroPasajero = ({ onRegister }) => {
         >
           <Typography variant="h4">Términos y Condiciones</Typography>
           <Typography variant="body1">
-            
-            <PasajeroTermsModal 
-                modalOpen={modalOpen}
-                setModalOpen={setModalOpen}
-            />
-
+            <PasajeroTermsModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
           </Typography>
           <Button onClick={() => setModalOpen(false)} sx={{ mt: 2 }}>
             Cerrar
