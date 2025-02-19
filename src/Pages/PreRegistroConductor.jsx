@@ -2,9 +2,16 @@ import React from "react";
 import { Box, Container, Paper, Typography, Button } from "@mui/material";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom"; // Importamos Link para la navegación
+import { useNavigate } from 'react-router-dom';
 import registratutaxi from "../assets/registratutaxi.png";
 
 const CiudadanTaxiLanding = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <Box
       sx={{
@@ -174,7 +181,7 @@ const CiudadanTaxiLanding = () => {
                 ))}
               </Box>
 
-              {/* Botón animado centrado y con Link */}
+              {/* Botón animado centrado */}
               <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -183,7 +190,8 @@ const CiudadanTaxiLanding = () => {
                 >
                   <Button
                     component={Link}
-                    to="/taxis/conductor/preregistro"
+                    to="/taxis/conductor/registro"
+                    onClick={() => handleNavigation("/taxis/conductor/registro")}
                     variant="contained"
                     sx={{
                       backgroundColor: "#E91E63",
