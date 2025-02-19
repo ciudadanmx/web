@@ -303,7 +303,7 @@ const Invitado = () => {
           Únete y Viaja Seguro
         </Button>
         <div className="conoces-taxi ct1">
-        <a onClick={() => handleNavigation('/taxis/conductor/registro')} href="#"> ¿ Eres  Conductor de Taxi Concesionado en CDMX ?</a>
+        <a onClick={() => handleNavigation('/taxis/conductor/preregistro')} href="#"> ¿ Eres  Conductor de Taxi Concesionado en CDMX ?</a>
         </div>
         
       </Paper>

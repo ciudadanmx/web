@@ -12,6 +12,7 @@ import NavBar from './components/NavBar/NavBar.jsx';
 import Perfil from './components/Usuario/Perfil';
 import RegistroPasajero from './Pages/RegistroPasajero';
 import RegistroConductor from './Pages/RegistroConductor';
+import PreRegistroConductor from './Pages/PreRegistroConductor';
 import TaxisRoute from './Pages/TaxisRoute';
 import RestaurantesRoute from './Pages/RestaurantesRoute';
 import MarketRoute from './Pages/MarketRoute';
@@ -52,6 +53,7 @@ root.render(
               <Route path="/gana" element={<GanaRoute />} />
               <Route path="/taxis" element={<TaxisRoute />} />
               <Route path="/taxis/conductor/registro" element={<RegistroConductor />} />
+              <Route path="/taxis/conductor/preregistro" element={<PreRegistroConductor />} />
               <Route path="/taxis/pasajero/registro" element={<RegistroPasajero />} />
               <Route path="/comida" element={<RestaurantesRoute />} />
               <Route path="/market" element={<MarketRoute />} />
