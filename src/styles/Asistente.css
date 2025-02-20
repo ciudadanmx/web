@@ -52,7 +52,7 @@
   }
   
   .asistente-cerrar:hover {
-    background: darkred;
+    background: rgb(19, 97, 38);
   }
   
   .boton-microfono {
@@ -65,12 +65,11 @@
     color: green;
     bottom: -5vw;
     padding-left: 3vw;
-    right: -5vw !important;
+    
   }
   
   .boton-microfono:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-    right: -15vw;
+    background-color: rgba(149, 206, 85, 0.596);
   }
   
   .boton-microfono:active {
@@ -78,9 +77,18 @@
   }
   
   .boton-microfono svg {
+    background-color: white;
     width: 1.9vw;
     height: 1.9vw;
-    left: 2.5em;
     position: relative;
-    top: 0.8em;
+    right: 3.1em;
+    top: 0.7em;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border-radius: 50%; /* Mantiene la forma */
   }
+  
+  .boton-microfono svg:hover {
+    background-color: rgba(149, 206, 85, 0.596); /* Aparece el óvalo */
+    transform: scaleX(1.8) scaleY(1.2); /* Ensancha para hacer óvalo sin aumentar tamaño */
+  }
+  
