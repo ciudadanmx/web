@@ -8,6 +8,7 @@ import { AiOutlineApartment } from "react-icons/ai";
 import guestImage from '../../assets/guest.png'; // Ajusta la ruta si es necesario
 import defaultProfileImage from '../../assets/guest.png'; // Cambia esto si tienes una imagen predeterminada de perfil
 import BotonCircular from './../Usuarios/BotonCircular.jsx';
+import AIInput from './AIInput';
 import MenuIcon from './MenuIcon';
 import MessagesIcon from './MessagesIcon';
 import NotificationsIcon from './NotificationsIcon';
@@ -152,16 +153,7 @@ const NavBar = ({ SetIsMenuOpen }) => {
             </div>
             <div className='columnax columna2'>
               <div className="nav-link correte">
-                <span>
-                  <input
-                    type="text"
-                    placeholder="Buscar/Chatear/Controlar con I.A."
-                    className="nav-input"
-                    style={{ width: '333px', maxWidth: '400px', padding: '8px', top: '-11px' }}
-                  />
-                  <span><BotonCircular clase="boton-busca" /></span>
-                  
-                </span>
+                <AIInput />
               </div>
             </div>
             <div className="columnax columna3">

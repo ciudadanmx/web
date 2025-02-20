@@ -1,16 +1,20 @@
-import React from "react";
+import { useState } from "react";
 import { Box, Container, Paper, Typography, Button } from "@mui/material";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom"; // Importamos Link para la navegación
 import { useNavigate } from 'react-router-dom';
 import registratutaxi from "../assets/registratutaxi.png";
+import RequisitosConductor from "../components/Taxis/RequisitosConductor";
 
 const CiudadanTaxiLanding = () => {
   const navigate = useNavigate();
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  const handleOpenModal = () => {
+    setModalOpen(true);
   };
+  
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <Box
@@ -190,8 +194,8 @@ const CiudadanTaxiLanding = () => {
                 >
                   <Button
                     component={Link}
-                    to="/taxis/conductor/registro"
-                    onClick={() => handleNavigation("/taxis/conductor/registro")}
+                    
+                    onClick={handleOpenModal}
                     variant="contained"
                     sx={{
                       backgroundColor: "#E91E63",
@@ -209,6 +213,9 @@ const CiudadanTaxiLanding = () => {
                     ¡Regístrate Ahora!
                   </Button>
                 </motion.div>
+
+                <RequisitosConductor modalOpen={modalOpen} setModalOpen={setModalOpen} />
+
               </Box>
             </motion.div>
           </Box>

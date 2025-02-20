@@ -1,0 +1,86 @@
+.asistente-container {
+    position: fixed;
+    bottom: 13vw;
+    right: 6vw;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0); /* Fondo transparente */
+  }
+  
+  .asistente-min {
+    min-width: 9vw;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .asistente-min:hover {
+    transform: scale(1.1);
+  }
+  
+  .asistente-popup {
+    position: fixed;
+    bottom: 3vw;
+    right: 17vw;
+    width: 20vw;
+    background: rgba(255, 255, 255, 0) !important; /* Fondo transparente */
+    padding: 15px;
+    border-radius: 10px;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .asistente-img {
+    min-width: 40vw;
+  }
+  
+  .asistente-cerrar {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .asistente-cerrar:hover {
+    background: darkred;
+  }
+  
+  .boton-microfono {
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+    cursor: pointer;
+    
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+    color: green;
+    bottom: -5vw;
+    padding-left: 3vw;
+    right: -5vw !important;
+  }
+  
+  .boton-microfono:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    right: -15vw;
+  }
+  
+  .boton-microfono:active {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .boton-microfono svg {
+    width: 1.9vw;
+    height: 1.9vw;
+    left: 2.5em;
+    position: relative;
+    top: 0.8em;
+  }

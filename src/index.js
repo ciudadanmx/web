@@ -12,6 +12,7 @@ import NavBar from './components/NavBar/NavBar.jsx';
 import Perfil from './components/Usuario/Perfil';
 import RegistroPasajero from './Pages/RegistroPasajero';
 import RegistroConductor from './Pages/RegistroConductor';
+import RequisitosConductor from './components/Taxis/RequisitosConductor.jsx';
 import PreRegistroConductor from './Pages/PreRegistroConductor';
 import TaxisRoute from './Pages/TaxisRoute';
 import RestaurantesRoute from './Pages/RestaurantesRoute';
@@ -21,6 +22,8 @@ import ComunidadRoute from './Pages/ComunidadRoute';
 import GenRoute from './Pages/GenRoute';
 import OpWalletRoute from './Pages/OpWalletRoute';
 import CallbackPage from './Pages/CallbackPage';
+import Asistente from './components/Asistente/Asistente';
+
 
 // Función global para leer la cookie
 const getReturnUrl = () => {
@@ -54,6 +57,7 @@ root.render(
               <Route path="/taxis" element={<TaxisRoute />} />
               <Route path="/taxis/conductor/registro" element={<RegistroConductor />} />
               <Route path="/taxis/conductor/preregistro" element={<PreRegistroConductor />} />
+              <Route path="/taxis/conductor/requisitos" element={<RequisitosConductor />} />
               <Route path="/taxis/pasajero/registro" element={<RegistroPasajero />} />
               <Route path="/comida" element={<RestaurantesRoute />} />
               <Route path="/market" element={<MarketRoute />} />
@@ -63,6 +67,7 @@ root.render(
               <Route path="/cartera" element={<OpWalletRoute />} />
               <Route path="/perfil/:username" element={<Perfil />} />
             </Routes>
+            <Asistente />
           </Router>
         </RolesProvider>
       </LocalizationProvider>
