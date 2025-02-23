@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import cerrada from "../../assets/sara/cerrada.png";
 import casicerrada from "../../assets/sara/casicerrada.png";
 import semiabierta from "../../assets/sara/semiabierta.png";
 import media from "../../assets/sara/media.png";
 import abierta from "../../assets/sara/abierta.png";
+import ojosAbiertos from "../../assets/sara/ojos_abiertos.png";
+import ojosCerrados from "../../assets/sara/ojos_cerrados.png";
 
 const socket = io("http://localhost:3003", {
   transports: ["websocket"],
@@ -13,10 +15,14 @@ const socket = io("http://localhost:3003", {
 
 const TTS = () => {
   const imgRef = useRef(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const blinkIntervalRef = useRef(null);
 
   useEffect(() => {
     console.log("🟢 TTS Component Mounted");
     console.log("🔄 Conectando a WebSocket...");
+
+    startBlinking(); // Iniciar parpadeo al cargar
 
     socket.on("connect", () => {
       console.log("✅ Conectado con ID:", socket.id);
@@ -28,6 +34,7 @@ const TTS = () => {
         console.warn("⚠️ Mensaje vacío");
         return;
       }
+      stopBlinking(); // Detener parpadeo al iniciar el habla
       speakMessage(data);
     });
 
@@ -38,8 +45,28 @@ const TTS = () => {
     return () => {
       console.log("🛑 Cleaning up socket listeners");
       socket.off("speakTTS");
+      stopBlinking(); // Asegurar que no quede parpadeo activo
     };
   }, []);
+
+  const startBlinking = () => {
+    if (!blinkIntervalRef.current) {
+      blinkIntervalRef.current = setInterval(() => {
+        if (imgRef.current) {
+          imgRef.current.src =
+            imgRef.current.src.includes("ojos_abiertos") ? ojosCerrados : ojosAbiertos;
+        }
+      }, 2500); // Parpadeo cada 2.5 segundos
+    }
+  };
+
+  const stopBlinking = () => {
+    if (blinkIntervalRef.current) {
+      clearInterval(blinkIntervalRef.current);
+      blinkIntervalRef.current = null;
+      if (imgRef.current) imgRef.current.src = ojosAbiertos; // Mantener ojos abiertos cuando deja de parpadear
+    }
+  };
 
   const getMouthPosition = (syllable) => {
     const abiertas = /[aeo]/;
@@ -62,33 +89,31 @@ const TTS = () => {
     utterance.rate = 1;
     utterance.pitch = 1;
 
+    setIsSpeaking(true); // Indicar que está hablando
+
     const syllables = text.match(/.{1,2}/g) || [];
+    let index = 0;
 
     utterance.onstart = () => {
       console.log("🔊 Speech synthesis started");
-      let index = 0;
-
       const animateMouth = () => {
         if (index < syllables.length) {
           const syllable = syllables[index].toLowerCase();
           if (imgRef.current) {
-            const mouthState = getMouthPosition(syllable);
-            console.log(`🔄 Cambiando a ${mouthState}`);
-            imgRef.current.src = mouthState;
+            imgRef.current.src = getMouthPosition(syllable);
           }
           index++;
-          setTimeout(animateMouth, 180); // Ajustar tiempo para mejor sincronización
+          setTimeout(animateMouth, 180);
         }
       };
-
       animateMouth();
     };
 
     utterance.onend = () => {
       console.log("🔇 Speech synthesis ended");
-      if (imgRef.current) {
-        imgRef.current.src = cerrada;
-      }
+      setIsSpeaking(false);
+      if (imgRef.current) imgRef.current.src = cerrada;
+      startBlinking(); // Reiniciar parpadeo cuando termine de hablar
     };
 
     window.speechSynthesis.speak(utterance);
@@ -99,7 +124,7 @@ const TTS = () => {
     <div style={{ textAlign: "center" }}>
       <img
         ref={imgRef}
-        src={cerrada}
+        src={ojosAbiertos} // Inicia con ojos abiertos
         alt="Asistente"
         style={{
           width: "24vw",
