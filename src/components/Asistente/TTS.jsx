@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+// Importando las imágenes directamente
 import cerrada from "../../assets/sara/cerrada.png";
 import casicerrada from "../../assets/sara/casicerrada.png";
 import semiabierta from "../../assets/sara/semiabierta.png";
@@ -8,15 +9,16 @@ import abierta from "../../assets/sara/abierta.png";
 import ojosAbiertos from "../../assets/sara/ojos_abiertos.png";
 import ojosCerrados from "../../assets/sara/ojos_cerrados.png";
 
+// Crear socket para la conexión
 const socket = io("http://localhost:3003", {
   transports: ["websocket"],
   reconnection: true,
 });
 
 const TTS = () => {
-  const imgRef = useRef(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const blinkIntervalRef = useRef(null);
+  const [imageSrc, setImageSrc] = useState(ojosAbiertos);  // Estado para el src de la imagen
+  const [isSpeaking, setIsSpeaking] = useState(false);  // Estado de si está hablando o no
+  const blinkIntervalRef = useRef(null);  // Referencia para el intervalo de parpadeo
 
   useEffect(() => {
     console.log("🟢 TTS Component Mounted");
@@ -50,25 +52,32 @@ const TTS = () => {
   }, []);
 
   const startBlinking = () => {
+    console.log("🌟 Start blinking");
     if (!blinkIntervalRef.current) {
       blinkIntervalRef.current = setInterval(() => {
-        if (imgRef.current) {
-          imgRef.current.src =
-            imgRef.current.src.includes("ojos_abiertos") ? ojosCerrados : ojosAbiertos;
-        }
+        console.log("💬 Blink interval triggered");
+        setImageSrc(ojosCerrados);  // Cambiar a ojos cerrados
+        console.log("👀 Ojos cerrados - src:", ojosCerrados);  // Ver el src de la imagen
+        setTimeout(() => {
+          setImageSrc(ojosAbiertos);  // Cambiar a ojos abiertos después de 0.3s
+          console.log("👀 Ojos abiertos - src:", ojosAbiertos);  // Ver el src de la imagen
+        }, 300); // Ojos cerrados por 0.3s
       }, 2500); // Parpadeo cada 2.5 segundos
     }
   };
 
   const stopBlinking = () => {
+    console.log("❌ Stop blinking");
     if (blinkIntervalRef.current) {
       clearInterval(blinkIntervalRef.current);
       blinkIntervalRef.current = null;
-      if (imgRef.current) imgRef.current.src = ojosAbiertos; // Mantener ojos abiertos cuando deja de parpadear
+      setImageSrc(ojosAbiertos); // Mantener ojos abiertos cuando deja de parpadear
+      console.log("👀 Ojos abiertos al detener parpadeo - src:", ojosAbiertos);
     }
   };
 
   const getMouthPosition = (syllable) => {
+    console.log("🔤 Getting mouth position for syllable:", syllable);
     const abiertas = /[aeo]/;
     const medias = /[iu]/;
     const semiabiertas = /[mn]/;
@@ -99,11 +108,11 @@ const TTS = () => {
       const animateMouth = () => {
         if (index < syllables.length) {
           const syllable = syllables[index].toLowerCase();
-          if (imgRef.current) {
-            imgRef.current.src = getMouthPosition(syllable);
-          }
+          console.log("💋 Animating mouth, syllable:", syllable);
+          setImageSrc(getMouthPosition(syllable));  // Cambiar la imagen de la boca
+          console.log("🖼️ Mouth image changed to:", getMouthPosition(syllable));  // Ver el src de la imagen
           index++;
-          setTimeout(animateMouth, 180);
+          setTimeout(animateMouth, 180); // Animate every 180ms
         }
       };
       animateMouth();
@@ -112,7 +121,8 @@ const TTS = () => {
     utterance.onend = () => {
       console.log("🔇 Speech synthesis ended");
       setIsSpeaking(false);
-      if (imgRef.current) imgRef.current.src = cerrada;
+      setImageSrc(cerrada);  // Cambiar a boca cerrada
+      console.log("🖼️ Mouth image changed to cerrada");
       startBlinking(); // Reiniciar parpadeo cuando termine de hablar
     };
 
@@ -123,8 +133,7 @@ const TTS = () => {
   return (
     <div style={{ textAlign: "center" }}>
       <img
-        ref={imgRef}
-        src={ojosAbiertos} // Inicia con ojos abiertos
+        src={imageSrc}  // Usar el estado para el src de la imagen
         alt="Asistente"
         style={{
           width: "24vw",
