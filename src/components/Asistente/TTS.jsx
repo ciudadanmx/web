@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import bocaCerrada from "../../assets/sara/cerrada.png";
-import bocaMedia from "../../assets/sara/media.png";
-import bocaAbierta from "../../assets/sara/abierta.png";
+import cerrada from "../../assets/sara/cerrada.png";
+import casicerrada from "../../assets/sara/casicerrada.png";
+import semiabierta from "../../assets/sara/semiabierta.png";
+import media from "../../assets/sara/media.png";
+import abierta from "../../assets/sara/abierta.png";
 
 const socket = io("http://localhost:3003", {
   transports: ["websocket"],
@@ -10,8 +12,7 @@ const socket = io("http://localhost:3003", {
 });
 
 const TTS = () => {
-  const [message, setMessage] = useState("");
-  const [boca, setBoca] = useState(bocaCerrada);
+  const imgRef = useRef(null);
 
   useEffect(() => {
     console.log("🟢 TTS Component Mounted");
@@ -21,59 +22,91 @@ const TTS = () => {
       console.log("✅ Conectado con ID:", socket.id);
     });
 
-    // REGISTRAR EVENTO 'speakTTS'
     socket.off("speakTTS").on("speakTTS", (data) => {
-      console.log("📥 Evento 'speakTTS' recibido:", data);
-
+      console.log("📥 Received speakTTS event:", data);
       if (!data) {
         console.warn("⚠️ Mensaje vacío");
         return;
       }
-
-      setMessage(data);
       speakMessage(data);
     });
 
     socket.on("disconnect", () => {
-      console.warn("🔴 Desconectado de WebSocket");
+      console.warn("🔴 Disconnected from socket");
     });
 
     return () => {
-      console.log("🛑 Eliminando listeners de socket...");
+      console.log("🛑 Cleaning up socket listeners");
       socket.off("speakTTS");
     };
   }, []);
 
-  const speakMessage = (text) => {
-    if (!text) return;
+  const getMouthPosition = (syllable) => {
+    const abiertas = /[aeo]/;
+    const medias = /[iu]/;
+    const semiabiertas = /[mn]/;
+    const casicerradas = /[srd]/;
+    const cerradas = /[pbtk]/;
 
-    console.log("🗣️ Ejecutando SpeechSynthesis con:", text);
+    if (abiertas.test(syllable)) return abierta;
+    if (medias.test(syllable)) return media;
+    if (semiabiertas.test(syllable)) return semiabierta;
+    if (casicerradas.test(syllable)) return casicerrada;
+    return cerrada;
+  };
+
+  const speakMessage = (text) => {
+    console.log("🗣️ Starting speech synthesis with:", text);
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "es-ES";
     utterance.rate = 1;
     utterance.pitch = 1;
 
-    // 📌 SINCRONIZAR BOCAS SEGÚN EL AUDIO
-    utterance.onboundary = (event) => {
-      if (event.name === "word") {
-        const rand = Math.random();
-        if (rand < 0.33) setBoca(bocaMedia);
-        else if (rand < 0.66) setBoca(bocaAbierta);
-        else setBoca(bocaCerrada);
-      }
+    const syllables = text.match(/.{1,2}/g) || [];
+
+    utterance.onstart = () => {
+      console.log("🔊 Speech synthesis started");
+      let index = 0;
+
+      const animateMouth = () => {
+        if (index < syllables.length) {
+          const syllable = syllables[index].toLowerCase();
+          if (imgRef.current) {
+            const mouthState = getMouthPosition(syllable);
+            console.log(`🔄 Cambiando a ${mouthState}`);
+            imgRef.current.src = mouthState;
+          }
+          index++;
+          setTimeout(animateMouth, 180); // Ajustar tiempo para mejor sincronización
+        }
+      };
+
+      animateMouth();
     };
 
     utterance.onend = () => {
-      setBoca(bocaCerrada); // Cerrar boca cuando termine de hablar
+      console.log("🔇 Speech synthesis ended");
+      if (imgRef.current) {
+        imgRef.current.src = cerrada;
+      }
     };
 
     window.speechSynthesis.speak(utterance);
-    console.log("🔊 SpeechSynthesis ejecutado:", text);
+    console.log("✅ Speech synthesis invoked, utterance:", utterance);
   };
 
   return (
     <div style={{ textAlign: "center" }}>
-      <img src={boca} alt="Boca del asistente" style={{ width: "120px" }} />
+      <img
+        ref={imgRef}
+        src={cerrada}
+        alt="Asistente"
+        style={{
+          width: "24vw",
+          height: "auto",
+          maxWidth: "330px",
+        }}
+      />
     </div>
   );
 };
