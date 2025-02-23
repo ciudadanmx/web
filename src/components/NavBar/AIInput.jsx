@@ -1,73 +1,46 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
 import { FaMicrophone } from "react-icons/fa";
-import BotonCircular from './../Usuarios/BotonCircular.jsx';
+import BotonCircular from "./../Usuarios/BotonCircular";
 
-const SearchWithVoice = () => {
-  const { user, isAuthenticated } = useAuth0();
+const AIInput = () => {
   const [searchText, setSearchText] = useState("");
   const [isListening, setIsListening] = useState(false);
+
+  // Referencias para el reconocimiento de voz
   const recognitionRef = useRef(null);
 
+  // Configurar el reconocimiento de voz
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "es-ES";
+    if ("webkitSpeechRecognition" in window) {
+      recognitionRef.current = new window.webkitSpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = "es-ES";
 
-      recognition.onresult = (event) => {
+      recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setSearchText(transcript);
-        sendTextToAPI(transcript);
       };
 
-      recognition.onerror = (event) => {
+      recognitionRef.current.onerror = (event) => {
         console.error("Error en el reconocimiento de voz:", event.error);
+      };
+
+      recognitionRef.current.onend = () => {
         setIsListening(false);
       };
-
-      recognition.onend = () => setIsListening(false);
-
-      recognitionRef.current = recognition;
     } else {
-      console.warn("Tu navegador no soporta el reconocimiento de voz.");
+      console.warn("Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.");
     }
   }, []);
 
+  // Iniciar el reconocimiento de voz
   const startListening = () => {
     if (recognitionRef.current) {
-      try {
-        setIsListening(true);
-        recognitionRef.current.start();
-      } catch (error) {
-        console.error("Error al iniciar el reconocimiento de voz:", error);
-        setIsListening(false);
-      }
+      setIsListening(true);
+      recognitionRef.current.start();
     } else {
-      console.warn("Reconocimiento de voz no disponible.");
-    }
-  };
-
-  const sendTextToAPI = async (text) => {
-    if (!isAuthenticated) return;
-
-    try {
-      const response = await fetch(`${process.env.STRAPI_URL}/stt`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          text,
-        }),
-      });
-      const data = await response.json();
-      console.log("Respuesta del servidor:", data);
-    } catch (error) {
-      console.error("Error enviando la petición:", error);
+      alert("Tu navegador no soporta reconocimiento de voz.");
     }
   };
 
@@ -82,7 +55,8 @@ const SearchWithVoice = () => {
         onChange={(e) => setSearchText(e.target.value)}
       />
       <span>
-        <BotonCircular clase="boton-busca" />
+        {/* Pasamos searchText como prop a BotonCircular */}
+        <BotonCircular clase="boton-busca" searchText={searchText} />
       </span>
       <span>
         <button onClick={startListening} className="boton-microfono">
@@ -93,4 +67,4 @@ const SearchWithVoice = () => {
   );
 };
 
-export default SearchWithVoice;
+export default AIInput;

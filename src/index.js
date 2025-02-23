@@ -24,6 +24,9 @@ import OpWalletRoute from './Pages/OpWalletRoute';
 import CallbackPage from './Pages/CallbackPage';
 import Asistente from './components/Asistente/Asistente';
 
+import TTS from './components/Tts.jsx';
+import TextToSpeech from './components/TextToSpeech.jsx';
+
 
 // Función global para leer la cookie
 const getReturnUrl = () => {
@@ -66,6 +69,8 @@ root.render(
               <Route path="/gen" element={<GenRoute />} />
               <Route path="/cartera" element={<OpWalletRoute />} />
               <Route path="/perfil/:username" element={<Perfil />} />
+              <Route path="/tts" element={<TTS />} />
+              <Route path="/ttz" element={<TextToSpeech />} />
             </Routes>
             <Asistente />
           </Router>
