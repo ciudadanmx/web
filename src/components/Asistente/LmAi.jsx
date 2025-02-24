@@ -3,11 +3,13 @@ import { useLmAiChat } from '../../hooks/UseLmAiChat';
 
 const LmAiChat = () => {
   const [prompt, setPrompt] = useState('');
-  const { response, isLoading, sendPrompt } = useLmAiChat();
+  const { response, isLoading, thinkingPhase, sendPrompt } = useLmAiChat();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await sendPrompt(prompt);
+    // Refinar el prompt agregando la instrucción fija
+    const modifiedPrompt = `${prompt} contesta siempre en español y enfocate en dirigir todas las respuestas a que eres pandora una asistnete virtual de ciudadan.org`;
+    await sendPrompt(modifiedPrompt);
   };
 
   return (
