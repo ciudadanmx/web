@@ -23,6 +23,7 @@ import GenRoute from './Pages/GenRoute';
 import OpWalletRoute from './Pages/OpWalletRoute';
 import CallbackPage from './Pages/CallbackPage';
 import Asistente from './components/Asistente/Asistente';
+import LmAi from './components/Asistente/LmAi';
 
 import TTS from './components/Tts.jsx';
 import TextToSpeech from './components/TextToSpeech.jsx';
@@ -71,6 +72,7 @@ root.render(
               <Route path="/perfil/:username" element={<Perfil />} />
               <Route path="/tts" element={<TTS />} />
               <Route path="/ttz" element={<TextToSpeech />} />
+              <Route path="/lmai" element={<LmAi />} />
             </Routes>
             <Asistente />
           </Router>

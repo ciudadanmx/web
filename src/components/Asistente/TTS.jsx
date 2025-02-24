@@ -1,5 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import LazyLoad from "react-lazyload"; // Importamos LazyLoad
+
 // Importando las imágenes directamente
 import cerrada from "../../assets/sara/cerrada.png";
 import casicerrada from "../../assets/sara/casicerrada.png";
@@ -16,9 +18,8 @@ const socket = io("http://localhost:3003", {
 });
 
 const TTS = () => {
-  const [imageSrc, setImageSrc] = useState(ojosAbiertos);  // Estado para el src de la imagen
   const [isSpeaking, setIsSpeaking] = useState(false);  // Estado de si está hablando o no
-  const blinkIntervalRef = useRef(null);  // Referencia para el intervalo de parpadeo
+  const blinkIntervalRef = useState(null);  // Guardar el intervalo de parpadeo
 
   useEffect(() => {
     console.log("🟢 TTS Component Mounted");
@@ -45,9 +46,10 @@ const TTS = () => {
     });
 
     return () => {
-      console.log("🛑 Cleaning up socket listeners");
+      // Limpiar los listeners cuando el componente se desmonte
       socket.off("speakTTS");
-      stopBlinking(); // Asegurar que no quede parpadeo activo
+      socket.off("connect");
+      socket.off("disconnect");
     };
   }, []);
 
@@ -56,12 +58,17 @@ const TTS = () => {
     if (!blinkIntervalRef.current) {
       blinkIntervalRef.current = setInterval(() => {
         console.log("💬 Blink interval triggered");
-        setImageSrc(ojosCerrados);  // Cambiar a ojos cerrados
-        console.log("👀 Ojos cerrados - src:", ojosCerrados);  // Ver el src de la imagen
-        setTimeout(() => {
-          setImageSrc(ojosAbiertos);  // Cambiar a ojos abiertos después de 0.3s
-          console.log("👀 Ojos abiertos - src:", ojosAbiertos);  // Ver el src de la imagen
-        }, 300); // Ojos cerrados por 0.3s
+        const imgElement = document.getElementById("asistenteImage"); // Obtener el elemento directamente
+        if (imgElement) {
+          imgElement.src = ojosCerrados;  // Cambiar a ojos cerrados
+          console.log("👀 Ojos cerrados - src:", ojosCerrados);  // Ver el src de la imagen
+          setTimeout(() => {
+            if (imgElement) {
+              imgElement.src = ojosAbiertos;  // Cambiar a ojos abiertos después de 0.3s
+              console.log("👀 Ojos abiertos - src:", ojosAbiertos);  // Ver el src de la imagen
+            }
+          }, 300); // Ojos cerrados por 0.3s
+        }
       }, 2500); // Parpadeo cada 2.5 segundos
     }
   };
@@ -71,8 +78,11 @@ const TTS = () => {
     if (blinkIntervalRef.current) {
       clearInterval(blinkIntervalRef.current);
       blinkIntervalRef.current = null;
-      setImageSrc(ojosAbiertos); // Mantener ojos abiertos cuando deja de parpadear
-      console.log("👀 Ojos abiertos al detener parpadeo - src:", ojosAbiertos);
+      const imgElement = document.getElementById("asistenteImage"); // Obtener el elemento directamente
+      if (imgElement) {
+        imgElement.src = getMouthPosition(''); // Cambiar a la imagen de la boca cuando termine de parpadeo
+        console.log("🖼️ Cambiar a imagen de la boca al detener parpadeo");
+      }
     }
   };
 
@@ -109,8 +119,11 @@ const TTS = () => {
         if (index < syllables.length) {
           const syllable = syllables[index].toLowerCase();
           console.log("💋 Animating mouth, syllable:", syllable);
-          setImageSrc(getMouthPosition(syllable));  // Cambiar la imagen de la boca
-          console.log("🖼️ Mouth image changed to:", getMouthPosition(syllable));  // Ver el src de la imagen
+          const imgElement = document.getElementById("asistenteImage"); // Obtener el elemento directamente
+          if (imgElement) {
+            imgElement.src = getMouthPosition(syllable);  // Cambiar la imagen de la boca
+            console.log("🖼️ Mouth image changed to:", getMouthPosition(syllable));  // Ver el src de la imagen
+          }
           index++;
           setTimeout(animateMouth, 180); // Animate every 180ms
         }
@@ -121,8 +134,11 @@ const TTS = () => {
     utterance.onend = () => {
       console.log("🔇 Speech synthesis ended");
       setIsSpeaking(false);
-      setImageSrc(cerrada);  // Cambiar a boca cerrada
-      console.log("🖼️ Mouth image changed to cerrada");
+      const imgElement = document.getElementById("asistenteImage"); // Obtener el elemento directamente
+      if (imgElement) {
+        imgElement.src = cerrada;  // Cambiar a boca cerrada
+        console.log("🖼️ Mouth image changed to cerrada");
+      }
       startBlinking(); // Reiniciar parpadeo cuando termine de hablar
     };
 
@@ -132,15 +148,18 @@ const TTS = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <img
-        src={imageSrc}  // Usar el estado para el src de la imagen
-        alt="Asistente"
-        style={{
-          width: "24vw",
-          height: "auto",
-          maxWidth: "330px",
-        }}
-      />
+      <LazyLoad height={200} offset={100}>
+        <img
+          id="asistenteImage"  // Ahora usando id directamente
+          src={ojosAbiertos}  // Imagen inicial de los ojos (abiertos)
+          alt="Asistente"
+          style={{
+            width: "48vw",
+            height: "auto",
+            maxWidth: "480px",
+          }}
+        />
+      </LazyLoad>
     </div>
   );
 };
