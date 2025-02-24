@@ -18,6 +18,8 @@ import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
 
+
+import Direccionador from '../../utils/Direccionador';
 import CiudadanBadge from '../CiudadanBadge';
 
 const NavBar = ({ SetIsMenuOpen }) => {
@@ -135,6 +137,19 @@ const NavBar = ({ SetIsMenuOpen }) => {
 
   return (
     <>
+
+    {/* Componente direccionador: 
+           eventUrl: URL del endpoint de streaming (ajusta la URL si es necesario)
+           eventKey: palabra clave para detectar la redirección (ej. "llamar a taxi")
+           redirectPath: ruta a la que se redirige (ej. "/taxi")
+      */}
+      <Direccionador 
+        eventUrl="http://localhost:8000/chat" 
+        eventKey="ya estoy invocando a la función llamar a taxi" 
+        redirectPath="/taxi" 
+      />
+
+
       <section className="navbar">
         <div className="nav-links">
           <div className='columnas'>

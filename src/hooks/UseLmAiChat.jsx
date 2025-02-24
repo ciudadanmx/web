@@ -1,12 +1,14 @@
 import { useState, useRef } from 'react';
 
 export const useLmAiChat = () => {
+  const [conversation, setConversation] = useState([
+    { role: 'system', content: 'Eres Pandora, la asistente virtual de ciudadan.org. Contesta siempre en español.' }
+  ]);
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingPhase, setThinkingPhase] = useState(true);
   const lastUpdateTimeRef = useRef(Date.now());
 
-  // Función para insertar espacios en la fase de pensando
   const insertSpaces = (text) => {
     return text
       .replace(/([a-záéíóúüñ])([A-ZÁÉÍÓÚÜÑ])/g, '$1 $2')
@@ -19,12 +21,17 @@ export const useLmAiChat = () => {
     setIsLoading(true);
     setThinkingPhase(true);
 
+    // Actualizamos la conversación agregando el prompt del usuario
+    const updatedConversation = [...conversation, { role: 'user', content: prompt }];
+    setConversation(updatedConversation);
+
     try {
       const res = await fetch('http://localhost:8000/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Enviamos la conversación completa para retener el contexto
         body: JSON.stringify({
-          messages: [{ role: 'user', content: prompt }],
+          messages: updatedConversation,
         }),
       });
       if (!res.ok) throw new Error('Error al conectar con el servidor');
@@ -43,35 +50,29 @@ export const useLmAiChat = () => {
         if (chunk.startsWith("data:")) {
           chunk = chunk.slice("data:".length);
         }
-        // Eliminar saltos de línea al inicio y final del paquete
         chunk = chunk.replace(/^[\r\n]+|[\r\n]+$/g, '');
-        // Omitir el marcador [DONE]
         if (chunk.trim() === "[DONE]") continue;
         
         if (!finalPhase) {
           const endIndex = chunk.indexOf('</think>');
           if (endIndex !== -1) {
-            // Fase de pensando: se procesa hasta la etiqueta y se aplica insertSpaces
             let thinkingChunk = chunk.substring(0, endIndex);
             thinkingChunk = insertSpaces(thinkingChunk);
             thinkingBuffer += thinkingChunk;
             finalPhase = true;
             setThinkingPhase(false);
-            // La parte que viene después de '</think>' se concatena sin modificarla
             const postThink = chunk.substring(endIndex + '</think>'.length);
             finalAnswer += postThink;
             setResponse(finalAnswer);
           } else {
-            // En la fase de pensando, aplicar insertSpaces
             chunk = insertSpaces(chunk);
             thinkingBuffer = chunk;
             if (Date.now() - lastUpdateTimeRef.current > 500) {
-              setResponse(`pensando: ${thinkingBuffer}`);
+              setResponse(thinkingBuffer);
               lastUpdateTimeRef.current = Date.now();
             }
           }
         } else {
-          // Fase final: concatenar directamente sin insertar espacios
           finalAnswer += chunk;
           if (Date.now() - lastUpdateTimeRef.current > 500) {
             setResponse(finalAnswer);
@@ -81,6 +82,9 @@ export const useLmAiChat = () => {
       }
       setResponse(finalPhase ? finalAnswer : thinkingBuffer);
       setThinkingPhase(false);
+      
+      // Una vez recibida la respuesta final, la agregamos al historial
+      setConversation(prev => [...prev, { role: 'assistant', content: finalPhase ? finalAnswer : thinkingBuffer }]);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -89,5 +93,5 @@ export const useLmAiChat = () => {
     }
   };
 
-  return { response, isLoading, thinkingPhase, sendPrompt };
+  return { conversation, response, isLoading, thinkingPhase, sendPrompt };
 };
