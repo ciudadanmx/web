@@ -21,10 +21,39 @@ const Asistente = () => {
 
       {/* Asistente expandido */}
       {abierto && (
-        <div className="asistente-popup" style={{ position: "fixed", bottom: "20px", right: "20px", background: "white", padding: "10px", borderRadius: "10px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
-          <button className="asistente-cerrar" onClick={() => setAbierto(false)} style={{ position: "absolute", top: "5px", right: "5px", background: "red", color: "white", border: "none", borderRadius: "50%", width: "25px", height: "25px", cursor: "pointer" }}>✖</button>
-          
-          {/* El componente TTS ahora maneja la animación de la boca */}
+        <div
+          className="asistente-popup"
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            background: "white",
+            padding: "10px",
+            borderRadius: "10px",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <button
+            className="asistente-cerrar"
+            onClick={() => setAbierto(false)}
+            style={{
+              position: "absolute",
+              top: "5px",
+              right: "5px",
+              background: "red",
+              color: "white",
+              border: "none",
+              borderRadius: "50%",
+              width: "25px",
+              height: "25px",
+              cursor: "pointer",
+              zIndex: 1000 // Se aumenta el z-index para asegurar que se pueda hacer clic
+            }}
+          >
+            ✖
+          </button>
+
+          {/* El componente TTS maneja la animación de la boca */}
           <TTS />
         </div>
       )}
