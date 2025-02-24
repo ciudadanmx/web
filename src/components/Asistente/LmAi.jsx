@@ -6,6 +6,27 @@ const LmAi = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingPhase, setThinkingPhase] = useState(true);
 
+  // Inserta espacios entre letras de distintas "categorías"
+  // (por ejemplo, minúscula seguida de mayúscula o entre caracteres latinos y CJK)
+  const insertSpaces = (text) => {
+    return text
+      .replace(/([a-záéíóúüñ])([A-ZÁÉÍÓÚÜÑ])/g, '$1 $2')
+      .replace(/([a-zA-ZÁÉÍÓÚÜÑ])([水-龯])/g, '$1 $2')
+      .replace(/([水-龯])([a-zA-ZÁÉÍÓÚÜÑ])/g, '$1 $2');
+  };
+
+  // Función joinText se mantiene para la fase de "pensando" (si es necesario)
+  const joinText = (current, addition) => {
+    if (!current) return addition;
+    if (!addition) return current;
+    const lastChar = current.slice(-1);
+    const firstChar = addition[0];
+    if (!/\s/.test(lastChar) && !/\s/.test(firstChar)) {
+      return current + ' ' + addition;
+    }
+    return current + addition;
+  };
+
   const handleSubmit = async () => {
     setResponse('');
     setIsLoading(true);
@@ -24,34 +45,38 @@ const LmAi = () => {
       const decoder = new TextDecoder();
       let done = false;
       let finalPhase = false;
-      let thinkingBuffer = ''; // Contendrá lo que se muestra mientras "piensa"
-      let finalAnswer = '';   // Acumula lo que viene después de </think>
+      let thinkingBuffer = ''; // Para la fase de "pensando"
+      let finalAnswer = '';   // Acumula el resultado final
       let lastUpdateTime = Date.now();
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
         let chunk = decoder.decode(value, { stream: true });
-        // Quitar el prefijo "data:" si lo tiene
+        // Quitar el prefijo "data:" si existe
         if (chunk.startsWith("data:")) {
           chunk = chunk.slice("data:".length);
         }
-        // Eliminar solo espacios extra de los extremos (se conservan los saltos de línea internos)
-        chunk = chunk.trim();
+        // Eliminar saltos de línea (y retornos) al inicio y final del paquete
+        chunk = chunk.replace(/^[\r\n]+|[\r\n]+$/g, '');
+        // Si el paquete es exactamente "[DONE]", se omite
+        if (chunk.trim() === "[DONE]") {
+          continue;
+        }
+        // Insertar espacios donde hagan falta (fase pensando)
+        chunk = insertSpaces(chunk);
 
         if (!finalPhase) {
           const endIndex = chunk.indexOf('</think>');
           if (endIndex !== -1) {
-            // Se detectó el fin del pensamiento
             finalPhase = true;
             setThinkingPhase(false);
-            thinkingBuffer = chunk.substring(0, endIndex);
+            // Se procesa lo que viene después de '</think>' y se concatena directamente
             const postThink = chunk.substring(endIndex + '</think>'.length);
-            finalAnswer = postThink;
-            // Actualizamos inmediatamente con la parte final
+            finalAnswer += postThink;
             setResponse(finalAnswer);
           } else {
-            // Durante la fase de pensamiento, actualizamos el buffer (reemplazando el contenido)
+            // Fase de "pensando": se muestra el paquete actual (ya se procesa adecuadamente)
             thinkingBuffer = chunk;
             if (Date.now() - lastUpdateTime > 500) {
               setResponse(`pensando: ${thinkingBuffer}`);
@@ -59,7 +84,7 @@ const LmAi = () => {
             }
           }
         } else {
-          // En la fase final, vamos acumulando (concatenando) el contenido
+          // Fase final: se concatenan los paquetes directamente sin insertar espacios extra
           finalAnswer += chunk;
           if (Date.now() - lastUpdateTime > 500) {
             setResponse(finalAnswer);
@@ -67,7 +92,7 @@ const LmAi = () => {
           }
         }
       }
-      // Actualizamos al final con el resultado completo
+      // Actualizar la respuesta final
       setResponse(finalPhase ? finalAnswer : thinkingBuffer);
       setThinkingPhase(false);
     } catch (error) {
@@ -93,7 +118,9 @@ const LmAi = () => {
       </button>
       <div>
         <h3>Respuesta:</h3>
-        <pre>{response}</pre>
+        <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+          {response}
+        </pre>
       </div>
     </div>
   );
