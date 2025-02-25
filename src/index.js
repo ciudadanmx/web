@@ -25,6 +25,8 @@ import CallbackPage from './Pages/CallbackPage';
 import Asistente from './components/Asistente/Asistente';
 import LmAi from './components/Asistente/LmAi';
 
+import Academia from './components/Taxis/Academia/Academia.jsx';
+
 import TTS from './components/Tts.jsx';
 import TextToSpeech from './components/TextToSpeech.jsx';
 
@@ -65,7 +67,7 @@ root.render(
               <Route path="/taxis/pasajero/registro" element={<RegistroPasajero />} />
               <Route path="/comida" element={<RestaurantesRoute />} />
               <Route path="/market" element={<MarketRoute />} />
-              <Route path="/academia" element={<AcademiaRoute />} />
+              <Route path="/academias" element={<AcademiaRoute />} />
               <Route path="/comunidad" element={<ComunidadRoute />} />
               <Route path="/gen" element={<GenRoute />} />
               <Route path="/cartera" element={<OpWalletRoute />} />
@@ -73,6 +75,9 @@ root.render(
               <Route path="/tts" element={<TTS />} />
               <Route path="/ttz" element={<TextToSpeech />} />
               <Route path="/lmai" element={<LmAi />} />
+              {/* aca se agrega el componente de academia que está en components/Academia/Acadenia.jsx   */}
+              <Route path='/academia' element={<Academia />} />
+
             </Routes>
             <Asistente />
           </Router>

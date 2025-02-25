@@ -24,7 +24,6 @@ const Pasajero = () => {
     setGoogleMapsLoaded,
     googleMapsLoaded // Pasamos googleMapsLoaded como parámetro
   );
-  
 
   const buscarTaxistas = async () => {
     console.log("Buscando taxistas cercanos...");
