@@ -1,80 +1,100 @@
-import react from 'react';
+import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { motion } from 'framer-motion';
+import { Button, Avatar, Menu, MenuItem, ListItemIcon, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-const UserMenu = ({handleLogin, handleLogout, isMenuOpen, setIsMenuOpen, handleLinkClick, defaultProfileImage, guestImage, Link}) => {
-
-    const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-
-    return(
-        <div className="padre">
-                <div className={`account-menu-contenedor ${isMenuOpen ? 'open' : 'closed'}`}>
-                  {isMenuOpen && (
-                    <div className="account-menu.open">
-                      {isAuthenticated ? (
-                        <>
-                          <div className="dropdown-item profile-container">
-                          <a onClick={() => handleLinkClick(`/perfil/${user.name.replace(/\s+/g, '-')}`)} href="#">
-                          
-                            <span className="usuario-nombre"><img
-                              src={isAuthenticated ? (user?.picture || defaultProfileImage) : guestImage}
-                              alt="Profile"
-                              className="cuenta-icon perfil-imagen"
-                            /></span>
-                            <span className="usuario-nombre">
-                              {user.name}
-                            </span>
-                            </a>
-                            </div>
-                          
-                          <div className="account-dropdown-item" onClick={handleLogin}>
-
-                            Tienes 0 Laborys en tu Cartera<br />
-                            Tienes 0 Ciudadan Investment Tokens <br />
-                            Acumulado Mensual de Rendimientos
-
-                          </div>
-                          
-                          <div className="account-dropdown-item" onClick={handleLogin}>
-
-                            Adquirir Membresía <br />
-                            No cuentas con una membresía
-
-                          </div>
-                          
-                          <div className="account-dropdown-item" onClick={handleLogin}>
-
-                           Configuración de tu Cuenta
-
-                          </div>
-                          
-                          <div className="account-dropdown-item" onClick={handleLogin}>
-
-                           Tu Dashboard
-
-                          </div>
-                          
-                          <div className="account-dropdown-item" onClick={handleLogin}>
-
-                           Publia Publicidad
-
-                          </div>
-                          
+import '../../styles/AccountMenuMenu.css';
 
 
-                          <div className="account-dropdown-item" onClick={handleLogout}>Salir</div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="account-dropdown-item" onClick={handleLogin}>Acceder</div>
-                          <Link to="/ayuda" className="dropdown-item">Ayuda</Link>
-                          <div className="account-dropdown-item" onClick={handleLogin}>Iniciar sesión</div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-    )};
+// Importar iconos desde la CDN
+const AccountCircleIcon = () => <i className="material-icons">account_circle</i>;
+const ExitToAppIcon = () => <i className="material-icons">exit_to_app</i>;
+const SettingsIcon = () => <i className="material-icons">settings</i>;
+const DashboardIcon = () => <i className="material-icons">dashboard</i>;
+const HelpIcon = () => <i className="material-icons">help</i>;
+const MembershipIcon = () => <i className="material-icons">card_membership</i>;
+const WalletIcon = () => <i className="material-icons">account_balance_wallet</i>;
+
+const UserMenu = ({ handleLogin, handleLogout, isMenuOpen, setIsMenuOpen, handleLinkClick, defaultProfileImage, guestImage }) => {
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+
+  return (
+    <div className="padre">
+      <motion.div
+        className={`account-menu-contenedor ${isMenuOpen ? 'open' : 'closed'}`}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {isMenuOpen && (
+          <div className="account-menu open">
+            {isAuthenticated ? (
+              <>
+                <MenuItem onClick={() => handleLinkClick(`/perfil/${user.name.replace(/\s+/g, '-')}`)}>
+                  <ListItemIcon>
+                    <Avatar src={user?.picture || defaultProfileImage} alt="Profile" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">{user.name}</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogin}>
+                  <ListItemIcon>
+                    <WalletIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Tienes 0 Laborys en tu Cartera</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogin}>
+                  <ListItemIcon>
+                    <MembershipIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Adquirir Membresía</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogin}>
+                  <ListItemIcon>
+                    <SettingsIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Configuración de tu Cuenta</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogin}>
+                  <ListItemIcon>
+                    <DashboardIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Tu Dashboard</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <ExitToAppIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Salir</Typography>
+                </MenuItem>
+              </>
+            ) : (
+              <>
+                <MenuItem onClick={handleLogin}>
+                  <ListItemIcon>
+                    <AccountCircleIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Acceder</Typography>
+                </MenuItem>
+                <MenuItem component={Link} to="/ayuda">
+                  <ListItemIcon>
+                    <HelpIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Ayuda</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogin}>
+                  <ListItemIcon>
+                    <AccountCircleIcon />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Iniciar sesión</Typography>
+                </MenuItem>
+              </>
+            )}
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+};
 
 export default UserMenu;
-

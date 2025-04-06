@@ -11,8 +11,6 @@ ciudadan-app.rar
 # testing
 /coverage
 
-# production
-/build
 
 # misc
 .env
