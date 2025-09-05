@@ -7,35 +7,26 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { AuthProvider } from '../../Contexts/AuthContext'; // Importa el contexto
 
 import '../../styles/MessagesIcon.css';
- 
 
-const NotificationsIcon = ({ count = 33 }) => {
+const NotificationsIcon = ({ count = 33, handleLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     //const { isAuthenticated, setAuthenticated, user, userData, setUserData } = useContext(AuthProvider);
-
   
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
       };
 
-  return (
-    
-      
+  return (         
       <div className="message-icon-container" onClick={toggleMenu}>
         <IoIosNotifications className="message-icon" />
         {count > 0 && <span className="message-count">{count}</span>}
       
-        <NotificationsMenu 
+        <NotificationsMenu
+        handleLogout={handleLogout} 
         isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
-        
+        onClose={() => setIsMenuOpen(false)}         
       />
     </div>
-
-
-
-
-
   );
 };
 
