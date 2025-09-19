@@ -73,7 +73,7 @@ import PreguntasFrecuentes from './Pages/Info/PreguntasFrecuentes.jsx';
 import EventosPage from './components/Eventos/index.jsx';
 import Evento from './Pages/Eventos/Evento.jsx';
 import CrearEvento from './Pages/Eventos/CrearEvento.jsx';
-import Gana from './Pages/Gana/Gana.jsx';
+
 import AdminDashboard from './Pages/Admin/AdminDashboard.jsx';
 import LegalPage from './Pages/Legal/LegalPage';
 import ComunidadPage from './Pages/ComunidadPage';
@@ -82,13 +82,15 @@ import TestConsumoResponsable from './Pages/Herramientas/TestConsumoResponsable'
 import HerramientasPage from './Pages/Herramientas/HerramientasPage';
 import Juegos from './Pages/Herramientas/Juegos.jsx';
 import JuegoStatic from './Pages/Herramientas/JuegoStatic';
+import ITokens from './Pages/Cartera/ITokens.jsx';
+import Catalogo from './Pages/Cartera/FreeBoocks/Catalogo.jsx';
 
 /* ---------- Helpers / Wrappers ---------- */
 
 // Obtener returnTo desde cookie (si existe), fallback a /gana
 const getReturnUrl = () => {
   const match = document.cookie.match(new RegExp('(^| )returnTo=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : '/gana';
+  return match ? decodeURIComponent(match[2]) : '/ganar';
 };
 
 // Wrappers que usan useParams para pasar 'slug' como 'parametros' a componentes de edición/eliminación
@@ -158,7 +160,12 @@ if (!rootElement) {
                 <Route path="/academia" element={<Academia />} />
                 <Route path="/comunidad" element={<ComunidadRoute />} />
                 <Route path="/gen" element={<GenRoute />} />
+                
+                <Route path="/cartera/itokens" element={<ITokens />} />
+                {/* acá van las que sean dentro de freeboocks/algo osea antes de freebooks a secas */}
+                <Route path="/cartera/freebocks" element={<Catalogo />} />
                 <Route path="/cartera" element={<OpWalletRoute />} />
+                
 
                 {/* Perfil y utilidades */}
                 <Route path="/perfil/:username" element={<Perfil />} />

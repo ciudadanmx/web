@@ -1,0 +1,36 @@
+{
+  "scope": "Workspace",
+  "tasks": {
+    "task-0OQhPtzfQRHnzCwnE0W90": {
+      "id": "task-0OQhPtzfQRHnzCwnE0W90",
+      "description": "Create new tasks\n\nTask can also contain lists\n\n- list item 1\n\n- list item 2",
+      "columnId": "column-todo"
+    },
+    "Q2O9tSsU1p6FUXUSvMWs1": {
+      "id": "Q2O9tSsU1p6FUXUSvMWs1",
+      "description": "tarea de prueba\n",
+      "columnId": "column-todo",
+      "color": "#470606"
+    }
+  },
+  "columns": [
+    {
+      "id": "column-todo",
+      "title": "To do",
+      "tasksIds": [
+        "task-0OQhPtzfQRHnzCwnE0W90",
+        "Q2O9tSsU1p6FUXUSvMWs1"
+      ]
+    },
+    {
+      "id": "column-doing",
+      "title": "Doing",
+      "tasksIds": []
+    },
+    {
+      "id": "column-done",
+      "title": "Done",
+      "tasksIds": []
+    }
+  ]
+}
