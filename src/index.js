@@ -8,7 +8,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Auth0Provider } from '@auth0/auth0-react';
 
-import './styles/index.css';
+import './styles/global.css';
 
 /* ---------- Páginas principales ---------- */
 import HomeRoute from './Pages/HomeRoute.jsx';

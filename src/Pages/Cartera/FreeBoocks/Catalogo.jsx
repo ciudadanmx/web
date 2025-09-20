@@ -1,6 +1,6 @@
-// src/Pages/Cartera/freeboocks/Catalogo.jsx
+// src/Pages/Cartera/FreeBoocks/Catalogo.jsx
 import React, { useState, useEffect } from 'react';
-
+import '../../../styles/global.css';
 const Catalogo = () => {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
