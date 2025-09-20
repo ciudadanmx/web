@@ -1,6 +1,22 @@
-// src/Pages/Cartera/FreeBoocks/Catalogo.jsx
 import React, { useState, useEffect } from 'react';
 import '../../../styles/global.css';
+
+// Función para traducir los resúmenes (usando LibreTranslate)
+const translateText = async (text) => {
+  const response = await fetch('https://libretranslate.de/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      q: text,
+      source: 'en',
+      target: 'es',
+      format: 'text',
+    }),
+  });
+  const data = await response.json();
+  return data.translatedText;
+};
+
 const Catalogo = () => {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,9 +26,16 @@ const Catalogo = () => {
   const fetchBooks = async (search = '') => {
     setLoading(true);
     try {
-      const response = await fetch(`https://gutendex.com/books?search=${search}`);
+      const response = await fetch(`https://gutendex.com/books?search=${search}&languages=es`);
       const data = await response.json();
-      setBooks(data.results || []);
+      console.log(data);  // Verifica los datos de la API
+
+      if (data && data.results) {
+        setBooks(data.results);
+      } else {
+        console.log("No se encontraron libros.");
+        setBooks([]);
+      }
     } catch (error) {
       console.error('Error al cargar los libros:', error);
       setBooks([]);
@@ -48,7 +71,7 @@ const Catalogo = () => {
               <div className="book-info">
                 <h3>{book.title}</h3>
                 <p><strong>Autor(es):</strong> {book.authors.length > 0 ? book.authors.map((a) => a.name).join(', ') : 'Desconocido'}</p>
-                <p><strong>Resumen:</strong> {book.summaries ? book.summaries[0] : 'No disponible'}</p>
+                <p><strong>Resumen:</strong> {book.summary}</p> {/* Mostramos el resumen traducido */}
                 <p><strong>Temas:</strong> {book.subjects ? book.subjects.join(', ') : 'No disponibles'}</p>
                 <div className="book-links">
                   {book.formats?.['text/html'] && (

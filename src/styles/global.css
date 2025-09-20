@@ -51,5 +51,5 @@
   height: 220px;
   object-fit: cover;
   border-radius: 6px;
-  margin-bottom: 10px;  /* ✅ así debe ir */
+  margin-bottom: 10px; 
 }

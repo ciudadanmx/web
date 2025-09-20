@@ -7,7 +7,7 @@ const ITokens = () => {
     <div>Tokens</div>
       <br />
       <div>
-        <Link to="/cartera/freeboocks">Ir al catálogo</Link>
+        <Link to="/cartera/FreeBoocks">Ir al catálogo</Link>
       </div>
     </>
   )

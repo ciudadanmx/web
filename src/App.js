@@ -9,7 +9,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<App />}>
         {/* Ruta anidada para Catalogo */}
-        <Route path="cartera/freebocks/Catalogo" element={<Catalogo />} />
+        <Route path="cartera/Freeboocks/Catalogo" element={<Catalogo />} />
       </Route>
     </Routes>
   );
