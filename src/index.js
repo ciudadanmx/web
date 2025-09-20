@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 
-import { RolesProvider } from './Contexts/RolesContext';
+import { RolesProvider } from './Contexts/RolesContext.jsx';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Auth0Provider } from '@auth0/auth0-react';
@@ -11,44 +11,44 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import './styles/index.css';
 
 /* ---------- Páginas principales ---------- */
-import HomeRoute from './Pages/HomeRoute';
-import GanaRoute from './Pages/GanaRoute';
-import TaxisRoute from './Pages/TaxisRoute';
-import RestaurantesRoute from './Pages/RestaurantesRoute';
-import MarketRoute from './Pages/MarketRoute';
-import AcademiaRoute from './Pages/AcademiaRoute';
-import ComunidadRoute from './Pages/ComunidadRoute';
-import GenRoute from './Pages/GenRoute';
-import OpWalletRoute from './Pages/OpWalletRoute';
-import CallbackPage from './Pages/CallbackPage';
-import RegistroPasajero from './Pages/RegistroPasajero';
-import RegistroConductor from './Pages/RegistroConductor';
-import PreRegistroConductor from './Pages/PreRegistroConductor';
+import HomeRoute from './Pages/HomeRoute.jsx';
+import GanaRoute from './Pages/GanaRoute.jsx';
+import TaxisRoute from './Pages/TaxisRoute.jsx';
+import RestaurantesRoute from './Pages/RestaurantesRoute.jsx';
+import MarketRoute from './Pages/MarketRoute.jsx';
+import AcademiaRoute from './Pages/AcademiaRoute.jsx';
+import ComunidadRoute from './Pages/ComunidadRoute.jsx';
+import GenRoute from './Pages/GenRoute.jsx';
+import OpWalletRoute from './Pages/OpWalletRoute.jsx';
+import CallbackPage from './Pages/CallbackPage.jsx';
+import RegistroPasajero from './Pages/RegistroPasajero.jsx';
+import RegistroConductor from './Pages/RegistroConductor.jsx';
+import PreRegistroConductor from './Pages/PreRegistroConductor.jsx';
 import Clubs from './Pages/Clubs.jsx';
 import Membresias from './Pages/Membresias.jsx';
 import MiMembresia from './Pages/MiMembresia.jsx';
 import MarketPlace from './Pages/MarketPlace/MarketPlace.jsx';
 import ProductosPage from './Pages/MarketPlace/ProductosPage.jsx';
-import CursosPage from './Pages/Cursos/Cursos';
-import Cursos from './Pages/Cursos/Cursos';
+import CursosPage from './Pages/Cursos/Cursos.jsx';
+import Cursos from './Pages/Cursos/Cursos.jsx';
 import Curso from './Pages/Cursos/Curso.jsx';
 import CursoDetalle from './Pages/Cursos/Curso.jsx';
-import ContenidosPage from './Pages/Blog/Contenidos';
-import Contenido from './Pages/Blog/Contenido';
+import ContenidosPage from './Pages/Blog/Contenidos.jsx';
+import Contenido from './Pages/Blog/Contenido.jsx';
 import AgregarContenido from './Pages/Blog/AgregarContenido.jsx';
 import AgregarCurso from './Pages/Blog/AgregarCurso.jsx';
-import EditarContenido from './Pages/Blog/EditarContenido';
-import EliminarContenido from './Pages/Blog/EliminarContenido';
+import EditarContenido from './Pages/Blog/EditarContenido.jsx';
+import EliminarContenido from './Pages/Blog/EliminarContenido.jsx';
 import EditarCurso from './Pages/Cursos/EditarCurso.jsx';
 import EliminarCurso from './Pages/Cursos/EliminarCurso.jsx';
 
 /* ---------- Componentes / Pages adicionales ---------- */
 import NavBar from './components/NavBar/NavBar.jsx';
-import Perfil from './components/Usuario/Perfil';
+import Perfil from './components/Usuario/Perfil.jsx';
 import RequisitosConductor from './components/Taxis/RequisitosConductor.jsx';
 import Academia from './components/Taxis/Academia/Academia.jsx';
-import Asistente from './components/Asistente/Asistente';
-import LmAi from './components/Asistente/LmAi';
+import Asistente from './components/Asistente/Asistente.jsx';
+import LmAi from './components/Asistente/LmAi.jsx';
 import TTS from './components/Tts.jsx';
 import TextToSpeech from './components/TextToSpeech.jsx';
 import StripeSuccessRedirect from './components/StripeSuccessRedirect.jsx';
@@ -58,9 +58,9 @@ import AgregarProducto from './Pages/MarketPlace/AgregarProducto.jsx';
 import PreguntasProducto from './components/MarketPlace/PreguntasProducto.jsx';
 import Tienda from './Pages/MarketPlace/Tienda.jsx';
 import Producto from './Pages/MarketPlace/Producto.jsx';
-import MiUbicacion from './components/MiUbicacion';
+import MiUbicacion from './components/MiUbicacion.jsx';
 import Carrito from './Pages/MarketPlace/Carrito.jsx';
-import MisProductos from './Pages/MarketPlace/MisProductos';
+import MisProductos from './Pages/MarketPlace/MisProductos.jsx';
 import PedidosEntregados from './Pages/MarketPlace/PedidosEntregados.jsx';
 import PagosTienda from './Pages/MarketPlace/PagosTienda.jsx';
 import ConfiguracionTienda from './Pages/MarketPlace/ConfiguracionTienda.jsx';
@@ -68,20 +68,20 @@ import EliminarProducto from './Pages/MarketPlace/EliminarProducto.jsx';
 import HomeViewModelWrapper from './components/Florateca/home/HomeViewModelWrapper.jsx';
 import DetailViewModelWrapper from './components/Florateca/detail/DetailViewModelWrapper.jsx';
 import FloratecaLayout from './components/Florateca/FloratecaLayout.jsx';
-import QuienesSomos from './Pages/Info/QuienesSomos';
+import QuienesSomos from './Pages/Info/QuienesSomos.jsx';
 import PreguntasFrecuentes from './Pages/Info/PreguntasFrecuentes.jsx';
 import EventosPage from './components/Eventos/index.jsx';
 import Evento from './Pages/Eventos/Evento.jsx';
 import CrearEvento from './Pages/Eventos/CrearEvento.jsx';
 
 import AdminDashboard from './Pages/Admin/AdminDashboard.jsx';
-import LegalPage from './Pages/Legal/LegalPage';
-import ComunidadPage from './Pages/ComunidadPage';
+import LegalPage from './Pages/Legal/LegalPage.jsx';
+import ComunidadPage from './Pages/ComunidadPage.jsx';
 import Prueba from './Pages/Prueba.jsx';
-import TestConsumoResponsable from './Pages/Herramientas/TestConsumoResponsable';
-import HerramientasPage from './Pages/Herramientas/HerramientasPage';
+import TestConsumoResponsable from './Pages/Herramientas/TestConsumoResponsable.jsx';
+import HerramientasPage from './Pages/Herramientas/HerramientasPage.jsx';
 import Juegos from './Pages/Herramientas/Juegos.jsx';
-import JuegoStatic from './Pages/Herramientas/JuegoStatic';
+import JuegoStatic from './Pages/Herramientas/JuegoStatic.jsx';
 import ITokens from './Pages/Cartera/ITokens.jsx';
 import Catalogo from './Pages/Cartera/FreeBoocks/Catalogo.jsx';
 
@@ -162,8 +162,8 @@ if (!rootElement) {
                 <Route path="/gen" element={<GenRoute />} />
                 
                 <Route path="/cartera/itokens" element={<ITokens />} />
-                {/* acá van las que sean dentro de freeboocks/algo osea antes de freebooks a secas */}
-                <Route path="/cartera/freebocks" element={<Catalogo />} />
+                {/* acá van las que sean dentro de Freeboocks/algo osea antes de FreeBoocks a secas */}
+                <Route path="/cartera/FreeBoocks" element={<Catalogo />} />
                 <Route path="/cartera" element={<OpWalletRoute />} />
                 
 

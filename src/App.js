@@ -1,15 +1,18 @@
+// Routes.js o en tu archivo de rutas
 import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
+import { Route, Routes } from 'react-router-dom';
+import App from './App'; // Asegúrate de que App esté importado
+import Catalogo from './Catalogo'; // Asegúrate de que Catalogo esté importado
 
-const App = () => {
-  
+const AppRoutes = () => {
   return (
-    <div>
-      {/* Aquí no incluimos NavBar para evitar duplicarla */}
-      <Outlet />
-    </div>
+    <Routes>
+      <Route path="/" element={<App />}>
+        {/* Ruta anidada para Catalogo */}
+        <Route path="cartera/freebocks/Catalogo" element={<Catalogo />} />
+      </Route>
+    </Routes>
   );
 };
 
-export default App;
+export default AppRoutes;
