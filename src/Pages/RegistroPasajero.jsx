@@ -17,7 +17,6 @@ import {
   Modal,
   InputAdornment,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import mapa from "../assets/mapa.png";
@@ -25,11 +24,13 @@ import paises from "../assets/paises.json";
 import PasajeroTermsModal from "../components/Taxis/PasajeroTermsModal";
 import { useAuth0 } from "@auth0/auth0-react";
 
-const RegistroPasajero = ({ onRegister }) => {
+
+const RegistroPasajero = ({ onRegister = () => {} }) => {  // ✅ función por defecto
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [modalOpen, setModalOpen] = useState(false);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
+
 
   const [formData, setFormData] = useState({
     nombres: "",
@@ -37,16 +38,18 @@ const RegistroPasajero = ({ onRegister }) => {
     apellidoMaterno: "",
     telefono: "",
     codigoPais: "+52",
-    fechaNacimiento: null,
-    // Se eliminaron email y dirección
+    fechaNacimiento: "", // ✅ string vacío
   });
 
+
   const [errors, setErrors] = useState({});
+
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
     setErrors({ ...errors, [field]: "" });
   };
+
 
   const validarFormulario = () => {
     let newErrors = {};
@@ -63,16 +66,19 @@ const RegistroPasajero = ({ onRegister }) => {
     }
     if (!aceptaTerminos) newErrors.aceptaTerminos = "Debes aceptar los términos";
 
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validarFormulario()) {
-      onRegister(formData);
+      onRegister(formData); // ✅ ya no rompe si no pasas prop
     }
   };
+
 
   return (
     <motion.div
@@ -114,7 +120,11 @@ const RegistroPasajero = ({ onRegister }) => {
             <Typography variant="h5" color="white" mb={2}>
               Para registrarte como pasajero, primero accede con tu cuenta de Google.
             </Typography>
-            <Button variant="contained" color="primary" onClick={() => loginWithRedirect()}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => loginWithRedirect()}
+            >
               Iniciar sesión
             </Button>
           </>
@@ -123,6 +133,7 @@ const RegistroPasajero = ({ onRegister }) => {
             <Typography variant="h4" fontWeight="bold" color="white" mb={3}>
               🚖 Registro de Pasajero
             </Typography>
+
 
             <form onSubmit={handleSubmit}>
               <Grid container spacing={2}>
@@ -141,7 +152,9 @@ const RegistroPasajero = ({ onRegister }) => {
                     label="Apellido Paterno"
                     fullWidth
                     value={formData.apellidoPaterno}
-                    onChange={(e) => handleChange("apellidoPaterno", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("apellidoPaterno", e.target.value)
+                    }
                     error={!!errors.apellidoPaterno}
                     helperText={errors.apellidoPaterno}
                   />
@@ -151,10 +164,13 @@ const RegistroPasajero = ({ onRegister }) => {
                     label="Apellido Materno (Opcional)"
                     fullWidth
                     value={formData.apellidoMaterno}
-                    onChange={(e) => handleChange("apellidoMaterno", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("apellidoMaterno", e.target.value)
+                    }
                   />
                 </Grid>
               </Grid>
+
 
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={4} sm={3}>
@@ -201,33 +217,32 @@ const RegistroPasajero = ({ onRegister }) => {
                 </Grid>
               </Grid>
 
-              <DatePicker
-                openTo="year"
-                views={["year", "month", "day"]}
-                label="Fecha de Nacimiento"
-                value={formData.fechaNacimiento}
-                onChange={(newValue) => handleChange("fechaNacimiento", newValue)}
-                disableFuture
-                slots={{
-                  textField: (props) => (
-                    <TextField
-                      {...props}
-                      fullWidth
-                      margin="dense"
-                      error={!!errors.fechaNacimiento}
-                      helperText={errors.fechaNacimiento}
-                      sx={{ mt: 2 }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <i className="material-icons">calendar_today</i>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  ),
-                }}
-              />
+
+              <Box sx={{ mt: 2 }}>
+                <TextField
+                  type="date"
+                  label="Fecha de Nacimiento"
+                  fullWidth
+                  margin="dense"
+                  value={formData.fechaNacimiento}
+                  onChange={(e) =>
+                    handleChange("fechaNacimiento", e.target.value)
+                  }
+                  error={!!errors.fechaNacimiento}
+                  helperText={errors.fechaNacimiento}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <i className="material-icons">calendar_today</i>
+                      </InputAdornment>
+                    ),
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Box>
+
 
               <Box sx={{ mt: 2 }}>
                 <FormControlLabel
@@ -256,6 +271,7 @@ const RegistroPasajero = ({ onRegister }) => {
                 )}
               </Box>
 
+
               <Button
                 type="submit"
                 variant="contained"
@@ -268,6 +284,7 @@ const RegistroPasajero = ({ onRegister }) => {
           </>
         )}
       </Paper>
+
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box
@@ -286,7 +303,10 @@ const RegistroPasajero = ({ onRegister }) => {
         >
           <Typography variant="h4">Términos y Condiciones</Typography>
           <Typography variant="body1">
-            <PasajeroTermsModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
+            <PasajeroTermsModal
+              modalOpen={modalOpen}
+              setModalOpen={setModalOpen}
+            />
           </Typography>
           <Button onClick={() => setModalOpen(false)} sx={{ mt: 2 }}>
             Cerrar
@@ -297,4 +317,8 @@ const RegistroPasajero = ({ onRegister }) => {
   );
 };
 
+
 export default RegistroPasajero;
+
+
+
