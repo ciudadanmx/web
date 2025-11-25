@@ -15,7 +15,7 @@ import ojosCerrados from "../../assets/sara/ojos_cerrados.png";
 import { useLmAiChat } from "../../hooks/UseLmAiChat";
 
 // Crear socket para la conexión
-const socket = io("http://localhost:3003", {
+const socket = io("http://localhost:3033", {
   transports: ["websocket"],
   reconnection: true,
 });

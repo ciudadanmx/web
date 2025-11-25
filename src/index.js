@@ -86,7 +86,7 @@ import Catalogo from './Pages/Cartera/FreeBoocks/Catalogo.jsx';
 import Coowork from './Pages/Coowork/Coowork.jsx';
 import Agencia from './Pages/Coowork/Agencia.jsx';
 import Pasajero from './components/Taxis/Pasajero.jsx';
-import Conductor from './components/Taxis/Conductor.jsx';
+import Conductor from './components/Taxis/ConductorDebug.jsx';
 
 /* ---------- Contexts / Providers adicionales ---------- */
 import { CartProvider } from './Contexts/CartContext';

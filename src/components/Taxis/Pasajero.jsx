@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import io from 'socket.io-client';
 import '../../styles/taxis.css';
 import useGoogleMaps from '../../hooks/UseGoogleMaps'; // hook que devuelve mapRef, fromMarkerRef, toMarkerRef
 import { getDirections, addTaxiMarker } from '../../utils/mapUtils';
@@ -34,11 +35,60 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     setGoogleMapsLoaded,
     googleMapsLoaded
   );
-  
 
   // Directions objects
   const directionsRendererRef = useRef(null);
   const directionsServiceRef = useRef(null);
+
+  // Socket
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    // Conectar socket al montar
+    try {
+      socketRef.current = io(process.env.REACT_APP_SOCKET_URL, {
+        transports: ['websocket'],
+      });
+
+      socketRef.current.on('connect', () => {
+        console.log('Socket conectado:', socketRef.current.id);
+      });
+
+      // Evento que el backend puede emitir cuando encuentra conductores
+      socketRef.current.on('drivers-found', (drivers) => {
+        console.log('drivers-found recibido (socket):', drivers);
+        if (Array.isArray(drivers) && drivers.length > 0 && mapRef && mapRef.current) {
+          drivers.forEach((driver) => {
+            if (driver.coordinates) addTaxiMarker(mapRef, driver.coordinates, taxiIcon);
+          });
+        }
+        onFoundDrivers(drivers);
+        setLoadingSearch(false);
+      });
+
+      // Manejo de errores vía socket
+      socketRef.current.on('search-error', (msg) => {
+        console.warn('search-error desde socket:', msg);
+        setError(msg || 'Error en búsqueda via socket');
+        setLoadingSearch(false);
+      });
+    } catch (e) {
+      console.warn('No se pudo conectar al socket:', e);
+    }
+
+    return () => {
+      try {
+        if (socketRef.current) {
+          socketRef.current.off('drivers-found');
+          socketRef.current.off('search-error');
+          socketRef.current.disconnect();
+          socketRef.current = null;
+        }
+      } catch (e) {
+        // no hacer nada
+      }
+    };
+  }, [mapRef, onFoundDrivers]);
 
   // Intentar obtener geolocalización del usuario al montar y centrar mapa
   useEffect(() => {
@@ -77,18 +127,16 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     if (!mapRef || !mapRef.current || !window.google) return;
     if (!directionsServiceRef.current) directionsServiceRef.current = new window.google.maps.DirectionsService();
     if (!directionsRendererRef.current) {
-      // <-- CAMBIO AQUÍ: forzamos polylineOptions para pintar la ruta en verde
       directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
         suppressMarkers: true,
         polylineOptions: {
-          strokeColor: "#00C853", // verde
+          strokeColor: '#00C853',
           strokeWeight: 6,
           strokeOpacity: 0.95,
         },
       });
       directionsRendererRef.current.setMap(mapRef.current);
     }
-    // limpia al desmontar
     return () => {
       if (directionsRendererRef.current) {
         try {
@@ -105,7 +153,6 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       return;
     }
 
-    // soporta objetos {lat,lng} o strings (dirección)
     const originParam = typeof origin === 'string' ? origin : { lat: origin.lat, lng: origin.lng };
     const destParam = typeof destination === 'string' ? destination : { lat: destination.lat, lng: destination.lng };
 
@@ -118,15 +165,12 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       (result, status) => {
         if (status === window.google.maps.DirectionsStatus.OK || status === 'OK') {
           directionsRendererRef.current.setDirections(result);
-          // Si queremos añadir markers personalizados en inicio/fin, los manejamos aquí:
-          // colocamos markers usando fromMarkerRef / toMarkerRef (si existen)
           try {
             const leg = result.routes[0].legs[0];
             const start = leg.start_location;
             const end = leg.end_location;
             if (fromMarkerRef && fromMarkerRef.current) fromMarkerRef.current.setPosition(start);
             if (toMarkerRef && toMarkerRef.current) toMarkerRef.current.setPosition(end);
-            // centrar suavemente en la ruta
             if (mapRef && mapRef.current && mapRef.current.fitBounds) {
               const bounds = new window.google.maps.LatLngBounds();
               result.routes[0].overview_path.forEach((p) => bounds.extend(p));
@@ -142,16 +186,14 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     );
   }, [directionsRendererRef, directionsServiceRef, mapRef, fromMarkerRef, toMarkerRef]);
 
-  // Cuando cambian las coordenadas (por Autocomplete o por swap) actualizamos la ruta automáticamente si ambos existen
+  // Cuando cambian las coordenadas actualizamos la ruta
   useEffect(() => {
     if (!mapRef || !mapRef.current) return;
     if (!fromCoordinates || !toCoordinates) return;
-    // Solo dibujar si se han definido direcciones (evita dibujar con defaults inmediatos)
-    // Puedes condicionar más estrictamente si quieres
     drawRouteOnMap(fromCoordinates, toCoordinates);
   }, [fromCoordinates, toCoordinates, drawRouteOnMap, mapRef]);
 
-  // Intercambiar origen/destino (mejorado para no romper markers y mantener centrado)
+  // Intercambiar origen/destino
   const swapOriginDestination = useCallback(() => {
     const aAddr = fromAddress;
     const bAddr = toAddress;
@@ -166,63 +208,89 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     setFromMarkerPosition(bCoords);
     setToMarkerPosition(aCoords);
 
-    // actualizar markers si refs existen
     if (fromMarkerRef && fromMarkerRef.current) fromMarkerRef.current.setPosition(bCoords);
     if (toMarkerRef && toMarkerRef.current) toMarkerRef.current.setPosition(aCoords);
 
-    // centrar en nuevo origen
     if (mapRef && mapRef.current) mapRef.current.setCenter(bCoords);
 
-    // redibujar ruta
     drawRouteOnMap(bCoords, aCoords);
   }, [fromAddress, toAddress, fromCoordinates, toCoordinates, mapRef, fromMarkerRef, toMarkerRef, drawRouteOnMap]);
 
-  // Enviar petición a Strapi y mostrar ruta (si responde con conductores)
+  // Enviar petición: ahora EMIT por socket con payload; además escucha respuesta por socket (drivers-found)
   const buscarTaxistas = async () => {
-    setError(null);
-    setLoadingSearch(true);
+  setError(null);
+  setLoadingSearch(true);
 
-    const payload = {
-      origin: fromCoordinates,
-      destination: toCoordinates,
-      originAddress: fromAddress,
-      destinationAddress: toAddress,
-    };
-
-    try {
-      const res = await fetch(`${process.env.REACT_APP_STRAPI_URL}/api/conductores-cercanos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => null);
-        throw new Error(text || `Error en búsqueda (${res.status})`);
-      }
-
-      const data = await res.json();
-      console.log('Taxis encontrados:', data);
-      onFoundDrivers(data);
-
-      // Opcional: si la API devuelve coordenadas de conductor, puedes añadir markers de taxi:
-      if (Array.isArray(data) && data.length > 0) {
-        data.forEach((driver) => {
-          if (driver.coordinates && mapRef && mapRef.current) {
-            addTaxiMarker(mapRef, driver.coordinates, taxiIcon);
-          }
-        });
-      }
-
-      // Asegurar que la ruta se dibuje (ya debería por el useEffect, pero la forzamos)
-      drawRouteOnMap(fromCoordinates, toCoordinates);
-    } catch (err) {
-      console.error('buscarTaxistas error:', err);
-      setError(err.message || 'Error buscando taxistas');
-    } finally {
-      setLoadingSearch(false);
-    }
+  const payload = {
+    origin: fromCoordinates,
+    destination: toCoordinates,
+    originAddress: fromAddress,
+    destinationAddress: toAddress,
+    timestamp: new Date().toISOString(),
   };
+
+  console.log('taxi debug: buscarTaxistas iniciado', { payload, SOCKET_URL: process.env.REACT_APP_SOCKET_URL, STRAPI_URL: process.env.REACT_APP_STRAPI_URL });
+
+  try {
+    // Primero intento emitir por socket si existe y está conectado
+    if (socketRef.current) {
+      try {
+        console.log('taxi debug: socketRef existe, connected=', !!socketRef.current.connected);
+      } catch (e) {
+        console.warn('taxi debug: error leyendo socketRef.connected', e);
+      }
+    } else {
+      console.log('taxi debug: socketRef NO existe en cliente');
+    }
+
+    // Emitimos el evento por socket (si está conectado)
+    if (socketRef.current && socketRef.current.connected) {
+      console.log('taxi debug: Emitiendo buscar-taxistas via socket', payload);
+      socketRef.current.emit('buscar-taxistas', payload, (ack) => {
+        // si el servidor usa ack callback, lo verás aquí
+        console.log('taxi debug: ack buscar-taxistas recibido:', ack);
+      });
+      // Esperamos un poco a que lleguen respuestas por socket (drivers-found), pero también seguimos con fallback HTTP
+    } else {
+      console.log('taxi debug: socket no conectado o no disponible — saltando emisión socket');
+    }
+
+    // --- Fallback HTTP: pedimos al endpoint REST (esto debe registrar en server logs si llega)
+    console.log('taxi debug: intentando fallback HTTP POST a', `${process.env.REACT_APP_STRAPI_URL}/api/conductores-cercanos`);
+    const res = await fetch(`${process.env.REACT_APP_STRAPI_URL}/api/conductores-cercanos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    console.log('taxi debug: respuesta HTTP status:', res.status);
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => null);
+      console.error('taxi debug: fallback HTTP response no OK', res.status, text);
+      throw new Error(text || `Error en búsqueda (${res.status})`);
+    }
+
+    const data = await res.json();
+    console.log('taxi debug: taxis encontrados (HTTP):', data);
+
+    // llamar callback padre
+    onFoundDrivers(data);
+
+    // si vienen conductores por HTTP, pintarlos
+    if (Array.isArray(data) && data.length > 0 && mapRef && mapRef.current) {
+      data.forEach((driver) => {
+        if (driver.coordinates) addTaxiMarker(mapRef, driver.coordinates, taxiIcon);
+      });
+    }
+
+  } catch (err) {
+    console.error('taxi debug: buscarTaxistas error:', err);
+    setError(err.message || 'Error buscando taxistas');
+  } finally {
+    setLoadingSearch(false);
+  }
+};
 
   // Botón para centrar en origen
   const centerOnOrigin = () => {
@@ -238,7 +306,6 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
 
       <div className="inputs-row improved-row">
         <div className="input-wrap">
-          
           <input
             id="from-input"
             type="text"
@@ -261,7 +328,6 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
         </div>
 
         <div className="input-wrap">
-          
           <input
             id="to-input"
             type="text"

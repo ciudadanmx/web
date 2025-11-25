@@ -2,9 +2,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
-import ConductorRender from './ConductorRender'; // tu render (el UI que pegaste)
-import taxiIcon from '../../assets/taxi_marker.png'; // si está en otra ruta ajusta
-// NOTA: asegúrate de tener REACT_APP_GOOGLE_MAPS_API_KEY y REACT_APP_SOCKET_URL en .env
+import { useAuth0 } from '@auth0/auth0-react';
+import ConductorRender from './ConductorRender';
+import taxiIcon from '../../assets/taxi_marker.png';
 
 const ZOCALO = { lat: 19.432607, lng: -99.133209 };
 
@@ -17,6 +17,7 @@ const Conductor = ({
   shiftToPasajero,
   setShiftToPasajero,
 }) => {
+  const { user, isAuthenticated } = useAuth0(); // <-- obtiene email si estás con Auth0
   const [isWaiting, setIsWaiting] = useState(true);
   const [travelData, setTravelData] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -24,28 +25,23 @@ const Conductor = ({
   const [consultedTravel, setConsultedTravel] = useState(null);
   const [userCoords, setUserCoords] = useState(null);
 
-  const mapRef = useRef(null); // guardamos instancia Map en .current
+  const mapRef = useRef(null);
   const socketRef = useRef(null);
-  const markersRef = useRef([]); // array de marcadores añadidos (para limpiar)
+  const markersRef = useRef([]);
   const pickupMarkerRef = useRef(null);
   const directionsRendererRef = useRef(null);
   const directionsServiceRef = useRef(null);
 
-  /* --------------------------
-     Helpers: cargar Google Maps
-     -------------------------- */
+  /* ---------- Load Google Maps (igual) ---------- */
   const loadGoogleMaps = () => {
     return new Promise((resolve, reject) => {
-      if (window.google && window.google.maps) {
-        return resolve();
-      }
+      if (window.google && window.google.maps) return resolve();
       const key = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '';
       if (!key) {
-        console.warn('Falta REACT_APP_GOOGLE_MAPS_API_KEY en .env — se intentará con window.google si ya está cargado.');
+        console.warn('taxi debug: Falta REACT_APP_GOOGLE_MAPS_API_KEY en .env — se intentará con window.google si ya está cargado.');
         return reject(new Error('No API key'));
       }
       const src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
-      // si ya existe un script con esa src, esperar su carga
       const exists = Array.from(document.getElementsByTagName('script')).some(s => s.src && s.src.includes(src));
       if (exists) {
         const check = () => {
@@ -64,16 +60,12 @@ const Conductor = ({
     });
   };
 
-  /* --------------------------
-     Inicializa mapa (no bloquear UI)
-     -------------------------- */
   useEffect(() => {
     let mounted = true;
     loadGoogleMaps()
       .then(() => {
         if (!mounted) return;
         setGoogleMapsLoaded(true);
-        // si el div #map ya existe, inicializamos la instancia del mapa
         const el = document.getElementById('map');
         if (el && !mapRef.current) {
           mapRef.current = new window.google.maps.Map(el, {
@@ -81,20 +73,15 @@ const Conductor = ({
             zoom: 14,
             gestureHandling: 'greedy',
           });
+          console.log('taxi debug: mapa inicializado en #map');
         }
       })
       .catch((err) => {
-        // Si falla la carga por clave o bloqueo, intentamos marcar como cargado
-        console.warn('loadGoogleMaps fallo:', err);
-        // No forzamos que mapRef exista; el UI seguirá mostrando esperando y demás.
+        console.warn('taxi debug: loadGoogleMaps fallo:', err);
       });
     return () => { mounted = false; };
-    // NOTE: intencionalmente no ponemos dependencia para que solo se intente al montar
   }, []);
 
-  /* --------------------------
-     Inicializar Directions (cuando esté el mapa)
-     -------------------------- */
   useEffect(() => {
     if (!mapRef.current || !window.google) return;
     if (!directionsServiceRef.current) directionsServiceRef.current = new window.google.maps.DirectionsService();
@@ -104,56 +91,75 @@ const Conductor = ({
         polylineOptions: { strokeWeight: 6, strokeOpacity: 0.95 },
       });
       directionsRendererRef.current.setMap(mapRef.current);
+      console.log('taxi debug: directionsRenderer creado');
     }
   }, [mapRef.current, googleMapsLoaded]);
 
-  /* --------------------------
-     Obtener userId desde Strapi (si usas autenticación)
-     Aquí intento buscar por email en /api/users. Ajusta si tu API responde distinto.
-     -------------------------- */
+  /* ---------- Obtener userId desde Strapi usando email (si existe) ---------- */
   useEffect(() => {
-    // si manejas auth aquí obtén el email y llámame para integrarlo;
-    // dejo esto como ejemplo pasivo para que lo actives si lo necesitas.
-    // setUserId('demo-driver-1');
-  }, []);
+    const fetchUserId = async () => {
+      if (!isAuthenticated || !user?.email) {
+        console.log('taxi debug: no autenticado o sin email, saltando fetchUserId');
+        return;
+      }
+      try {
+        console.log('taxi debug: buscando userId para email', user.email);
+        const resp = await axios.get(`${process.env.REACT_APP_STRAPI_URL}/api/users`, {
+          params: { 'filters[email]': user.email },
+        });
+        // Ajuste Strapi: resp.data.data o resp.data según versión
+        const usersList = resp.data.data || resp.data;
+        if (Array.isArray(usersList) && usersList.length > 0) {
+          const resolvedId = usersList[0].id || usersList[0]._id || usersList[0].ID;
+          setUserId(resolvedId);
+          console.log('taxi debug: userId obtenido ->', resolvedId);
+        } else {
+          console.warn('taxi debug: no se encontró user en Strapi para', user.email);
+        }
+      } catch (e) {
+        console.error('taxi debug: error fetchUserId', e);
+      }
+    };
+    fetchUserId();
+  }, [isAuthenticated, user]);
 
-  /* --------------------------
-     SOCKET: conectar y listeners (siempre que no haya otro socket)
-     -------------------------- */
+  /* ---------- Socket: crear con transporte websocket y listeners ---------- */
   useEffect(() => {
-    if (socketRef.current) return; // ya conectado
+    if (socketRef.current) return;
     try {
-      const socket = io(process.env.REACT_APP_SOCKET_URL, { transports: ['websocket'] });
+      console.log('taxi debug: conectando socket ->', process.env.REACT_APP_SOCKET_URL);
+      const socket = io(process.env.REACT_APP_SOCKET_URL, {
+        transports: ['websocket'], // fuerza websocket para evitar polling/XHR
+        path: '/socket.io', // ajuste si usas otro path, sino déjalo
+      });
       socketRef.current = socket;
 
       socket.on('connect', () => {
-        console.log('Conductor socket conectado', socket.id);
+        console.log('taxi debug: Conductor socket conectado', socket.id);
+        // si ya tenemos userId al momento de conectar, registramos
         if (userId) {
           socket.emit('register-driver', { driverId: userId });
+          console.log('taxi debug: register-driver emitido en connect', userId);
         }
       });
 
-      // Llega un request de viaje (targeted o broadcast)
       socket.on('trip-request', (data) => {
         try {
-          console.log('trip-request recibido:', data);
+          console.log('taxi debug: trip-request recibido:', data);
           if (!data) return;
-          // criterio: si viene driverId y coincide, o viene broadcast/nearby o candidateDrivers incluye userId
           const addressed = data.driverId && userId && data.driverId.toString() === userId.toString();
           const broadcast = data.broadcast === true || data.target === 'nearby';
           const included = Array.isArray(data.candidateDrivers) && userId && data.candidateDrivers.map(String).includes(String(userId));
           if (addressed || broadcast || included) {
-            // añadir al arreglo de viajes
             setTravelData(prev => {
               const next = [...prev, data];
+              console.log('taxi debug: travelData length ->', next.length);
               return next;
             });
             setIsWaiting(false);
 
-            // Añadir marcador del origen al mapa (si vienen coords)
             if (mapRef.current && window.google && data.originCoordinates) {
               try {
-                // crear marcador y guardarlo para limpiar después
                 const marker = new window.google.maps.Marker({
                   position: data.originCoordinates,
                   map: mapRef.current,
@@ -164,60 +170,66 @@ const Conductor = ({
                   },
                 });
                 markersRef.current.push(marker);
-                // centrar suavemente
                 if (mapRef.current.setCenter) mapRef.current.setCenter(data.originCoordinates);
+                console.log('taxi debug: marcador origen añadido');
               } catch (e) {
-                console.warn('No se pudo crear pickup marker manual:', e);
+                console.warn('taxi debug: No se pudo crear pickup marker manual:', e);
               }
             }
           } else {
-            // mensaje no dirigido a este conductor: ignorarlo
-            // console.log('trip-request no dirigido a este conductor, ignorando');
+            console.log('taxi debug: trip-request no dirigido a este conductor, ignorando');
           }
         } catch (e) {
-          console.error('Error manejando trip-request', e);
+          console.error('taxi debug: Error manejando trip-request', e);
         }
       });
 
-      // Listener opcional cuando pasajero obtiene conductores
       socket.on('drivers-found', (payload) => {
-        // normalmente interesa al pasajero, pero lo dejo por debug
-        console.log('drivers-found (conductor):', payload);
+        console.log('taxi debug: drivers-found (conductor):', payload);
       });
 
       socket.on('disconnect', (reason) => {
-        console.log('Socket desconectado:', reason);
+        console.log('taxi debug: Socket desconectado:', reason);
       });
 
       socket.on('connect_error', (err) => {
-        console.warn('Socket connect_error', err);
+        console.warn('taxi debug: Socket connect_error', err);
       });
     } catch (e) {
-      console.error('Error creando socket conductor:', e);
+      console.error('taxi debug: Error creando socket conductor:', e);
     }
 
     return () => {
-      // cleanup
       try {
         if (socketRef.current) {
           socketRef.current.off('trip-request');
           socketRef.current.off('drivers-found');
           socketRef.current.disconnect();
           socketRef.current = null;
+          console.log('taxi debug: socket limpiado');
         }
       } catch (e) {
-        console.warn('Error limpiando socket conductor:', e);
+        console.warn('taxi debug: Error limpiando socket conductor:', e);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]); // reconectará si cambia userId
+  }, []);
 
-  /* --------------------------
-     Limpiar marcadores cuando se desmonta o cuando se vacía travelData
-     -------------------------- */
+  /* ---------- Si userId llega *después* y socket ya existe: registrar conductor ---------- */
+  useEffect(() => {
+    try {
+      if (userId && socketRef.current && socketRef.current.connected) {
+        socketRef.current.emit('register-driver', { driverId: userId });
+        console.log('taxi debug: register-driver emitido (userId cambió)', userId);
+      }
+    } catch (e) {
+      console.warn('taxi debug: error emitiendo register-driver en userId effect', e);
+    }
+  }, [userId]);
+
+  /* ---------- cleanup marcadores ---------- */
   useEffect(() => {
     return () => {
-      // al desmontar limpiamos marcadores
       if (markersRef.current && markersRef.current.length) {
         markersRef.current.forEach(m => { try { m.setMap(null); } catch (e) {} });
         markersRef.current = [];
@@ -226,12 +238,11 @@ const Conductor = ({
         try { pickupMarkerRef.current.setMap(null); } catch (e) {}
         pickupMarkerRef.current = null;
       }
+      console.log('taxi debug: limpiando marcadores en unmount');
     };
   }, []);
 
-  /* --------------------------
-     Cuando se selecciona un viaje (consultedTravel), mostrar la ruta
-     -------------------------- */
+  /* ---------- Resto de handlers / lógica (igual que antes) ---------- */
   useEffect(() => {
     if (consultedTravel === null) return;
     const travel = travelData[consultedTravel];
@@ -242,60 +253,44 @@ const Conductor = ({
       directionsRendererRef.current = new window.google.maps.DirectionsRenderer({ suppressMarkers: true });
       directionsRendererRef.current.setMap(mapRef.current);
     }
-    // usamos originAdress/destinationAdress o coordinates si vienen
     const origin = travel.originCoordinates || travel.originAdress;
     const destination = travel.destinationCoordinates || travel.destinationAdress;
     try {
       directionsServiceRef.current.route(
-        {
-          origin,
-          destination,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
+        { origin, destination, travelMode: window.google.maps.TravelMode.DRIVING },
         (result, status) => {
           if (status === 'OK' || status === window.google.maps.DirectionsStatus.OK) {
             directionsRendererRef.current.setDirections(result);
-            // opcional: posicionar marker de origen/final si quieres
             try {
               const leg = result.routes[0].legs[0];
-              // marcador inicio
-              if (pickupMarkerRef.current) {
-                pickupMarkerRef.current.setPosition(leg.start_location);
-              } else {
+              if (pickupMarkerRef.current) pickupMarkerRef.current.setPosition(leg.start_location);
+              else {
                 pickupMarkerRef.current = new window.google.maps.Marker({
                   position: leg.start_location,
                   map: mapRef.current,
                   title: 'Origen',
                 });
               }
-              // limpiar marcadores guardados (no confundas con markersRef que son de otros trips)
+              console.log('taxi debug: directions renderizado');
             } catch (e) {
-              console.warn('No se pudo actualizar pickup marker desde directions', e);
+              console.warn('taxi debug: No se pudo actualizar pickup marker desde directions', e);
             }
           } else {
-            console.error('Directions error', status);
+            console.error('taxi debug: Directions error', status);
           }
         }
       );
     } catch (e) {
-      console.warn('Error solicitando directions', e);
+      console.warn('taxi debug: Error solicitando directions', e);
     }
   }, [consultedTravel, travelData]);
 
-  /* --------------------------
-     Handlers que el UI (ConductorRender) espera
-     -------------------------- */
-  const handleTravelCardClick = (index) => {
-    setConsultedTravel(index);
-  };
-
+  // Handlers que ConductorRender espera
+  const handleTravelCardClick = (index) => setConsultedTravel(index);
   const handleBackButtonClick = () => setConsultedTravel(null);
-
   const handleCloseButtonClick = (index) => {
     setTravelData(prev => prev.filter((_, i) => i !== index));
     if (travelData.length <= 1) setIsWaiting(true);
-    // limpiar markers asociados: aquí podríamos quitar marker por índice si los relaciones
-    // para simplicidad limpiamos todos los markers y los volveremos a dibujar cuando sea necesario
     markersRef.current.forEach(m => { try { m.setMap(null); } catch (e) {} });
     markersRef.current = [];
   };
@@ -303,9 +298,8 @@ const Conductor = ({
   const handleAcceptTrip = async (index) => {
     const idx = typeof index === 'number' ? index : consultedTravel;
     const travel = travelData[idx];
-    if (!travel) return console.error('No hay viaje para aceptar en index', idx);
+    if (!travel) return console.error('taxi debug: No hay viaje para aceptar en index', idx);
 
-    // Emitir oferta via socket
     try {
       if (socketRef.current && socketRef.current.connected) {
         socketRef.current.emit('oferta', {
@@ -315,12 +309,10 @@ const Conductor = ({
           destinationAddress: travel.destinationAdress,
           coordinates: userCoords,
         });
-        // marcar localmente como aceptado
         setTravelData(prev => prev.map((t, i) => i === idx ? { ...t, accepted: true } : t));
-        // opcional: ocultar lista y mostrar viaje en curso
         setIsWaiting(true);
+        console.log('taxi debug: oferta emitida via socket');
       } else {
-        // fallback HTTP (si tu backend dispone)
         try {
           await axios.post(`${process.env.REACT_APP_STRAPI_URL}/api/ofertas`, {
             driverId: userId,
@@ -328,12 +320,13 @@ const Conductor = ({
           });
           setTravelData(prev => prev.map((t, i) => i === idx ? { ...t, accepted: true } : t));
           setIsWaiting(true);
+          console.log('taxi debug: oferta emitida via HTTP fallback');
         } catch (e) {
-          console.warn('Fallback oferta HTTP fallo', e);
+          console.warn('taxi debug: Fallback oferta HTTP fallo', e);
         }
       }
     } catch (e) {
-      console.error('Error en handleAcceptTrip', e);
+      console.error('taxi debug: Error en handleAcceptTrip', e);
     }
   };
 

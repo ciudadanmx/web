@@ -10,7 +10,7 @@ function BotonCircular({ clase, mediaQ, onClick, searchText }) {
     console.log("Intentando conectar al socket...");
 
     // Conectar al socket en el servidor de localhost
-    socketRef.current = io("http://localhost:3003");  // Ajusta la URL según tu servidor
+    socketRef.current = io("http://localhost:3033");  // Ajusta la URL según tu servidor
 
     // Si la conexión es exitosa
     socketRef.current.on("connect", () => {
