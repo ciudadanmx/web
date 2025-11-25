@@ -1,22 +1,21 @@
-import React from 'react';
+// src/Pages/HomeRoute.jsx
+import React, { useEffect } from "react";
+import Intro from "../components/Home/Intro.jsx";
+import IntroVideo from "../components/Home/IntroVideo.jsx";
+import WikiViewer from "../components/Wiki/WikiViewer.jsx";
 
-import ciudadanCompleto from '../assets/ciudadanCompleto.jpg';
-import ciudadanMobile from '../assets/ciudadanMobile.jpg';
+export default function HomeRoute() {
+  useEffect(() => {
+    window.dispatchEvent(new Event("closeTopBar"));
+  }, []);
 
-const HomeRoute = () => {
   return (
-    <div className="home">
-      <img 
-        src={ciudadanCompleto} 
-        srcSet={`${ciudadanMobile} 480w, ${ciudadanCompleto} 800w`} 
-        sizes="(max-width: 480px) 100vw, 100vw" 
-        alt="Ciudadan" 
-      />
-      <h1>Bienvenido a Ciudadan</h1>
-      <p>Explora nuestras secciones principales y servicios.</p>
-      {/* Aquí puedes agregar más contenido */}
+    <div className="home bg-gray-50 min-h-screen">
+      <Intro />
+      <IntroVideo />
+
+      {/* 👇 Sección Wiki integrada debajo del video */}
+      <WikiViewer />
     </div>
   );
-};
-
-export default HomeRoute;
+}

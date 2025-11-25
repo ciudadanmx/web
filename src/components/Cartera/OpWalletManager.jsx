@@ -99,7 +99,7 @@ const OpWalletManager = () => {
 
   return (
     <div>
-      <h2>Gestión de Cartere</h2>
+      <h2>Gestión de Cartera</h2>
       {walletExists ? (
         <div>
           <p>Cartera existente: {walletAddress}</p>

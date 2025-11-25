@@ -28,9 +28,11 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
   const directionsRendererRef = useRef(null);
   const pickupMarkerRef = useRef(null);
 
-  // Carga del mapa
+  // Carga del mapa (aseguramos devolver cleanup solo si loadGoogleMaps devuelve una función)
   useEffect(() => {
-    return loadGoogleMaps(setGoogleMapsLoaded);
+    const possibleCleanup = loadGoogleMaps(setGoogleMapsLoaded);
+    // si loadGoogleMaps devuelve una función (cleanup), la retornamos; si no, no retornamos nada
+    return typeof possibleCleanup === 'function' ? possibleCleanup : undefined;
   }, []);
   
   // Renderizado del mapa
@@ -46,8 +48,8 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
         map: mapRef.current,
         position: userCoords,
         icon: {
-          url: '../assets/taxi_marker.png',
-          scaledSize: new window.google.maps.Size(54,54 ),
+          url: taxiIcon, // usar import correcto
+          scaledSize: new window.google.maps.Size(54, 54),
         },
       });
     }
@@ -85,7 +87,12 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
       });
     }
     return () => {
-      socket.disconnect();
+      // desconectamos socket correctamente en cleanup
+      try {
+        socket.disconnect();
+      } catch (e) {
+        // por si acaso socket ya fue limpiado o no existe
+      }
     };
   }, [userId]);
 
@@ -141,45 +148,26 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
     setShiftToPasajero(true);
   };
 
-  // Modificación en el handler de aceptar viaje
+  // Handler de aceptar viaje (más robusto: acepta index o usa consultedTravel)
   const handleAcceptTrip = (index) => {
-    const handleAcceptTrip = (index) => {
-      console.log("🚖 aceptandooooooooooo");
-      console.log("🔎 Índice recibido:", index);
-      console.log("📦 travelData actual:", travelData);
-    
-      if (!Array.isArray(travelData)) {
-        console.error("❌ travelData no es un array");
-        return;
-      }
-    
-      const selectedTrip = travelData[index]; // Accedemos al viaje correcto
-    
-      console.log("📍 Viaje seleccionado:", selectedTrip);
-    
-      if (!selectedTrip) {
-        console.error(`❌ Error: No hay un viaje válido en travelData[${index}]`);
-        return;
-      }
-    
-      setConsultedTravel(selectedTrip);
-      console.log("✅ Viaje aceptado:", selectedTrip);
-    };
-    
-    
-    console.log('aceptandooooooooooo');
+    console.log("🚖 aceptandooooooooooo");
+    console.log("🔎 Índice recibido:", index);
+    console.log("📦 travelData actual:", travelData);
+
     setHideTabs(true);
     setTabsHidden(true);
     setShowTabs(false);
 
+    const idx = (typeof index === 'number') ? index : consultedTravel;
     console.log('consultedTravel:', consultedTravel);
+    console.log('computed idx:', idx);
     console.log('travelData:', travelData);
-    console.log('travelData[consultedTravel]:', travelData[consultedTravel]);
+    console.log('travelData[idx]:', travelData[idx]);
 
-    let travel = travelData[consultedTravel];
+    const travel = travelData[idx];
 
     if (!travel) {
-        console.error('❌ Error: No hay un viaje válido en travelData[consultedTravel]');
+        console.error('❌ Error: No hay un viaje válido en travelData en el índice:', idx);
         return;
     }
 
@@ -202,7 +190,7 @@ const Conductor = ({ setShowTabs, setHideTabs, showTabs, hideTabs, setActiveTab,
         destinationAddress: travel.destinationAdress,
         steps: travel.steps,
     });
-};
+  };
 
   const handleCloseButtonClick = (index) => {
     setTravelData((prevData) => prevData.filter((_, i) => i !== index));

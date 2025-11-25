@@ -44,7 +44,7 @@ const ConductorRender = ({
           {consultedTravel === null ? (
             travelData.map((travel, index) => (
               <a
-                href="#"
+                href="ciudadan.org"
                 key={index}
                 onClick={(e) => {
                   e.preventDefault();
