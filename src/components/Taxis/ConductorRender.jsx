@@ -5,6 +5,7 @@ import UserLocation from '../Usuarios/UserLocation';
 import { RolPasajero, RolConductor } from './Roles';
 import ConductorContainer from './ConductorContainer';
 import EsperandoViaje from './EsperandoViaje.jsx';
+import TravelCard from './TravelCard.jsx'; // <- asegúrate de que existe
 
 const { formatTime, formatPrice } = formaters;
 
@@ -44,6 +45,7 @@ const ConductorRender = ({
     });
   }, [isWaiting, travelData, consultedTravel, googleMapsLoaded, showTabs, hideTabs]);
 
+  // Solo dependemos de googleMapsLoaded; dentro comprobamos mapRef.current
   useEffect(() => {
     if (googleMapsLoaded && mapRef && mapRef.current) {
       console.log('taxi debug: mapa listo en ConductorRender, mapRef.current existe');
@@ -53,7 +55,14 @@ const ConductorRender = ({
         hasMapRef: !!(mapRef && mapRef.current),
       });
     }
-  }, [googleMapsLoaded, mapRef]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleMapsLoaded]);
+
+  useEffect(() => {
+    if (Array.isArray(travelData) && travelData.length > 0) {
+      console.log('🚕 taxi debug: VIAJES RECIBIDOS DEL SOCKET:', travelData.length);
+    }
+  }, [travelData]);
 
   return (
     <ConductorContainer>
@@ -79,6 +88,7 @@ const ConductorRender = ({
               if (typeof handleConductor === 'function') handleConductor();
             }}
             rol="conductor"
+            newTravel={Array.isArray(travelData) && travelData.length > 0 ? travelData[0] : null}
           />
         </div>
       ) : (
@@ -86,81 +96,22 @@ const ConductorRender = ({
           {consultedTravel === null ? (
             Array.isArray(travelData) && travelData.length > 0 ? (
               travelData.map((travel, index) => {
-                // Log ligero por cada travel (no muy pesado para no spamear)
-                useEffect(() => {
-                  // eslint-disable-next-line react-hooks/rules-of-hooks
-                  console.log('taxi debug: travel en lista ->', {
-                    index,
-                    id: travel?.id || travel?.travelId,
-                    origin: travel?.originAdress,
-                    destination: travel?.destinationAdress,
-                  });
-                  // eslint-disable-next-line react-hooks/exhaustive-deps
-                }, []); // solo al montar cada tarjeta
-
                 const distanceKm = travel && travel.totalDistance ? (travel.totalDistance / 1000).toFixed(2) : '--';
                 const timeMin = travel && travel.totalTime ? formatTime(travel.totalTime) : '';
 
+                // Renderizamos TravelCard (cada TravelCard puede tener sus hooks top-level)
                 return (
-                  <a
-                    href="ciudadan.org"
-                    key={index}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      console.log('taxi debug: click tarjeta travel ->', { index, travel });
-                      handleTravelCardClick(index);
-                    }}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  <TravelCard
+                    key={travel?.id || travel?.travelId || index}
+                    travel={travel}
+                    index={index}
+                    onClick={handleTravelCardClick}
+                    onClose={handleCloseButtonClick}
+                    onAccept={handleAcceptTrip}
                   >
-                    <div className="travel-container">
-                      <button
-                        className="close-button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log('taxi debug: cerrar travel index ->', index);
-                          handleCloseButtonClick(index);
-                        }}
-                      >
-                        ✖
-                      </button>
-                      <div className="travel-header">
-                        <div className="travel-info-container">
-                          <div className="travel-row">
-                            <p className="travel-label"><strong>De:</strong></p>
-                            <p className="travel-info">{travel.originAdress}</p>
-                          </div>
-                          <div className="travel-row">
-                            <p className="travel-label"><strong>A:</strong></p>
-                            <p className="travel-info">{travel.destinationAdress || 'sin datos'}</p>
-                          </div>
-                        </div>
-                        <div className="travel-price">
-                          <span className="price-amount">
-                            $ {travel && travel.price ? formatPrice(travel.price, 'enteros') : ''}.
-                            <sup>{travel && travel.price ? formatPrice(travel.price, 'decimales') : ''}</sup>
-                          </span>
-                          <span className="travel-distance">
-                            {distanceKm} km – {timeMin} min
-                          </span>
-                          <span className="travel-time">
-                            <ElapsedTimer startTime={travel.requestTime} />
-                          </span>
-                        </div>
-                      </div>
-                      <div className="travel-buttons">
-                        <button
-                          className="accept-button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('taxi debug: aceptar viaje click ->', { index, travelId: travel?.id || travel?.travelId });
-                            handleAcceptTrip(index);
-                          }}
-                        >
-                          ➕ Aceptar Viaje
-                        </button>
-                      </div>
-                    </div>
-                  </a>
+                    {/* Si quieres el markup inline dentro del TravelCard, puedes pasarlo como children,
+                        pero lo más simple es que TravelCard renderice todo internamente. */}
+                  </TravelCard>
                 );
               })
             ) : (

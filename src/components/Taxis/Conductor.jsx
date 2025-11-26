@@ -1,6 +1,7 @@
 // src/components/Taxis/Conductor.js
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
+import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios';
 import ConductorRender from './ConductorRender'; // tu render (el UI que pegaste)
 import taxiIcon from '../../assets/taxi_marker.png'; // si está en otra ruta ajusta
@@ -17,6 +18,7 @@ const Conductor = ({
   shiftToPasajero,
   setShiftToPasajero,
 }) => {
+  const { user, isAuthenticated } = useAuth0();
   const [isWaiting, setIsWaiting] = useState(true);
   const [travelData, setTravelData] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -112,11 +114,11 @@ const Conductor = ({
      Aquí intento buscar por email en /api/users. Ajusta si tu API responde distinto.
      -------------------------- */
   useEffect(() => {
-    // si manejas auth aquí obtén el email y llámame para integrarlo;
-    // dejo esto como ejemplo pasivo para que lo actives si lo necesitas.
-    // setUserId('demo-driver-1');
-  }, []);
-
+    if (isAuthenticated && user?.email) {
+      setUserId(user.email);  // ← AQUÍ queda tu driverId real
+      console.log("taxi debug: driverId asignado ->", user.email);
+    }
+  }, [isAuthenticated, user]);
   /* --------------------------
      SOCKET: conectar y listeners (siempre que no haya otro socket)
      -------------------------- */
