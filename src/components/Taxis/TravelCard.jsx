@@ -1,115 +1,147 @@
-import React, { useEffect, useState } from 'react';
+// src/components/Taxis/TravelCard.jsx
+import React, { useEffect, useMemo, useState } from 'react';
 
-/**
- * TravelCard: componente por viaje.
- * Muestra origen/destino y tiempo transcurrido desde requestTime (fallback: createdAt/requestedAt).
- */
+const currencyFmt = (v) => {
+  if (v === null || v === undefined || isNaN(Number(v))) return '—';
+  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(v));
+};
+
 const TravelCard = ({ travel = {}, index, onClick, onClose, onAccept }) => {
-  const [accepted, setAccepted] = useState(Boolean(travel.accepted));
   const [elapsedSeconds, setElapsedSeconds] = useState(null);
+  const [finalPrice, setFinalPrice] = useState(null);
+  const [sending, setSending] = useState(false);
 
-  // Determina la marca de tiempo a usar (prioriza requestTime)
-  const getStartTimestamp = () => {
-    const candidates = [
-      travel.requestTime,
-      travel.requestedAt,
-      travel.createdAt,
-      travel.startTime, // por si el payload usa este nombre
-      travel.created_at,
-    ];
-    for (const c of candidates) {
+  // Obtener timestamp start
+  const startTs = useMemo(() => {
+    const cand = [travel.requestTime, travel.requestedAt, travel.createdAt, travel.startTime, travel.created_at];
+    for (const c of cand) {
       if (!c) continue;
       const t = new Date(c);
       if (!isNaN(t.getTime())) return t;
     }
     return null;
-  };
+  }, [travel]);
 
-  // Inicia el timer cuando haya una timestamp válida
   useEffect(() => {
-    const start = getStartTimestamp();
-    if (!start) {
-      setElapsedSeconds(null);
-      return;
-    }
-    // calcular inmediatamente y luego cada segundo
+    if (!startTs) { setElapsedSeconds(null); return; }
     const tick = () => {
       const now = new Date();
-      const diff = Math.floor((now - start) / 1000);
+      const diff = Math.floor((now - startTs) / 1000);
       setElapsedSeconds(diff >= 0 ? diff : 0);
     };
     tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [travel.requestTime, travel.requestedAt, travel.createdAt, travel.startTime, travel.created_at, travel.id]);
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [startTs]);
 
-  // Sincronizar accepted con cambios externos
+  // Inicializar input con suggestedPrice si viene
   useEffect(() => {
-    setAccepted(Boolean(travel.accepted));
-  }, [travel.accepted]);
+    if (travel && (travel.suggestedPrice || (travel.meta && travel.meta.suggested && travel.meta.suggested.price))) {
+      const p = travel.suggestedPrice ?? travel.meta?.suggested?.price;
+      setFinalPrice(Number(p));
+    } else {
+      setFinalPrice(null);
+    }
+  }, [travel]);
 
-  // formato minutos:segundos con padding
   const formatMMSS = (seconds) => {
     if (seconds === null) return '--:--';
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    const mm = String(m).padStart(2, '0');
-    const ss = String(s).padStart(2, '0');
-    return `${mm}:${ss}`;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
   const origin = travel.originAdress || travel.originAddress || travel.origin || 'Origen desconocido';
   const destination = travel.destinationAdress || travel.destinationAddress || travel.destination || 'Destino desconocido';
 
+  const suggestedPrice = travel.suggestedPrice ?? travel.meta?.suggested?.price ?? null;
+  const suggestedFormatted = travel.suggestedPriceFormatted ?? travel.meta?.suggested?.priceFormatted ?? (suggestedPrice ? currencyFmt(suggestedPrice) : null);
+
+  const handleSendProposal = async () => {
+    if (sending) return;
+    const priceToSend = finalPrice ?? suggestedPrice;
+    if (!priceToSend) {
+      alert('Por favor ingresa un precio final antes de enviar la propuesta.');
+      return;
+    }
+    try {
+      setSending(true);
+      if (typeof onAccept === 'function') {
+        // onAccept(index, finalPrice) — espera que el handler gestione socket/http
+        await onAccept(index, Number(priceToSend));
+      }
+    } catch (e) {
+      console.warn('Error enviando propuesta:', e);
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div className="travel-card" style={{ border: '1px solid #ddd', padding: 12, marginBottom: 8 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ marginBottom: 6 }}>
-            <div style={{ fontSize: 12, color: '#888' }}><strong>Origen</strong></div>
-            <div style={{ fontSize: 14 }}>{origin}</div>
-          </div>
+    <div style={{
+      border: '1px solid #e6e6e6',
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 12,
+      boxShadow: '0 6px 18px rgba(0,0,0,0.04)',
+      background: '#fff'
+    }}>
+      <div style={{display: 'flex', gap: 12, alignItems: 'flex-start'}}>
+        <div style={{flex: 1}}>
+          <div style={{fontSize: 12, color: '#666'}}><strong>Origen</strong></div>
+          <div style={{fontSize: 15, marginBottom: 8}}>{origin}</div>
 
-          <div>
-            <div style={{ fontSize: 12, color: '#888' }}><strong>Destino</strong></div>
-            <div style={{ fontSize: 14 }}>{destination}</div>
-          </div>
+          <div style={{fontSize: 12, color: '#666'}}><strong>Destino</strong></div>
+          <div style={{fontSize: 15}}>{destination}</div>
 
-          <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
+          <div style={{fontSize: 12, color: '#999', marginTop: 10}}>
             ID: {travel.id || travel.travelId || '—'}
+            {travel.roundedDistanceMeters ? ` • ${travel.roundedDistanceMeters} m` : ''}
+            {travel.distanceMeters ? ` • ${(travel.distanceMeters/1000).toFixed(2)} km` : ''}
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-          <div style={{ fontSize: 12, color: '#333' }}>
-            Tiempo: <strong>{formatMMSS(elapsedSeconds)}</strong>
+        <div style={{width: 220, display: 'flex', flexDirection: 'column', gap: 8}}>
+          <div style={{fontSize: 12, color: '#333'}}>Tiempo: <strong>{formatMMSS(elapsedSeconds)}</strong></div>
+
+          <div style={{display:'flex', flexDirection:'column', gap:6, background:'#fafafa', padding:8, borderRadius:8}}>
+            <div style={{fontSize:12, color:'#666'}}>Precio sugerido</div>
+            <div style={{fontSize:18, fontWeight:700, color:'#111'}}>{suggestedFormatted ?? '—'}</div>
+
+            <label style={{fontSize:12, color:'#666', marginTop:4}}>Precio final (MXN)</label>
+            <input
+              type="number"
+              value={finalPrice ?? ''}
+              onChange={(e) => setFinalPrice(e.target.value ? Number(e.target.value) : '')}
+              placeholder={suggestedPrice ? suggestedPrice.toString() : 'Ingresa precio final'}
+              style={{padding:'8px 10px', borderRadius:8, border:'1px solid #ddd', width:'100%'}}
+            />
           </div>
 
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{display:'flex', justifyContent:'space-between', gap:8}}>
             <button
               onClick={() => typeof onClick === 'function' && onClick(index)}
-              style={{ padding: '6px 10px', cursor: 'pointer' }}
+              style={{flex:1, padding:'10px 12px', borderRadius:8, border:'1px solid #ddd', background:'#fff', cursor:'pointer'}}
             >
               Ver
             </button>
 
             <button
-              onClick={() => {
-                if (typeof onAccept === 'function') onAccept(index);
-                setAccepted(true);
+              onClick={handleSendProposal}
+              disabled={sending}
+              style={{
+                flex:1.4,
+                padding:'10px 12px',
+                borderRadius:8,
+                border:'none',
+                background: sending ? '#e0c200' : '#ffbf00',
+                color:'#111',
+                fontWeight:700,
+                cursor: sending ? 'not-allowed' : 'pointer',
+                boxShadow: '0 6px 12px rgba(255,191,0,0.18)'
               }}
-              disabled={accepted}
-              style={{ padding: '6px 10px', cursor: accepted ? 'not-allowed' : 'pointer' }}
             >
-              {accepted ? 'Aceptado' : 'Aceptar'}
-            </button>
-
-            <button
-              onClick={() => typeof onClose === 'function' && onClose(index)}
-              style={{ padding: '6px 8px', cursor: 'pointer' }}
-            >
-              ✖
+              {sending ? 'Enviando…' : 'Enviar propuesta'}
             </button>
           </div>
         </div>
