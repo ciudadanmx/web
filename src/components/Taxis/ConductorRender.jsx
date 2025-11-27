@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import io from 'socket.io-client';
 import formaters from '../../utils/formaters';
 
 import UserLocation from '../Usuarios/UserLocation';
@@ -27,12 +28,118 @@ const ConductorRender = ({
   showTabs,
   hideTabs,
 }) => {
+  // socket ref para emitir propuesta cuando corresponda
+  const socketRef = useRef(null);
+
   useEffect(() => {
     console.log('taxi debug: ConductorRender montado');
     return () => {
       console.log('taxi debug: ConductorRender desmontado');
     };
   }, []);
+
+  // inicializar socket para emitir propuestas
+  useEffect(() => {
+    try {
+      console.log('[ConductorRender] conectando socket a', process.env.REACT_APP_SOCKET_URL);
+      socketRef.current = io(process.env.REACT_APP_SOCKET_URL, { transports: ['websocket'] });
+
+      socketRef.current.on('connect', () => {
+        console.log('[ConductorRender][socket] conectado id=', socketRef.current.id);
+      });
+
+      socketRef.current.on('connect_error', (err) => {
+        console.warn('[ConductorRender][socket] connect_error:', err && (err.message || err));
+      });
+
+      socketRef.current.on('disconnect', (reason) => {
+        console.log('[ConductorRender][socket] disconnected:', reason);
+      });
+    } catch (e) {
+      console.warn('[ConductorRender] no se pudo inicializar socket:', e);
+      socketRef.current = null;
+    }
+
+    return () => {
+      try {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+          socketRef.current = null;
+          console.log('[ConductorRender] socket desconectado al desmontar componente');
+        }
+      } catch (e) {
+        console.warn('[ConductorRender] error desconectando socket:', e);
+      }
+    };
+  }, []);
+
+  // helper para emitir la propuesta por socket
+  const emitProposal = (travel, extra = {}) => {
+    try {
+      if (!socketRef.current || socketRef.current.disconnected) {
+        console.warn('[ConductorRender] socket no conectado — no se emitirá la propuesta');
+        return;
+      }
+
+      const travelId = travel?.id ?? travel?.travelId ?? null;
+      const price = extra.price ?? travel?.price ?? travel?.proposedPrice ?? null;
+
+      const payload = {
+        travelId,
+        price,
+        driverCoordinates: userCoords ?? null,
+        timestamp: new Date().toISOString(),
+        rawTravel: travel ?? null,
+      };
+
+      socketRef.current.emit('enviar-propuesta', payload);
+      console.log('[ConductorRender] emitido evento enviar-propuesta:', payload);
+    } catch (e) {
+      console.warn('[ConductorRender] error emitiendo propuesta:', e);
+    }
+  };
+
+  // wrapper que emite la propuesta y luego delega al handler original
+  const handleAcceptTripWrapped = async (travel, pricePassed, ...rest) => {
+    // pricePassed viene de TravelCard; puede ser undefined
+    try {
+      emitProposal(travel, { price: pricePassed });
+    } catch (e) {
+      console.warn('[ConductorRender] error en emitProposal', e);
+    }
+
+    if (typeof handleAcceptTrip === 'function') {
+      try {
+        // Aceptamos que el handler pueda ser sync o async, lo await para capturar errores correctamente
+        await handleAcceptTrip(travel, pricePassed, ...rest);
+      } catch (err) {
+        // Normalizamos errores nulos/indefinidos para evitar "cannot read properties of null (reading 'stack')"
+        let safeErr = err;
+        try {
+          if (!safeErr) {
+            safeErr = new Error('Error desconocido (handler devolvió null/undefined)');
+          } else if (typeof safeErr === 'string') {
+            safeErr = new Error(safeErr);
+          } else if (!(safeErr instanceof Error)) {
+            // intentar construir un Error legible
+            safeErr = new Error(JSON.stringify(safeErr));
+          }
+        } catch (normErr) {
+          safeErr = new Error('Error desconocido al normalizar excepción');
+        }
+        // ahora sí logueamos de forma segura
+        try {
+          console.error('[ConductorRender] error en handleAcceptTrip:', safeErr);
+        } catch (logErr) {
+          // en el improbable caso de que console.error también falle
+          // fallback: noop
+        }
+      }
+    } else {
+      // si no hay handler definido, al menos lo dejamos registrado en consola
+      console.warn('[ConductorRender] handleAcceptTrip no está definido, solo se emitió la propuesta por socket');
+    }
+  };
 
   useEffect(() => {
     console.log('taxi debug: props update ->', {
@@ -107,7 +214,7 @@ const ConductorRender = ({
                     index={index}
                     onClick={handleTravelCardClick}
                     onClose={handleCloseButtonClick}
-                    onAccept={handleAcceptTrip}
+                    onAccept={handleAcceptTripWrapped} // <-- aquí se envía la propuesta por socket antes de llamar al handler original
                   >
                     {/* Si quieres el markup inline dentro del TravelCard, puedes pasarlo como children,
                         pero lo más simple es que TravelCard renderice todo internamente. */}

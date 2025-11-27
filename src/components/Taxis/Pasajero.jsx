@@ -2,9 +2,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/taxis.css';
 import useGoogleMaps from '../../hooks/UseGoogleMaps';
-import { addTaxiMarker } from '../../utils/mapUtils';
 import taxiIcon from '../../assets/taxi_marker.png';
 
 const DEFAULT_FROM = { lat: 19.432608, lng: -99.133209 };
@@ -12,6 +12,8 @@ const DEFAULT_TO = { lat: 19.4374453, lng: -99.14651119999999 };
 
 const Pasajero = ({ onFoundDrivers = () => {} }) => {
   const { user } = useAuth0();
+  const navigate = useNavigate();
+
   const [fromAddress, setFromAddress] = useState('');
   const [toAddress, setToAddress] = useState('');
 
@@ -44,6 +46,15 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
   // Socket ref
   const socketRef = useRef(null);
 
+  // Offers state + refs to store marker/infoWindow objects without forcing re-render
+  const [offers, setOffers] = useState([]); // [{ id, coordinates, price, timestamp }]
+  const offersRef = useRef([]); // same objects + { marker, infoWindow }
+  const pendingOffersRef = useRef([]); // offers received before map is ready
+
+  // Selected offer for modal
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Util: stringify safe
   const safeStringify = (obj, max = 2000) => {
     try {
@@ -53,6 +64,103 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       return String(obj);
     }
   };
+
+  // Helper to convert socket url ws -> http for fetch
+  const socketUrlToHttp = (url = '') => {
+    if (!url) return null;
+    try {
+      return url.replace(/^wss:\/\//i, 'https://').replace(/^ws:\/\//i, 'http://');
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Crear marker + infoWindow para una oferta
+  const createMarkerForOffer = useCallback(
+    (offer) => {
+      if (!mapRef || !mapRef.current || !window.google) {
+        // guardar en pendientes si el mapa no está listo
+        pendingOffersRef.current.push(offer);
+        return;
+      }
+
+      try {
+        const { coordinates, price, id } = offer;
+        const position = new window.google.maps.LatLng(coordinates.lat, coordinates.lng);
+
+        // Marker
+        const marker = new window.google.maps.Marker({
+          position,
+          map: mapRef.current,
+          icon: {
+            url: taxiIcon,
+            scaledSize: new window.google.maps.Size(40, 40),
+          },
+          title: `Oferta $${price}`,
+        });
+
+        // InfoWindow pequeño (recuadro) que aparece por defecto
+        const infoContent = `
+          <div id="offer-info-${id}" style="font-family: Arial, sans-serif; font-size:13px;">
+            <div style="font-weight:600; margin-bottom:4px;">Oferta: $${price}</div>
+            <div style="font-size:12px; color:#555;">Click para ver opciones</div>
+          </div>
+        `;
+
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: infoContent,
+          position,
+        });
+
+        // Abrir infoWindow automáticamente
+        infoWindow.open(mapRef.current, marker);
+
+        // Listener en marker: al click abrir modal y seleccionar oferta
+        const markerClickListener = marker.addListener('click', () => {
+          setSelectedOffer({ id, coordinates, price });
+          setIsModalOpen(true);
+        });
+
+        // También añadir listener para el contenido del InfoWindow (domready)
+        const domReadyListener = window.google.maps.event.addListener(infoWindow, 'domready', () => {
+          const elem = document.getElementById(`offer-info-${id}`);
+          if (elem) {
+            // hacer que click en el recuadro abra modal
+            elem.style.cursor = 'pointer';
+            if (!elem._hasClick) {
+              elem.addEventListener('click', () => {
+                setSelectedOffer({ id, coordinates, price });
+                setIsModalOpen(true);
+              });
+              elem._hasClick = true;
+            }
+          }
+        });
+
+        // guardar en refs
+        offersRef.current.push({
+          ...offer,
+          marker,
+          infoWindow,
+          _listeners: { markerClickListener, domReadyListener },
+        });
+
+        // actualizar state (solo metadatos, sin los objetos google para evitar serialización)
+        setOffers((prev) => [...prev, { id, coordinates, price, timestamp: offer.timestamp }]);
+      } catch (e) {
+        console.warn('[Pasajero] error creando marker para oferta', e);
+      }
+    },
+    [mapRef]
+  );
+
+  // Procesar ofertas pendientes cuando el mapa esté listo
+  useEffect(() => {
+    if (!googleMapsLoaded) return;
+    if (pendingOffersRef.current.length === 0) return;
+    pendingOffersRef.current.forEach((of) => createMarkerForOffer(of));
+    pendingOffersRef.current = [];
+  }, [googleMapsLoaded, createMarkerForOffer]);
 
   useEffect(() => {
     console.log('[Pasajero] montaje: intentando conectar socket a', process.env.REACT_APP_SOCKET_URL);
@@ -79,7 +187,22 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
           if (Array.isArray(drivers)) {
             drivers.forEach((d) => {
               if (d.coordinates && mapRef && mapRef.current) {
-                addTaxiMarker(mapRef, d.coordinates, taxiIcon);
+                // pintar marcadores de drivers (sin infoWindow)
+                try {
+                  const pos = new window.google.maps.LatLng(d.coordinates.lat, d.coordinates.lng);
+                  const marker = new window.google.maps.Marker({
+                    position: pos,
+                    map: mapRef.current,
+                    icon: {
+                      url: taxiIcon,
+                      scaledSize: new window.google.maps.Size(36, 36),
+                    },
+                    title: d.name || 'Taxista',
+                  });
+                  // opcional: no guardamos estos markers en offersRef
+                } catch (e) {
+                  console.warn('[drivers-found] error creando marker', e);
+                }
               }
             });
           }
@@ -100,24 +223,77 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       socketRef.current.on('trip-ack', (ack) => {
         console.log('[Socket] trip-ack recibido:', ack);
       });
+
+      // NUEVO: escucha del evento de oferta de viaje
+      socketRef.current.on('ofertaviaje', (payload) => {
+        // payload esperado: { coordinates: { lat, lng }, price: 123, ... }
+        console.log('[Socket] ofertaviaje recibido:', safeStringify(payload, 2000));
+        try {
+          const coordinates = payload.coordinates || payload.coords || payload.location || null;
+          const price = payload.precio ?? payload.price ?? null;
+          if (!coordinates || typeof coordinates.lat !== 'number' || typeof coordinates.lng !== 'number') {
+            console.warn('[ofertaviaje] payload sin coordinates válidas:', payload);
+            return;
+          }
+          const id = `offer-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+          const offer = {
+            id,
+            coordinates: { lat: Number(coordinates.lat), lng: Number(coordinates.lng) },
+            price,
+            timestamp: new Date().toISOString(),
+            raw: payload,
+          };
+          createMarkerForOffer(offer);
+        } catch (e) {
+          console.warn('[ofertaviaje] error procesando payload', e);
+        }
+      });
     } catch (e) {
       console.error('[Pasajero] no se pudo inicializar socket:', e);
       socketRef.current = null;
     }
 
     return () => {
-      console.log('[Pasajero] desmontando componente: limpiando socket listeners');
+      console.log('[Pasajero] desmontando componente: limpiando socket listeners y markers');
       try {
         if (socketRef.current) {
           socketRef.current.off('drivers-found');
           socketRef.current.off('search-error');
           socketRef.current.off('connect');
           socketRef.current.off('disconnect');
+          socketRef.current.off('trip-ack');
+          socketRef.current.off('ofertaviaje');
           socketRef.current.disconnect();
           socketRef.current = null;
         }
       } catch (e) {
         console.warn('[Pasajero] error limpiando socket:', e);
+      }
+
+      // limpiar markers/infoWindows
+      try {
+        offersRef.current.forEach((o) => {
+          try {
+            if (o.infoWindow) {
+              o.infoWindow.close();
+            }
+            if (o.marker) {
+              // quitar listeners si existen
+              if (o._listeners && o._listeners.markerClickListener) {
+                window.google.maps.event.removeListener(o._listeners.markerClickListener);
+              }
+              if (o._listeners && o._listeners.domReadyListener) {
+                window.google.maps.event.removeListener(o._listeners.domReadyListener);
+              }
+              o.marker.setMap(null);
+            }
+          } catch (inner) {
+            // noop
+          }
+        });
+        offersRef.current = [];
+      } catch (e) {
+        console.warn('[Pasajero] error limpiando markers al desmontar', e);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -253,24 +429,12 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     drawRouteOnMap(bCoords, aCoords);
   }, [fromAddress, toAddress, fromCoordinates, toCoordinates, mapRef, fromMarkerRef, toMarkerRef, drawRouteOnMap]);
 
-  // Helper para transformar REACT_APP_SOCKET_URL ws->http
-  const socketUrlToHttp = (url = '') => {
-    if (!url) return null;
-    try {
-      return url.replace(/^wss:\/\//i, 'https://').replace(/^ws:\/\//i, 'http://');
-    } catch (e) {
-      return null;
-    }
-  };
-
-  // BUSCAR TAXISTAS: logs completos
+  // BUSCAR TAXISTAS
   const buscarTaxistas = async () => {
     setError(null);
     setLoadingSearch(true);
 
     const userEmail = user?.email ?? null;
-    console.log('[buscarTaxistas] inicio. user.email=', userEmail);
-
     const payload = {
       userEmail,
       originCoordinates: fromCoordinates || null,
@@ -280,50 +444,8 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       timestamp: new Date().toISOString(),
     };
 
-    console.log('[buscarTaxistas] payload construido:', safeStringify(payload, 4000));
-
     try {
-      // 1) Emitir por socket si está conectado
-      if (socketRef.current) {
-        try {
-          console.log('[buscarTaxistas] socketRef existe. connected=', !!socketRef.current.connected);
-        } catch (e) {
-          console.warn('[buscarTaxistas] error leyendo socketRef.connected', e);
-        }
-      } else {
-        console.log('[buscarTaxistas] socketRef NO existe (null)');
-      }
-
-      if (socketRef.current && socketRef.current.connected) {
-        console.log('[buscarTaxistas] Emisión via socket.emit("buscar-taxistas") con payload:', safeStringify(payload));
-        // añadimos un timeout manual para detectar falta de ack
-        let ackCalled = false;
-        try {
-          socketRef.current.emit('buscar-taxistas', payload, (ack) => {
-            ackCalled = true;
-            console.log('[Socket ACK] buscar-taxistas ack recibido:', safeStringify(ack));
-            // opcional: si el ack contiene drivers, pintarlos
-            if (ack && Array.isArray(ack.foundDrivers)) {
-              console.log('[Socket ACK] ack.foundDrivers:', safeStringify(ack.foundDrivers));
-              ack.foundDrivers.forEach((d) => { if (d.coordinates && mapRef && mapRef.current) addTaxiMarker(mapRef, d.coordinates, taxiIcon); });
-              onFoundDrivers(ack.foundDrivers);
-            }
-          });
-
-          // si no llega ack en 3s, lo informamos pero no cancelamos
-          setTimeout(() => {
-            if (!ackCalled) {
-              console.warn('[buscarTaxistas] no se recibió ACK por socket en 3000ms (seguir con fallback HTTP)');
-            }
-          }, 3000);
-        } catch (e) {
-          console.warn('[buscarTaxistas] emit socket fallo:', e);
-        }
-      } else {
-        console.warn('[buscarTaxistas] socket no conectado — no se emitió por websocket');
-      }
-
-      // 2) Intentar POST a /test/send-trip (backend)
+      // 1) Intentar POST a /test/send-trip (backend)
       const backendBase =
         process.env.REACT_APP_SOCKET_URL ||
         socketUrlToHttp(process.env.REACT_APP_SOCKET_URL) ||
@@ -331,17 +453,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
 
       if (backendBase) {
         const url = `${backendBase.replace(/\/$/, '')}/test/send-trip`;
-        console.log('[buscarTaxistas] intentaremos POST a /test/send-trip ->', url);
         try {
-          console.log('[buscarTaxistas] POST body:', safeStringify({
-            userEmail,
-            originCoordinates: payload.originCoordinates,
-            destinationCoordinates: payload.destinationCoordinates,
-            originAdress: payload.originAddress,
-            destinationAdress: payload.destinationAddress,
-            broadcast: true
-          }, 4000));
-
           const resp = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -354,26 +466,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
               broadcast: true
             }),
           });
-
-          console.log('[buscarTaxistas] POST /test/send-trip status=', resp.status);
           const text = await resp.text().catch(() => null);
-          console.log('[buscarTaxistas] POST /test/send-trip body text preview:', text && text.slice ? text.slice(0, 2000) : text);
-
-          if (resp.ok) {
-            let json = null;
-            try { json = JSON.parse(text); } catch (e) { json = null; }
-            console.log('[buscarTaxistas] POST /test/send-trip JSON parsed:', safeStringify(json, 4000));
-            if (json && json.payload && json.payload.meta && json.payload.meta.foundDrivers) {
-              const drivers = json.payload.meta.foundDrivers;
-              console.log('[buscarTaxistas] drivers desde /test/send-trip meta.foundDrivers:', safeStringify(drivers, 2000));
-              if (Array.isArray(drivers) && drivers.length > 0 && mapRef && mapRef.current) {
-                drivers.forEach((d) => { if (d.coordinates) addTaxiMarker(mapRef, d.coordinates, taxiIcon); });
-              }
-              onFoundDrivers(drivers);
-            }
-          } else {
-            console.warn('[buscarTaxistas] POST /test/send-trip no OK:', resp.status);
-          }
         } catch (e) {
           console.warn('[buscarTaxistas] error en POST /test/send-trip:', e);
         }
@@ -381,36 +474,6 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
         console.warn('[buscarTaxistas] no se pudo determinar backendBase para POST /test/send-trip — revisa env vars');
       }
 
-      // 3) Fallback: endpoint conductores-cercanos en Strapi
-      try {
-        const conductoresUrl = `${process.env.REACT_APP_STRAPI_URL.replace(/\/$/, '')}/api/conductores-cercanos`;
-        console.log('[buscarTaxistas] intentando POST a conductores-cercanos ->', conductoresUrl);
-        const res = await fetch(conductoresUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            origin: payload.originCoordinates || payload.originAddress,
-            destination: payload.destinationCoordinates || payload.destinationAddress,
-            userEmail
-          }),
-        });
-        console.log('[buscarTaxistas] conductores-cercanos status=', res.status);
-        const text = await res.text().catch(() => null);
-        console.log('[buscarTaxistas] conductores-cercanos response preview:', text && text.slice ? text.slice(0, 2000) : text);
-        if (res.ok) {
-          let data = null;
-          try { data = JSON.parse(text); } catch (e) { data = text; }
-          console.log('[buscarTaxistas] conductores-cercanos parsed:', safeStringify(data, 4000));
-          onFoundDrivers(data);
-          if (Array.isArray(data) && data.length > 0 && mapRef && mapRef.current) {
-            data.forEach((driver) => { if (driver.coordinates) addTaxiMarker(mapRef, driver.coordinates, taxiIcon); });
-          }
-        } else {
-          console.warn('[buscarTaxistas] conductores-cercanos returned non-ok:', res.status);
-        }
-      } catch (err) {
-        console.warn('[buscarTaxistas] error calling conductores-cercanos:', err);
-      }
     } catch (err) {
       console.error('[buscarTaxistas] error general:', err);
       setError(err.message || 'Error buscando taxistas');
@@ -424,6 +487,122 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     if (mapRef && mapRef.current) {
       mapRef.current.setCenter(fromCoordinates);
       if (mapRef.current.setZoom) mapRef.current.setZoom(15);
+    }
+  };
+
+  // Cerrar modal y limpiar selección
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOffer(null);
+  };
+
+  // Aceptar oferta: ahora llama al backend /api/aceptar-viaje y navega a /taxis/viaje/:travelId
+  const acceptOffer = async () => {
+    console.log('aceptando oferta');
+    // construir backend base igual que en buscarTaxistas
+    const backendBase =
+      process.env.REACT_APP_SOCKET_URL || 'http://localhost:3033';
+
+    if (!selectedOffer) {
+      console.warn('[acceptOffer] no hay oferta seleccionada');
+      return;
+    }
+
+    // Evitar reentradas
+    try {
+      // Realiza la llamada al backend que creamos: POST /api/aceptar-viaje
+      if (!backendBase) {
+        console.warn('[acceptOffer] backendBase no configurado. Revisa REACT_APP_SOCKET_URL o env vars.');
+        // procedemos con el comportamiento antiguo (cerrar modal y remover marker)
+        try {
+          const idx = offersRef.current.findIndex((o) => o.id === selectedOffer?.id);
+          if (idx !== -1) {
+            const o = offersRef.current[idx];
+            if (o.infoWindow) o.infoWindow.close();
+            if (o.marker) o.marker.setMap(null);
+            offersRef.current.splice(idx, 1);
+            setOffers((prev) => prev.filter((p) => p.id !== selectedOffer.id));
+          }
+        } catch (e) {
+          console.warn('[acceptOffer] error removiendo marcador', e);
+        } finally {
+          setSelectedOffer(null);
+          setIsModalOpen(false);
+        }
+        return;
+      }
+
+      const url = `${backendBase.replace(/\/$/, '')}/api/aceptar-viaje`;
+
+      // Payload: llenamos los campos que solicitaste en Strapi
+      const body = {
+        userEmail: user?.email ?? null,
+        origencoords: fromCoordinates ?? null,
+        destinocoords: toCoordinates ?? null,
+        conductorcoords: selectedOffer.coordinates ?? null,
+        origendireccion: { label: fromAddress ?? '' },
+        destinodireccion: { label: toAddress ?? '' },
+        solicitado: new Date().toISOString(),
+        travelid: selectedOffer.id ?? undefined,
+        observaciones: selectedOffer.raw?.meta?.note ?? '',
+        costo: typeof selectedOffer.price === 'number' ? selectedOffer.price : Number(selectedOffer.price) || null
+      };
+
+      let respJson = null;
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const text = await resp.text();
+        try {
+          respJson = JSON.parse(text);
+        } catch (e) {
+          respJson = { ok: resp.ok, rawText: text };
+        }
+        if (!resp.ok) {
+          console.warn('[acceptOffer] respuesta no ok:', resp.status, respJson);
+          // mostrar error y no navegar
+          setError((respJson && respJson.error) ? respJson.error : `Error server ${resp.status}`);
+          return;
+        }
+      } catch (err) {
+        console.error('[acceptOffer] error en fetch aceptar-viaje:', err);
+        setError(err.message || 'Error enviando aceptación al backend');
+        return;
+      }
+
+      // Si llegamos aquí, la creación en Strapi fue (probablemente) exitosa
+      const travelIdReturned = (respJson && respJson.travelId) ? respJson.travelId : (respJson && respJson.created && respJson.created.id ? String(respJson.created.id) : null);
+
+      // comportamiento antiguo: remover marcador y cerrar modal
+      try {
+        const idx = offersRef.current.findIndex((o) => o.id === selectedOffer?.id);
+        if (idx !== -1) {
+          const o = offersRef.current[idx];
+          if (o.infoWindow) o.infoWindow.close();
+          if (o.marker) o.marker.setMap(null);
+          offersRef.current.splice(idx, 1);
+          setOffers((prev) => prev.filter((p) => p.id !== selectedOffer.id));
+        }
+      } catch (e) {
+        console.warn('[acceptOffer] error removiendo marcador', e);
+      } finally {
+        setSelectedOffer(null);
+        setIsModalOpen(false);
+      }
+
+      // navegar a la ruta del viaje usando travelId retornado por tu endpoint
+      if (travelIdReturned) {
+        navigate(`/taxis/viaje/${travelIdReturned}`);
+      } else {
+        // fallback: si no retornaron travelId, intenta con selectedOffer.id
+        navigate(`/taxis/viaje/${selectedOffer.id}`);
+      }
+    } catch (e) {
+      console.error('[acceptOffer] error general:', e);
+      setError(e && e.message ? e.message : 'Error aceptando oferta');
     }
   };
 
@@ -493,8 +672,15 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
         </button>
       </div>
 
-      {error && <div className="error-text">{error}</div>}
-
+      {error && (
+        <div className="error-text">
+          {typeof error === 'string'
+            ? error
+            : (error && (error.error || error.message))
+            ? String(error.error || error.message)
+            : JSON.stringify(error)}
+        </div>
+      )}
       <div className="taxis-map formulario-pasajero" style={{ width: '100%', height: '60vh', borderRadius: 8, overflow: 'hidden' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
       </div>
@@ -505,6 +691,69 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
         <p><strong>Lng:</strong> {fromCoordinates.lng?.toFixed(6)}</p>
         <p style={{fontSize:12, color:'#666'}}>Envíos: socket={socketRef.current ? String(!!socketRef.current.connected) : 'no-socket'} — backendBase seguro en consola</p>
       </div>
+
+      {/* Modal simple para oferta */}
+      {isModalOpen && selectedOffer && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            zIndex: 99999,
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.4)',
+          }}
+          onClick={closeModal}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '320px',
+              background: '#fff',
+              borderRadius: 10,
+              padding: 18,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>Oferta del conductor</h3>
+            <p style={{ fontSize: 18, margin: '8px 0' }}>
+              <strong>Precio:</strong> ${selectedOffer.price}
+            </p>
+
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  border: '1px solid #ccc',
+                  background: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                Cerrar
+              </button>
+
+              <button
+                onClick={acceptOffer}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: '#00c853',
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

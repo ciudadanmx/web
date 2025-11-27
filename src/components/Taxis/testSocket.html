@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Test ofertaviaje</title>
+  <!-- Usa la versión 4 del cliente (coincide con server socket.io v4) -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>Test ofertaviaje</h2>
+  <div>
+    <label>Host (ej. http://localhost:3033): <input id="host" value="http://localhost:3033" style="width:300px" /></label>
+  </div>
+  <div style="margin-top:8px;">
+    <label>Lat: <input id="lat" value="19.432608" /></label>
+    <label>Lng: <input id="lng" value="-99.133209" /></label>
+    <label>Precio: <input id="precio" value="120" /></label>
+  </div>
+  <div style="margin-top:12px;">
+    <button id="connectBtn">Conectar</button>
+    <button id="sendBtn" disabled>Enviar ofertaviaje</button>
+  </div>
+
+  <pre id="log" style="background:#f6f6f6;padding:12px;margin-top:12px;height:300px;overflow:auto;"></pre>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const append = (s) => { logEl.innerText += (new Date().toISOString()) + ' — ' + s + '\n'; logEl.scrollTop = logEl.scrollHeight; };
+
+    let socket = null;
+
+    document.getElementById('connectBtn').onclick = () => {
+      const host = document.getElementById('host').value.trim() || 'http://localhost:3033';
+      append('Intentando conectar a ' + host + ' ...');
+      try {
+        socket = io(host, { transports: ['websocket'] });
+
+        socket.on('connect', () => {
+          append('[socket] conectado id=' + socket.id);
+          document.getElementById('sendBtn').disabled = false;
+        });
+
+        socket.on('connect_error', (err) => {
+          append('[socket] connect_error: ' + (err && err.message ? err.message : JSON.stringify(err)));
+        });
+
+        socket.on('disconnect', (reason) => {
+          append('[socket] desconectado: ' + reason);
+          document.getElementById('sendBtn').disabled = true;
+        });
+
+        socket.on('ofertaviaje', (payload) => {
+          append('[socket] recibí ofertaviaje: ' + JSON.stringify(payload));
+        });
+
+      } catch (e) {
+        append('[error] ' + e);
+      }
+    };
+
+    document.getElementById('sendBtn').onclick = () => {
+      if (!socket || !socket.connected) {
+        append('No conectado — presiona Conectar primero');
+        return;
+      }
+      const lat = Number(document.getElementById('lat').value);
+      const lng = Number(document.getElementById('lng').value);
+      const precio = Number(document.getElementById('precio').value);
+
+      const payload = {
+        coordinates: { lat, lng },
+        price: precio,
+        meta: { note: 'prueba desde html' }
+      };
+
+      append('Emitiendo ofertaviaje: ' + JSON.stringify(payload));
+      // con ack
+      socket.emit('ofertaviaje', payload, (ack) => {
+        append('Ack del servidor: ' + JSON.stringify(ack));
+      });
+    };
+  </script>
+</body>
+</html>

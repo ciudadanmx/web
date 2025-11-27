@@ -1,5 +1,6 @@
 // src/components/Taxis/TravelCard.jsx
 import React, { useEffect, useMemo, useState } from 'react';
+import { getSocket, emitEvent } from '../../lib/socketClient.jsx';
 
 const currencyFmt = (v) => {
   if (v === null || v === undefined || isNaN(Number(v))) return '—';
@@ -57,21 +58,72 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, onAccept }) => {
   const suggestedPrice = travel.suggestedPrice ?? travel.meta?.suggested?.price ?? null;
   const suggestedFormatted = travel.suggestedPriceFormatted ?? travel.meta?.suggested?.priceFormatted ?? (suggestedPrice ? currencyFmt(suggestedPrice) : null);
 
+  // Helper para obtener coords actuales (Promise)
+  const getCurrentPosition = (opts = { enableHighAccuracy: false, timeout: 5000, maximumAge: 10000 }) => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        return reject(new Error('Geolocation no disponible'));
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (err) => reject(err),
+        opts
+      );
+    });
+  };
+
   const handleSendProposal = async () => {
+    console.log('iniciando propuesta (conductor) — travelId:', travel?.id ?? travel?.travelId);
     if (sending) return;
     const priceToSend = finalPrice ?? suggestedPrice;
     if (!priceToSend) {
       alert('Por favor ingresa un precio final antes de enviar la propuesta.');
       return;
     }
+
+    setSending(true);
+
+    // Preparar payload: intentamos obtener coords del conductor; si falla, enviamos sin coords pero igual emitimos
+    let driverCoords = null;
     try {
-      setSending(true);
+      driverCoords = await getCurrentPosition();
+      console.log('[TravelCard] coords obtenidas:', driverCoords);
+    } catch (geoErr) {
+      console.warn('[TravelCard] no se pudo obtener geolocalización:', geoErr && geoErr.message ? geoErr.message : geoErr);
+      // No bloqueamos: seguimos sin coords
+    }
+
+    const payload = {
+      // server espera payload.coordinates {lat,lng} y price o precio
+      coordinates: driverCoords || (travel?.driverCoordinates || travel?.coords || null),
+      price: Number(priceToSend),
+      meta: {
+        from: 'conductor',
+        travelId: travel?.id ?? travel?.travelId ?? null,
+        note: 'oferta desde TravelCard'
+      },
+      rawTravel: travel ?? null,
+      timestamp: new Date().toISOString()
+    };
+
+    // Si no hay coords y quieres forzar rechazo en el server, quita el fallback anterior.
+    // Emitimos exactamente el evento que tu server escucha: 'ofertaviaje'
+    try {
+      emitEvent('ofertaviaje', payload, (ack) => {
+        console.log('[TravelCard] ack ofertaviaje:', ack);
+      });
+      console.log('[TravelCard] emitido ofertaviaje:', payload);
+    } catch (emitErr) {
+      console.warn('[TravelCard] error emitiendo ofertaviaje:', emitErr);
+    }
+
+    // llamar onAccept (tu lógica local/servidor)
+    try {
       if (typeof onAccept === 'function') {
-        // onAccept(index, finalPrice) — espera que el handler gestione socket/http
-        await onAccept(index, Number(priceToSend));
+        await onAccept(travel, Number(priceToSend));
       }
     } catch (e) {
-      console.warn('Error enviando propuesta:', e);
+      console.warn('[TravelCard] onAccept lanzó error:', e);
     } finally {
       setSending(false);
     }
