@@ -1,5 +1,8 @@
+// src/components/Taxis/ConductorRender.jsx
 import React, { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useNavigate } from 'react-router-dom';
 import formaters from '../../utils/formaters';
 
 import UserLocation from '../Usuarios/UserLocation';
@@ -30,6 +33,8 @@ const ConductorRender = ({
 }) => {
   // socket ref para emitir propuesta cuando corresponda
   const socketRef = useRef(null);
+  const { user } = useAuth0();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('taxi debug: ConductorRender montado');
@@ -38,7 +43,7 @@ const ConductorRender = ({
     };
   }, []);
 
-  // inicializar socket para emitir propuestas
+  // inicializar socket para emitir propuestas y escuchar eventos
   useEffect(() => {
     try {
       console.log('[ConductorRender] conectando socket a', process.env.REACT_APP_SOCKET_URL);
@@ -55,6 +60,135 @@ const ConductorRender = ({
       socketRef.current.on('disconnect', (reason) => {
         console.log('[ConductorRender][socket] disconnected:', reason);
       });
+
+      /**
+       * NUEVO: Escuchar 'viajeAceptado' -> actualizar Strapi y navegar
+       * payload esperado: { travelId: '...' , strapiId: <num?>, timestamp: '...' }
+       */
+      socketRef.current.on('viajeAceptado', async (payload) => {
+        try {
+          console.log('[ConductorRender] evento viajeAceptado recibido:', payload);
+          const travelId = payload && (payload.travelId || payload.travelid || payload.travelID);
+          if (!travelId) {
+            console.warn('[ConductorRender] viajeAceptado sin travelId en payload:', payload);
+            return;
+          }
+
+          // Preparar variables para Strapi
+          const STRAPI_URL = (process.env.REACT_APP_STRAPI_URL || '').replace(/\/$/, '');
+          const STRAPI_TOKEN = process.env.REACT_APP_STRAPI_TOKEN || null;
+
+          if (!STRAPI_URL) {
+            console.warn('[ConductorRender] REACT_APP_STRAPI_URL no configurada. No se actualizará Strapi, navegando igual.');
+            // navegar aún si no se pudo actualizar
+            navigate(`/taxis/viaje/${travelId}`);
+            return;
+          }
+
+          // Buscar el registro de viaje por travelid en Strapi
+          // endpoint: GET /api/viajes?filters[travelid][$eq]=<travelId>
+          const headers = { 'Content-Type': 'application/json' };
+          if (STRAPI_TOKEN) headers['Authorization'] = `Bearer ${STRAPI_TOKEN}`;
+
+          let viajeStrapi = null;
+          try {
+            const qUrl = `${STRAPI_URL}/api/viajes?filters[travelid][$eq]=${encodeURIComponent(travelId)}&pagination[pageSize]=1`;
+            console.log('[ConductorRender] buscando viaje en Strapi ->', qUrl);
+            const resp = await fetch(qUrl, { headers });
+            if (!resp.ok) {
+              const txt = await resp.text().catch(() => null);
+              console.warn('[ConductorRender] GET viaje en Strapi no ok:', resp.status, txt);
+            } else {
+              const j = await resp.json().catch(() => null);
+              if (j && j.data && Array.isArray(j.data) && j.data.length > 0) {
+                viajeStrapi = j.data[0]; // objeto Strapi { id, attributes }
+                console.log('[ConductorRender] viajeStrapi encontrado:', viajeStrapi);
+              } else {
+                console.warn('[ConductorRender] no se encontró viaje con travelid en Strapi:', travelId);
+              }
+            }
+          } catch (err) {
+            console.warn('[ConductorRender] error buscando viaje en Strapi:', err);
+          }
+
+          // Buscar usuario en Strapi por email (user.email de auth0)
+          let strapiUserId = null;
+          try {
+            if (user && user.email) {
+              const usersUrl = `${STRAPI_URL}/api/users?filters[email][$eq]=${encodeURIComponent(user.email)}&pagination[pageSize]=1`;
+              console.log('[ConductorRender] buscando usuario en Strapi por email ->', usersUrl);
+              const respU = await fetch(usersUrl, { headers });
+              if (!respU.ok) {
+                const txt = await respU.text().catch(() => null);
+                console.warn('[ConductorRender] GET users en Strapi no ok:', respU.status, txt);
+              } else {
+                const ju = await respU.json().catch(() => null);
+                if (ju && ju.data && Array.isArray(ju.data) && ju.data.length > 0) {
+                  strapiUserId = ju.data[0].id;
+                  console.log('[ConductorRender] strapiUserId obtenido:', strapiUserId);
+                } else {
+                  console.warn('[ConductorRender] no se encontró usuario Strapi con email:', user.email);
+                }
+              }
+            } else {
+              console.warn('[ConductorRender] Auth0 user.email no disponible:', user);
+            }
+          } catch (err) {
+            console.warn('[ConductorRender] error buscando usuario en Strapi:', err);
+          }
+
+          // Si encontramos el registro de viaje en Strapi, lo actualizamos
+          if (viajeStrapi && viajeStrapi.id) {
+            try {
+              const patchUrl = `${STRAPI_URL}/api/viajes/${viajeStrapi.id}`;
+              const body = {
+                data: {
+                  conductormail: user?.email ?? null,
+                },
+              };
+              // si obtuvimos userId de Strapi, relacionamos conductor
+              if (strapiUserId) {
+                body.data.conductor = strapiUserId;
+              }
+
+              console.log('[ConductorRender] PATCH viaje Strapi ->', patchUrl, body);
+              const respPatch = await fetch(patchUrl, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(body),
+              });
+
+              if (!respPatch.ok) {
+                const txt = await respPatch.text().catch(() => null);
+                console.warn('[ConductorRender] PATCH viaje en Strapi no ok:', respPatch.status, txt);
+              } else {
+                const jp = await respPatch.json().catch(() => null);
+                console.log('[ConductorRender] viaje actualizado en Strapi:', jp);
+              }
+            } catch (err) {
+              console.warn('[ConductorRender] error actualizando viaje en Strapi:', err);
+            }
+          } else {
+            console.warn('[ConductorRender] salto actualización Strapi porque no se encontró viajeStrapi.id');
+          }
+
+          // Finalmente navegar a la página del viaje
+          try {
+            navigate(`/taxis/viaje/${travelId}`);
+          } catch (navErr) {
+            console.warn('[ConductorRender] error navegando a viaje:', navErr);
+          }
+        } catch (outerErr) {
+          console.warn('[ConductorRender] error manejando evento viajeAceptado:', outerErr);
+          // aun así intentar navegar si payload tiene travelId
+          try {
+            const travelId = payload && (payload.travelId || payload.travelid);
+            if (travelId) navigate(`/taxis/viaje/${travelId}`);
+          } catch (e) {
+            // noop
+          }
+        }
+      });
     } catch (e) {
       console.warn('[ConductorRender] no se pudo inicializar socket:', e);
       socketRef.current = null;
@@ -63,6 +197,12 @@ const ConductorRender = ({
     return () => {
       try {
         if (socketRef.current) {
+          // limpiar listener específico y desconectar
+          try {
+            socketRef.current.off('viajeAceptado');
+          } catch (offErr) {
+            // noop
+          }
           socketRef.current.disconnect();
           socketRef.current = null;
           console.log('[ConductorRender] socket desconectado al desmontar componente');
@@ -71,7 +211,7 @@ const ConductorRender = ({
         console.warn('[ConductorRender] error desconectando socket:', e);
       }
     };
-  }, []);
+  }, [user, navigate]);
 
   // helper para emitir la propuesta por socket
   const emitProposal = (travel, extra = {}) => {
@@ -131,7 +271,6 @@ const ConductorRender = ({
         try {
           console.error('[ConductorRender] error en handleAcceptTrip:', safeErr);
         } catch (logErr) {
-          // en el improbable caso de que console.error también falle
           // fallback: noop
         }
       }
