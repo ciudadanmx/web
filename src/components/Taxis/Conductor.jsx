@@ -284,6 +284,46 @@ const Conductor = ({
     }
   }, [consultedTravel, travelData]);
 
+
+
+  // justo en Conductor.js, dentro del componente Conductor
+useEffect(() => {
+  // si el mapa no existe o google maps no cargó, no hacemos nada
+  if (!mapRef || !mapRef.current) return;
+  let mounted = true;
+  const doResize = () => {
+    try {
+      if (!mounted) return;
+      if (window.google && window.google.maps && mapRef.current) {
+        // 2 pequeños timeouts para asegurar que el DOM ya aplicó el CSS y el tamaño es estable
+        setTimeout(() => {
+          try {
+            window.google.maps.event.trigger(mapRef.current, 'resize');
+            // opcional: mantener centro
+            const c = mapRef.current.getCenter && mapRef.current.getCenter();
+            if (c) mapRef.current.setCenter(c);
+          } catch (e) { /* noop */ }
+        }, 50);
+        setTimeout(() => {
+          try {
+            window.google.maps.event.trigger(mapRef.current, 'resize');
+            const c2 = mapRef.current.getCenter && mapRef.current.getCenter();
+            if (c2) mapRef.current.setCenter(c2);
+          } catch (e) { /* noop */ }
+        }, 300);
+      }
+    } catch (e) { /* noop */ }
+  };
+
+  // Ejecutar inmediatamente y cuando cambie travelData
+  doResize();
+
+  // Re-ejecutar cuando cambien las cards (travelData) o cuando cargue googleMaps
+  // Dependencias: travelData y googleMapsLoaded
+  // (Asegúrate de incluir travelData y googleMapsLoaded en el array si lo copias)
+  return () => { mounted = false; };
+}, [travelData, googleMapsLoaded]);
+
   /* --------------------------
      Handlers que el UI (ConductorRender) espera
      -------------------------- */

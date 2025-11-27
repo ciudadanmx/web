@@ -58,7 +58,7 @@ const TaxisRoute = () => {
   }
 
   return (
-    <div style={{ width: '90%', height: '100vh', overflow: 'hidden', padding: '20px' }}>
+    <div style={{ width: '90%', height: '100vh', overflow: 'visible', padding: '20px' }}>
       {/* Mostrar tabs solo si showTabs es true y HideTabs es false */}
       {actualRoles.includes("conductor") && showTabs && !HideTabs && (
         <div style={{ display: 'flex', borderBottom: '2px solid #ccc', marginBottom: '20px' }}>

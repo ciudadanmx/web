@@ -379,9 +379,29 @@ const ConductorRender = ({
         </div>
       )}
 
-      <div className="taxis-map">
-        <div id="map" style={{ width: '100%', height: '100%' }}></div>
-      </div>
+{/* MAPA (estilos inline para conductor — evita cortar y permite scroll normal) */}
+<div
+  className="taxis-map"
+  style={{
+    width: '100%',
+    height: '60vh',    // ajusta a 50vh / 70vh o a '450px' según prefieras
+    minHeight: 320,    // evita ser demasiado pequeño
+    maxHeight: '95vh',
+    boxSizing: 'border-box',
+    position: 'relative',
+    overflow: 'visible'
+  }}
+>
+  <div
+    id="map"
+    style={{
+      width: '100%',
+      height: '100%',
+      display: 'block'
+    }}
+  />
+</div>
+
 
       {!showTabs && !hideTabs ? (
         <RolPasajero

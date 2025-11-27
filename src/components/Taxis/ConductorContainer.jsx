@@ -1,5 +1,7 @@
 import React from 'react';
 
+import '../../styles/conductor.css';
+
 const ConductorContainer = ({ children }) => {
   return (
     <div className="creciente">
