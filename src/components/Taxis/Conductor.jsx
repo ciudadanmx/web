@@ -5,6 +5,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios';
 import ConductorRender from './ConductorRender'; // tu render (el UI que pegaste)
 import taxiIcon from '../../assets/taxi_marker.png'; // si está en otra ruta ajusta
+import userIcon from '../../assets/user_marker.png'; // si está en otra ruta ajusta
 // NOTA: asegúrate de tener REACT_APP_GOOGLE_MAPS_API_KEY y REACT_APP_SOCKET_URL en .env
 
 const ZOCALO = { lat: 19.432607, lng: -99.133209 };
@@ -32,6 +33,8 @@ const Conductor = ({
   const pickupMarkerRef = useRef(null);
   const directionsRendererRef = useRef(null);
   const directionsServiceRef = useRef(null);
+  const driverMarkerRef = useRef(null);
+  const destMarkerRef = useRef(null);
 
   /* --------------------------
      Helpers: cargar Google Maps
@@ -94,6 +97,73 @@ const Conductor = ({
     // NOTE: intencionalmente no ponemos dependencia para que solo se intente al montar
   }, []);
 
+
+  // --- Pegar justo después de inicializar el mapa (useEffect loadGoogleMaps)
+useEffect(() => {
+  if (!mapRef.current || !window.google) return;
+
+  const marker = new window.google.maps.Marker({
+                  map: mapRef.current,
+                  title:  'Origen',
+                  icon: {
+                    url: userIcon,
+                    scaledSize: new window.google.maps.Size(44, 44),
+                  },
+                });
+  
+  markersRef.current.push(marker);
+                
+
+
+  // crear marker si no existe
+  if (!driverMarkerRef.current) {
+    driverMarkerRef.current = new window.google.maps.Marker({
+      map: mapRef.current,
+      title: 'Conductor',
+      icon: taxiIcon ? { url: taxiIcon, scaledSize: new window.google.maps.Size(40, 40) } : undefined,
+    });
+  }
+
+  // función que actualiza posición (usa userCoords si existe, si no centro del mapa)
+  const updateDriverPos = () => {
+    const pos = userCoords && userCoords.lat && userCoords.lng
+      ? { lat: Number(userCoords.lat), lng: Number(userCoords.lng) }
+      : (mapRef.current.getCenter ? mapRef.current.getCenter().toJSON() : ZOCALO);
+
+    try {
+      driverMarkerRef.current.setPosition(pos);
+      driverMarkerRef.current.setMap(mapRef.current);
+    } catch (e) {
+      console.warn('[Conductor] updateDriverPos error', e);
+    }
+  };
+
+  // actualizar una vez y cada vez que cambie userCoords
+  updateDriverPos();
+
+  return () => {
+    // no removemos marker aquí (lo queremos persistente), solo cleanup si desmonta componente
+    // si prefieres removerlo, descomenta:
+    // try { if (driverMarkerRef.current) { driverMarkerRef.current.setMap(null); driverMarkerRef.current = null; } } catch(e){}
+  };
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [mapRef.current, googleMapsLoaded]);
+
+
+useEffect(() => {
+  if (!driverMarkerRef.current) return;
+  if (!userCoords) return;
+  try {
+    driverMarkerRef.current.setPosition({ lat: Number(userCoords.lat), lng: Number(userCoords.lng) });
+    driverMarkerRef.current.setMap(mapRef.current);
+  } catch (e) {
+    console.warn('[Conductor] error actualizando driverMarker por userCoords', e);
+  }
+}, [userCoords]);
+
+
+
+
   /* --------------------------
      Inicializar Directions (cuando esté el mapa)
      -------------------------- */
@@ -106,6 +176,12 @@ const Conductor = ({
         polylineOptions: { strokeWeight: 6, strokeOpacity: 0.95 },
       });
       directionsRendererRef.current.setMap(mapRef.current);
+    }
+    else {
+      // reafirmar la opción para evitar que Google dibuje markers por su cuenta
+      try {
+        directionsRendererRef.current.setOptions({ suppressMarkers: true });
+      } catch (e) { /* noop */ }
     }
   }, [mapRef.current, googleMapsLoaded]);
 
@@ -161,7 +237,7 @@ const Conductor = ({
                   map: mapRef.current,
                   title: data.originAdress || 'Origen',
                   icon: {
-                    url: taxiIcon,
+                    url: userIcon,
                     scaledSize: new window.google.maps.Size(44, 44),
                   },
                 });
@@ -232,97 +308,137 @@ const Conductor = ({
   }, []);
 
   /* --------------------------
-     Cuando se selecciona un viaje (consultedTravel), mostrar la ruta
-     -------------------------- */
-  useEffect(() => {
-    if (consultedTravel === null) return;
-    const travel = travelData[consultedTravel];
-    if (!travel) return;
-    if (!window.google || !mapRef.current) return;
-    if (!directionsServiceRef.current) directionsServiceRef.current = new window.google.maps.DirectionsService();
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new window.google.maps.DirectionsRenderer({ suppressMarkers: true });
-      directionsRendererRef.current.setMap(mapRef.current);
-    }
-    // usamos originAdress/destinationAdress o coordinates si vienen
-    const origin = travel.originCoordinates || travel.originAdress;
-    const destination = travel.destinationCoordinates || travel.destinationAdress;
-    try {
-      directionsServiceRef.current.route(
-        {
-          origin,
-          destination,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === 'OK' || status === window.google.maps.DirectionsStatus.OK) {
-            directionsRendererRef.current.setDirections(result);
-            // opcional: posicionar marker de origen/final si quieres
-            try {
-              const leg = result.routes[0].legs[0];
-              // marcador inicio
-              if (pickupMarkerRef.current) {
-                pickupMarkerRef.current.setPosition(leg.start_location);
-              } else {
-                pickupMarkerRef.current = new window.google.maps.Marker({
-                  position: leg.start_location,
-                  map: mapRef.current,
-                  title: 'Origen',
-                });
-              }
-              // limpiar marcadores guardados (no confundas con markersRef que son de otros trips)
-            } catch (e) {
-              console.warn('No se pudo actualizar pickup marker desde directions', e);
-            }
-          } else {
-            console.error('Directions error', status);
-          }
-        }
-      );
-    } catch (e) {
-      console.warn('Error solicitando directions', e);
-    }
-  }, [consultedTravel, travelData]);
-
-
-
-  // justo en Conductor.js, dentro del componente Conductor
+   Mostrar ruta: conductor -> pickup (origen) -> destino
+   Reemplaza el useEffect antiguo con este
+   -------------------------- */
 useEffect(() => {
-  // si el mapa no existe o google maps no cargó, no hacemos nada
-  if (!mapRef || !mapRef.current) return;
-  let mounted = true;
-  const doResize = () => {
-    try {
-      if (!mounted) return;
-      if (window.google && window.google.maps && mapRef.current) {
-        // 2 pequeños timeouts para asegurar que el DOM ya aplicó el CSS y el tamaño es estable
-        setTimeout(() => {
-          try {
-            window.google.maps.event.trigger(mapRef.current, 'resize');
-            // opcional: mantener centro
-            const c = mapRef.current.getCenter && mapRef.current.getCenter();
-            if (c) mapRef.current.setCenter(c);
-          } catch (e) { /* noop */ }
-        }, 50);
-        setTimeout(() => {
-          try {
-            window.google.maps.event.trigger(mapRef.current, 'resize');
-            const c2 = mapRef.current.getCenter && mapRef.current.getCenter();
-            if (c2) mapRef.current.setCenter(c2);
-          } catch (e) { /* noop */ }
-        }, 300);
+  if (consultedTravel === null) return;
+  const travel = travelData[consultedTravel];
+  if (!travel) return;
+  if (!window.google || !mapRef.current) return;
+
+  const pickupCoords = travel.originCoordinates || travel.originAdress || null;
+  const destinationCoords = travel.destinationCoordinates || travel.destinationAdress || null;
+  const driverCoords = userCoords || (mapRef.current.getCenter ? mapRef.current.getCenter().toJSON() : null);
+
+  if (!pickupCoords || !destinationCoords || !driverCoords) {
+    console.warn('[Conductor] coords insuficientes para dibujar ruta', { driverCoords, pickupCoords, destinationCoords });
+    return;
+  }
+
+  if (!directionsServiceRef.current) directionsServiceRef.current = new window.google.maps.DirectionsService();
+  if (!directionsRendererRef.current) {
+    directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#28d219ff',
+        strokeWeight: 6,
+        strokeOpacity: 0.95,
+      },
+    });
+    directionsRendererRef.current.setMap(mapRef.current);
+  }
+
+  try {
+    const request = {
+      origin: { lat: Number(driverCoords.lat), lng: Number(driverCoords.lng) },
+      destination: { lat: Number(destinationCoords.lat), lng: Number(destinationCoords.lng) },
+      waypoints: [
+        { location: { lat: Number(pickupCoords.lat), lng: Number(pickupCoords.lng) }, stopover: true },
+      ],
+      travelMode: window.google.maps.TravelMode.DRIVING,
+      optimizeWaypoints: false,
+    };
+
+    directionsServiceRef.current.route(request, (result, status) => {
+      if (status === 'OK' || status === window.google.maps.DirectionsStatus.OK) {
+        directionsRendererRef.current.setDirections(result);
+
+        // actualizar/crear markers: driver, pickup, destination
+        try {
+          const legs = result.routes?.[0]?.legs || [];
+          // driver marker (usa taxiIcon si existe)
+          const driverPos = { lat: Number(driverCoords.lat), lng: Number(driverCoords.lng) };
+          if (driverMarkerRef.current) {
+            driverMarkerRef.current.setPosition(driverPos);
+            driverMarkerRef.current.setMap(mapRef.current);
+          } else {
+            driverMarkerRef.current = new window.google.maps.Marker({
+              position: driverPos,
+              map: mapRef.current,
+              title: 'Conductor',
+              icon: taxiIcon ? { url: taxiIcon, scaledSize: new window.google.maps.Size(40, 40) } : undefined,
+            });
+          }
+
+          // pickup marker (origen) — usa userIcon si disponible, si no default
+          const leg = result.routes?.[0]?.legs?.[0];
+          const pickupPos = leg ? leg.start_location : { lat: Number(pickupCoords.lat), lng: Number(pickupCoords.lng) };
+          if (pickupMarkerRef.current) {
+            pickupMarkerRef.current.setPosition(pickupPos);
+            pickupMarkerRef.current.setMap(mapRef.current);
+          } else {
+            pickupMarkerRef.current = new window.google.maps.Marker({
+              position: pickupPos,
+              map: mapRef.current,
+              title: 'Origen (pickup)',
+              icon:  { url: taxiIcon, scaledSize: new window.google.maps.Size(36, 36) }, 
+            });
+          }
+          
+            // destination marker — marcador normal (sin icono custom)
+          // destination marker: END del último leg
+          let destPos;
+          if (legs.length >= 1 && legs[legs.length - 1].end_location) {
+            destPos = legs[legs.length - 1].end_location;
+          } else {
+            destPos = { lat: Number(destinationCoords.lat), lng: Number(destinationCoords.lng) };
+          }
+
+          if (destMarkerRef.current) {
+            destMarkerRef.current.setPosition(destPos);
+            destMarkerRef.current.setMap(mapRef.current);
+          } else {
+            destMarkerRef.current = new window.google.maps.Marker({
+              position: destPos,
+              map: mapRef.current,
+              title: 'Destino',
+            });
+          }
+        } catch (mkErr) {
+          console.warn('[Conductor] error actualizando markers', mkErr);
+        }
+
+        // ajustar viewport al recorrido completo
+        try {
+          const bounds = new window.google.maps.LatLngBounds();
+          const overview = result.routes?.[0]?.overview_path;
+          if (overview && overview.length) {
+            overview.forEach((p) => bounds.extend(p));
+          } else {
+            bounds.extend({ lat: Number(driverCoords.lat), lng: Number(driverCoords.lng) });
+            bounds.extend({ lat: Number(pickupCoords.lat), lng: Number(pickupCoords.lng) });
+            bounds.extend({ lat: Number(destinationCoords.lat), lng: Number(destinationCoords.lng) });
+          }
+          mapRef.current.fitBounds(bounds);
+        } catch (bErr) {
+          console.warn('[Conductor] fitBounds error', bErr);
+        }
+      } else {
+        console.error('[Conductor] Directions error', status, result);
       }
-    } catch (e) { /* noop */ }
-  };
+    });
+  } catch (e) {
+    console.warn('[Conductor] Error solicitando directions', e);
+  }
 
-  // Ejecutar inmediatamente y cuando cambie travelData
-  doResize();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [consultedTravel, travelData, userCoords]);
 
-  // Re-ejecutar cuando cambien las cards (travelData) o cuando cargue googleMaps
-  // Dependencias: travelData y googleMapsLoaded
-  // (Asegúrate de incluir travelData y googleMapsLoaded en el array si lo copias)
-  return () => { mounted = false; };
-}, [travelData, googleMapsLoaded]);
+
+
+
+  
 
   /* --------------------------
      Handlers que el UI (ConductorRender) espera
@@ -356,6 +472,7 @@ useEffect(() => {
           originAddress: travel.originAdress,
           destinationAddress: travel.destinationAdress,
           coordinates: userCoords,
+          destinationCoords: userCoords,
         });
         // marcar localmente como aceptado
         setTravelData(prev => prev.map((t, i) => i === idx ? { ...t, accepted: true } : t));
