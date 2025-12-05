@@ -98,68 +98,52 @@ const Conductor = ({
   }, []);
 
 
-  // --- Pegar justo después de inicializar el mapa (useEffect loadGoogleMaps)
 useEffect(() => {
   if (!mapRef.current || !window.google) return;
 
-  const marker = new window.google.maps.Marker({
-                  map: mapRef.current,
-                  title:  'Origen',
-                  icon: {
-                    url: userIcon,
-                    scaledSize: new window.google.maps.Size(44, 44),
-                  },
-                });
-  
-  markersRef.current.push(marker);
-                
+  // Posición preferida: userCoords si la tienes, si no el centro actual del mapa
+  const driverPos = (userCoords && userCoords.lat && userCoords.lng)
+    ? { lat: Number(userCoords.lat), lng: Number(userCoords.lng) }
+    : (mapRef.current.getCenter ? mapRef.current.getCenter().toJSON() : ZOCALO);
 
-
-  // crear marker si no existe
-  if (!driverMarkerRef.current) {
-    driverMarkerRef.current = new window.google.maps.Marker({
-      map: mapRef.current,
-      title: 'Conductor',
-      icon: taxiIcon ? { url: taxiIcon, scaledSize: new window.google.maps.Size(40, 40) } : undefined,
-    });
-  }
-
-  // función que actualiza posición (usa userCoords si existe, si no centro del mapa)
-  const updateDriverPos = () => {
-    const pos = userCoords && userCoords.lat && userCoords.lng
-      ? { lat: Number(userCoords.lat), lng: Number(userCoords.lng) }
-      : (mapRef.current.getCenter ? mapRef.current.getCenter().toJSON() : ZOCALO);
-
-    try {
-      driverMarkerRef.current.setPosition(pos);
-      driverMarkerRef.current.setMap(mapRef.current);
-    } catch (e) {
-      console.warn('[Conductor] updateDriverPos error', e);
-    }
-  };
-
-  // actualizar una vez y cada vez que cambie userCoords
-  updateDriverPos();
-
-  return () => {
-    // no removemos marker aquí (lo queremos persistente), solo cleanup si desmonta componente
-    // si prefieres removerlo, descomenta:
-    // try { if (driverMarkerRef.current) { driverMarkerRef.current.setMap(null); driverMarkerRef.current = null; } } catch(e){}
-  };
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [mapRef.current, googleMapsLoaded]);
-
-
-useEffect(() => {
-  if (!driverMarkerRef.current) return;
-  if (!userCoords) return;
+  // Crear o actualizar marker del conductor (usa taxiIcon)
   try {
-    driverMarkerRef.current.setPosition({ lat: Number(userCoords.lat), lng: Number(userCoords.lng) });
-    driverMarkerRef.current.setMap(mapRef.current);
+    if (!driverMarkerRef.current) {
+      driverMarkerRef.current = new window.google.maps.Marker({
+        position: driverPos,
+        map: mapRef.current,
+        title: 'Conductor',
+        icon: taxiIcon ? { url: taxiIcon, scaledSize: new window.google.maps.Size(40, 40) } : undefined,
+      });
+    } else {
+      driverMarkerRef.current.setPosition(driverPos);
+      driverMarkerRef.current.setMap(mapRef.current);
+    }
   } catch (e) {
-    console.warn('[Conductor] error actualizando driverMarker por userCoords', e);
+    console.warn('[Conductor] error creando/actualizando driverMarker', e);
   }
-}, [userCoords]);
+
+  // Centrar el mapa en el conductor (puedes ajustar zoom)
+  try {
+    mapRef.current.setCenter(driverPos);
+    if (mapRef.current.setZoom) mapRef.current.setZoom(14);
+  } catch (e) {
+    // noop
+  }
+
+  // Asegurar que DirectionsRenderer NO pinte markers "por su cuenta"
+  try {
+    if (directionsRendererRef.current) {
+      directionsRendererRef.current.setOptions({ suppressMarkers: true });
+    }
+  } catch (e) {
+    // noop
+  }
+
+  // Evitar crear markers duplicados: NO hagas markersRef.current.push(marker) aquí
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [mapRef.current, userCoords]);
+
 
 
 
@@ -195,6 +179,14 @@ useEffect(() => {
       console.log("taxi debug: driverId asignado ->", user.email);
     }
   }, [isAuthenticated, user]);
+
+
+
+  
+
+
+
+
   /* --------------------------
      SOCKET: conectar y listeners (siempre que no haya otro socket)
      -------------------------- */
@@ -331,7 +323,7 @@ useEffect(() => {
     directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#28d219ff',
+        strokeColor: '#cc19d2ff',
         strokeWeight: 6,
         strokeOpacity: 0.95,
       },
@@ -447,7 +439,36 @@ useEffect(() => {
     setConsultedTravel(index);
   };
 
-  const handleBackButtonClick = () => setConsultedTravel(null);
+const handleBackButtonClick = () => {
+  // quitar la ruta dibujada
+  try {
+    if (directionsRendererRef.current) {
+      directionsRendererRef.current.setMap(null);
+      directionsRendererRef.current = null;
+    }
+  } catch (e) { console.warn('Error limpiando directionsRenderer', e); }
+
+  // quitar markers relacionados con la ruta (pickup, dest)
+  try {
+    if (pickupMarkerRef.current) { pickupMarkerRef.current.setMap(null); pickupMarkerRef.current = null; }
+  } catch (e) { /* noop */ }
+
+  try {
+    if (destMarkerRef.current) { destMarkerRef.current.setMap(null); destMarkerRef.current = null; }
+  } catch (e) { /* noop */ }
+
+  // opcional: mantener driverMarker (conductor) visible — no lo removemos
+  // si quieres recenter al driver:
+  try {
+    if (driverMarkerRef.current && driverMarkerRef.current.getPosition && mapRef.current) {
+      const pos = driverMarkerRef.current.getPosition().toJSON();
+      mapRef.current.setCenter(pos);
+    }
+  } catch (e) {}
+
+  // finalmente limpiar la vista de "detalle"
+  setConsultedTravel(null);
+};
 
   const handleCloseButtonClick = (index) => {
     setTravelData(prev => prev.filter((_, i) => i !== index));
@@ -457,6 +478,46 @@ useEffect(() => {
     markersRef.current.forEach(m => { try { m.setMap(null); } catch (e) {} });
     markersRef.current = [];
   };
+
+
+   // NUEVO: handleReject — elimina el viaje, quita marker del origen si existe y emite por socket
+  const coordsEqual = (pos1, coords) => {
+    if (!pos1 || !coords) return false;
+    try {
+      const p = pos1.toJSON ? pos1.toJSON() : pos1;
+      return Number(p.lat).toFixed(6) === Number(coords.lat).toFixed(6) && Number(p.lng).toFixed(6) === Number(coords.lng).toFixed(6);
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleReject = (index) => {
+    alert('iniciando !!');
+
+    // quitar la card / viaje del estado
+     setTravelData(prev => {
+    const next = prev.filter((_, i) => i !== index);
+    // si ya no quedan viajes, actualiza isWaiting
+    if (next.length === 0) setIsWaiting(true);
+    return next;
+  });
+
+   setConsultedTravel(prev => {
+    if (prev === null) return null;
+    if (prev === index) return null;
+    if (prev > index) return prev - 1;
+    return prev;
+  });
+
+    // si ya no quedan viajes, volver a estado waiting
+    if (travelData.length <= 1) setIsWaiting(true);
+
+        markersRef.current.forEach(m => { try { m.setMap(null); } catch (e) {} });
+    markersRef.current = [];
+
+    
+  };
+
 
   const handleAcceptTrip = async (index) => {
     const idx = typeof index === 'number' ? index : consultedTravel;
@@ -536,6 +597,7 @@ useEffect(() => {
       handleTravelCardClick={handleTravelCardClick}
       handleBackButtonClick={handleBackButtonClick}
       handleCloseButtonClick={handleCloseButtonClick}
+      handleReject={handleReject}
       handleAcceptTrip={handleAcceptTrip}
       handlePasajero={handlePasajero}
       handleConductor={handleConductor}

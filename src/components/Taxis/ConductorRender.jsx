@@ -1,5 +1,5 @@
 // src/components/Taxis/ConductorRender.jsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import io from 'socket.io-client';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,9 @@ import EsperandoViaje from './EsperandoViaje.jsx';
 import TravelCard from './TravelCard.jsx'; // <- asegúrate de que existe
 
 const { formatTime, formatPrice } = formaters;
+
+// key para localStorage (versiónada por si en el futuro cambias el comportamiento)
+const LS_KEY_REJECTED = 'ciudadan_rejected_travels_v1';
 
 const ConductorRender = ({
   isWaiting,
@@ -30,11 +33,105 @@ const ConductorRender = ({
   ElapsedTimer,
   showTabs,
   hideTabs,
+  // props opcionales que si existen los actualizamos para mantener sync con padre
+  setTravelData, // optional: función para actualizar travelData desde el padre
+  setRejected, // optional: función para exponer lista de rechazados al padre
 }) => {
   // socket ref para emitir propuesta cuando corresponda
   const socketRef = useRef(null);
   const { user } = useAuth0();
   const navigate = useNavigate();
+
+  // Estado local para rechazados (array de ids normalizados como string)
+  const [rejectedIds, setRejectedIds] = useState(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY_REJECTED);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.map(String);
+      return [];
+    } catch (e) {
+      console.warn('[ConductorRender] error leyendo rechazados desde localStorage:', e);
+      return [];
+    }
+  });
+
+  // Normalizador de id para cada travel (coincide con la clave usada en el map original)
+  const normalizeTravelId = useCallback((travel, fallbackIndex = null) => {
+    if (!travel) {
+      return fallbackIndex !== null ? String(fallbackIndex) : null;
+    }
+    const id = travel?.id ?? travel?.travelId ?? travel?.travelID ?? travel?.travelid;
+    if (id === undefined || id === null) {
+      return fallbackIndex !== null ? String(fallbackIndex) : null;
+    }
+    return String(id);
+  }, []);
+
+  // Setea y persiste un id rechazado (evita duplicados)
+  const addRejectedId = useCallback(
+    (id) => {
+      if (id === null || id === undefined) return;
+      const sid = String(id);
+      setRejectedIds((prev) => {
+        if (prev.includes(sid)) return prev;
+        const next = [...prev, sid];
+        try {
+          localStorage.setItem(LS_KEY_REJECTED, JSON.stringify(next));
+        } catch (e) {
+          console.warn('[ConductorRender] error guardando rechazados en localStorage:', e);
+        }
+        // si el padre quiso recibir el listado, se lo actualizamos
+        try {
+          if (typeof setRejected === 'function') setRejected(next.slice());
+        } catch (e) {
+          // noop
+        }
+        return next;
+      });
+
+      // si el padre nos dio setTravelData, lo utilizamos para filtrar el arreglo allí también
+      try {
+        if (typeof setTravelData === 'function' && Array.isArray(travelData)) {
+          setTravelData((prevData) => {
+            if (!Array.isArray(prevData)) return prevData;
+            return prevData.filter((t, idx) => {
+              const tid = normalizeTravelId(t, idx);
+              return tid !== sid;
+            });
+          });
+        }
+      } catch (e) {
+        console.warn('[ConductorRender] error actualizando setTravelData del padre:', e);
+      }
+    },
+    [normalizeTravelId, setTravelData, setRejected, travelData]
+  );
+
+  // handler que se pasará a TravelCard (recibe travel o travelId según tu TravelCard)
+  const handleReject = useCallback(
+    (travelOrId, maybeIndex = null) => {
+      try {
+        // si recibimos un objeto travel, normalizamos; si nos dan id directo, lo usamos
+        let id = null;
+        if (typeof travelOrId === 'object' && travelOrId !== null) {
+          id = normalizeTravelId(travelOrId, maybeIndex);
+        } else if (travelOrId !== null && travelOrId !== undefined) {
+          id = String(travelOrId);
+        } else {
+          // nada que hacer
+          return;
+        }
+
+        // marcar rechazado y persistir
+        addRejectedId(id);
+        console.log('[ConductorRender] viaje marcado como rechazado id=', id);
+      } catch (e) {
+        console.warn('[ConductorRender] error en handleReject:', e);
+      }
+    },
+    [addRejectedId, normalizeTravelId]
+  );
 
   useEffect(() => {
     console.log('taxi debug: ConductorRender montado');
@@ -310,6 +407,23 @@ const ConductorRender = ({
     }
   }, [travelData]);
 
+  // Memo para set rápido de rechazados para lookup O(1)
+  const rejectedSet = useMemo(() => {
+    const s = new Set();
+    (rejectedIds || []).forEach((id) => s.add(String(id)));
+    return s;
+  }, [rejectedIds]);
+
+  // Filtrar travelData para ocultar rechazados inmediatamente (y persistir aunque recargue)
+  const visibleTravelData = useMemo(() => {
+    if (!Array.isArray(travelData)) return [];
+    return travelData.filter((t, idx) => {
+      const tid = normalizeTravelId(t, idx);
+      if (!tid) return true; // si no hay id, no lo consideramos rechazado por id (se podría mejorar)
+      return !rejectedSet.has(tid);
+    });
+  }, [travelData, normalizeTravelId, rejectedSet]);
+
   return (
     <ConductorContainer>
       {googleMapsLoaded && mapRef && mapRef.current && (
@@ -340,19 +454,21 @@ const ConductorRender = ({
       ) : (
         <div className="travel-list">
           {consultedTravel === null ? (
-            Array.isArray(travelData) && travelData.length > 0 ? (
-              travelData.map((travel, index) => {
+            Array.isArray(visibleTravelData) && visibleTravelData.length > 0 ? (
+              visibleTravelData.map((travel, index) => {
                 const distanceKm = travel && travel.totalDistance ? (travel.totalDistance / 1000).toFixed(2) : '--';
                 const timeMin = travel && travel.totalTime ? formatTime(travel.totalTime) : '';
 
                 // Renderizamos TravelCard (cada TravelCard puede tener sus hooks top-level)
+                const tid = normalizeTravelId(travel, index);
                 return (
                   <TravelCard
-                    key={travel?.id || travel?.travelId || index}
+                    key={tid || index}
                     travel={travel}
                     index={index}
                     onClick={handleTravelCardClick}
                     onClose={handleCloseButtonClick}
+                    handleReject={handleReject} // <-- ahora definido y pasado correctamente
                     onAccept={handleAcceptTripWrapped} // <-- aquí se envía la propuesta por socket antes de llamar al handler original
                   >
                     {/* Si quieres el markup inline dentro del TravelCard, puedes pasarlo como children,
