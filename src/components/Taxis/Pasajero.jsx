@@ -115,6 +115,35 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
         // Abrir infoWindow automáticamente
         infoWindow.open(mapRef.current, marker);
 
+
+         // Aplicar estilos al "globito" amarillo cuando el DOM del InfoWindow esté listo
+  window.google.maps.event.addListener(infoWindow, 'domready', () => {
+    try {
+      const contentEl = document.getElementById(`offer-info-${id}`);
+      if (contentEl) {
+        contentEl.style.background = '#fff200'; // amarillo del branding
+        contentEl.style.color = '#111';
+        contentEl.style.padding = '8px 10px';
+        contentEl.style.borderRadius = '10px';
+        contentEl.style.boxShadow = '0 6px 16px rgba(0,0,0,0.18)';
+        contentEl.style.minWidth = '140px';
+        contentEl.style.textAlign = 'left';
+      }
+
+      // Intentamos suavizar/ocultar el fondo por defecto del InfoWindow para que se vea solo tu chip
+      const iwOuter = document.querySelector('.gm-style-iw');
+      if (iwOuter) {
+        // Hacer transparente el contenedor principal
+        iwOuter.style.background = 'transparent';
+        // Normalmente, el sibling anterior contiene sombras/fondos; lo ocultamos
+        const iwBackground = iwOuter.previousElementSibling;
+        if (iwBackground) iwBackground.style.display = 'none';
+      }
+    } catch (errSty) {
+      console.warn('[Pasajero] fallo aplicando estilos InfoWindow:', errSty);
+    }
+  });
+
         // Listener en marker: al click abrir modal y seleccionar oferta
         const markerClickListener = marker.addListener('click', () => {
           setSelectedOffer({ id, coordinates, price });
