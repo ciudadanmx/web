@@ -87,7 +87,6 @@ import Coowork from './Pages/Coowork/Coowork.jsx';
 import Agencia from './Pages/Coowork/Agencia.jsx';
 import Pasajero from './components/Taxis/Pasajero.jsx';
 import Conductor from './components/Taxis/ConductorDebug.jsx';
-import TripView from './components/Taxis/TripView.jsx';
 
 /* ---------- Contexts / Providers adicionales ---------- */
 import { CartProvider } from './Contexts/CartContext';
@@ -158,7 +157,6 @@ function AppWithConditionalNavbar() {
         <Route path="/callback" element={<CallbackPage />} />
         <Route path="/gana" element={<GanaRoute />} />
         <Route path="/taxis" element={<TaxisRoute />} />
-        <Route path="/taxis/viaje/:travel" element={<TripView />} />
         <Route path="/taxis/conductor/registro" element={<RegistroConductor />} />
         <Route path="/taxis/conductor/preregistro" element={<PreRegistroConductor />} />
         <Route path="/taxis/conductor/esperando" element={<Conductor />} />
