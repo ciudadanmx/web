@@ -5,10 +5,11 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/taxis.css';
 import useGoogleMaps from '../../hooks/UseGoogleMaps';
+import AcceptTrip from "./AcceptTrip.jsx";
 import taxiIcon from '../../assets/taxi_marker.png';
 
 const DEFAULT_FROM = { lat: 19.432608, lng: -99.133209 };
-const DEFAULT_TO = { lat: 19.4374453, lng: -99.14651119999999 };
+//const DEFAULT_TO = { lat: 19.432608, lng: -99.133209 };
 
 const Pasajero = ({ onFoundDrivers = () => {} }) => {
   const { user } = useAuth0();
@@ -18,10 +19,10 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
   const [toAddress, setToAddress] = useState('');
 
   const [fromCoordinates, setFromCoordinates] = useState(DEFAULT_FROM);
-  const [toCoordinates, setToCoordinates] = useState(DEFAULT_TO);
+  const [toCoordinates, setToCoordinates] = useState(DEFAULT_FROM);
 
   const [fromMarkerPosition, setFromMarkerPosition] = useState(DEFAULT_FROM);
-  const [toMarkerPosition, setToMarkerPosition] = useState(DEFAULT_TO);
+  const [toMarkerPosition, setToMarkerPosition] = useState(DEFAULT_FROM);
 
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [error, setError] = useState(null);
@@ -123,7 +124,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       if (contentEl) {
         contentEl.style.background = '#fff200'; // amarillo del branding
         contentEl.style.color = '#111';
-        contentEl.style.padding = '8px 10px';
+        contentEl.style.padding = '4px 5px';
         contentEl.style.borderRadius = '10px';
         contentEl.style.boxShadow = '0 6px 16px rgba(0,0,0,0.18)';
         contentEl.style.minWidth = '140px';
@@ -239,13 +240,13 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
           console.warn('[Socket] error pintando markers drivers-found', e);
         }
         onFoundDrivers(drivers);
-        setLoadingSearch(false);
+        setLoadingSearch(true);
       });
 
       socketRef.current.on('search-error', (msg) => {
         console.warn('[Socket] search-error recibido:', msg);
         setError(msg || 'Error en búsqueda via socket');
-        setLoadingSearch(false);
+        setLoadingSearch(true);
       });
 
       // opcional: ack de server si envia "trip-ack" o similar
@@ -507,7 +508,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       console.error('[buscarTaxistas] error general:', err);
       setError(err.message || 'Error buscando taxistas');
     } finally {
-      setLoadingSearch(false);
+      setLoadingSearch(true);
       console.log('[buscarTaxistas] finalizado (loadingSearch=false).');
     }
   };
@@ -635,6 +636,12 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     }
   };
 
+
+  const cancelarBusqueda = () => {
+    setLoadingSearch(false)
+    };
+  
+
   return (
     <div className="taxis-container">
       <h3 className="trip-title" style={{ textAlign: 'center' }}>Buscar un viaje</h3>
@@ -690,8 +697,26 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
           }}
         >
           {loadingSearch ? 'Buscando taxistas...' : 'Buscar Taxistas'}
+          
         </button>
-
+        {loadingSearch && (
+  <button
+    onClick={cancelarBusqueda}
+    className="cancelar-busqueda"
+    style={{
+      flex: 1,
+      padding: "12px 16px",
+      backgroundColor: "#5f5a5bff",
+      color: "white",
+      border: "none",
+      borderRadius: 8,
+      cursor: "pointer",
+      marginLeft: 8,
+    }}
+  >
+    Cancelar
+  </button>
+)}
         <button
           onClick={centerOnOrigin}
           className="center-button"
@@ -723,65 +748,11 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
 
       {/* Modal simple para oferta */}
       {isModalOpen && selectedOffer && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: 'fixed',
-            zIndex: 99999,
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(0,0,0,0.4)',
-          }}
-          onClick={closeModal}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: '320px',
-              background: '#fff',
-              borderRadius: 10,
-              padding: 18,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
-            }}
-          >
-            <h3 style={{ marginTop: 0 }}>Oferta del conductor</h3>
-            <p style={{ fontSize: 18, margin: '8px 0' }}>
-              <strong>Precio:</strong> ${selectedOffer.price}
-            </p>
-
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  background: '#fff',
-                  cursor: 'pointer',
-                }}
-              >
-                Cerrar
-              </button>
-
-              <button
-                onClick={acceptOffer}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: '#00c853',
-                  color: '#fff',
-                  cursor: 'pointer',
-                }}
-              >
-                Aceptar
-              </button>
-            </div>
-          </div>
-        </div>
+      <AcceptTrip
+          selectedOffer={selectedOffer}
+          acceptOffer={acceptOffer}
+          closeModal={closeModal}
+        />
       )}
     </div>
   );
