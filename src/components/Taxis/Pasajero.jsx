@@ -372,7 +372,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
         suppressMarkers: true,
         polylineOptions: {
-          strokeColor: '#00C853',
+          strokeColor: '#6d0c5dff',
           strokeWeight: 6,
           strokeOpacity: 0.95,
         },
@@ -636,7 +636,6 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
     }
   };
 
-
   const cancelarBusqueda = () => {
     setLoadingSearch(false)
     };
@@ -696,7 +695,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
             cursor: loadingSearch ? 'default' : 'pointer',
           }}
         >
-          {loadingSearch ? 'Buscando taxistas...' : 'Buscar Taxistas'}
+          {loadingSearch ? 'Buscando taxistas...' : 'Buscar Conductores'}
           
         </button>
         {loadingSearch && (
@@ -737,13 +736,6 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
       )}
       <div className="taxis-map formulario-pasajero" style={{ width: '100%', height: '60vh', borderRadius: 8, overflow: 'hidden' }}>
         <div id="map" style={{ width: '100%', height: '100%' }} />
-      </div>
-
-      <div className="cuadro-coordenadas formulario-pasajero" style={{ marginTop: 12 }}>
-        <h4>Coordenadas actuales (origen)</h4>
-        <p><strong>Lat:</strong> {fromCoordinates.lat?.toFixed(6)}</p>
-        <p><strong>Lng:</strong> {fromCoordinates.lng?.toFixed(6)}</p>
-        <p style={{fontSize:12, color:'#666'}}>Envíos: socket={socketRef.current ? String(!!socketRef.current.connected) : 'no-socket'} — backendBase seguro en consola</p>
       </div>
 
       {/* Modal simple para oferta */}
