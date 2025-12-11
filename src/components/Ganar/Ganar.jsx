@@ -109,7 +109,8 @@ const Ganar = () => {
       imagen: taxis,
       boton: '🚘 Comenzar a Conducir !!',
       monedas: [mxn, labory],
-      claseimagen: 'opcion-imagen-ensanchada-redondeada'
+      claseimagen: 'opcion-imagen-ensanchada-redondeada',
+      url: '/taxis'
     },
     { 
       titulo: '💡 Abriendo tu Agencia Digital i.A. Instantánea', 
@@ -118,7 +119,8 @@ const Ganar = () => {
       boton: '💡 Iniciar.',
       imagen: agencia,
       monedas: [labory],
-      claseimagen: 'opcion-imagen-ensanchada'
+      claseimagen: 'opcion-imagen-ensanchada',
+      url: '/ganar/agencia'
     },
     { 
       titulo: '💲 Invirtiendo Inteligente', 

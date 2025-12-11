@@ -1,5 +1,5 @@
 // src/components/Trips/TripView.jsx
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ViajeConductor from './ViajeConductor.jsx';
 import ViajeUsuario from './ViajeUsuario.jsx';
@@ -10,6 +10,24 @@ const ZOCALO = { lat: 19.432607, lng: -99.133209 };
 
 const STRAPI_BASE = process.env.REACT_APP_STRAPI_URL || '';
 const STRAPI_TOKEN = process.env.REACT_APP_STRAPI_TOKEN || '';
+
+// normaliza distintos formatos de coord a { lat: Number, lng: Number } o devuelve null
+const normalizeCoord = (c) => {
+  if (!c) return null;
+  try {
+    // si ya es LatLngLiteral
+    if (typeof c.lat === 'number' && typeof c.lng === 'number') return { lat: c.lat, lng: c.lng };
+    // si vienen como strings
+    if (typeof c.lat === 'string' && typeof c.lng === 'string') return { lat: Number(c.lat), lng: Number(c.lng) };
+    // si vienen como { latitude, longitude }
+    if (typeof c.latitude !== 'undefined' && typeof c.longitude !== 'undefined') return { lat: Number(c.latitude), lng: Number(c.longitude) };
+    // si vienen como array [lat, lng]
+    if (Array.isArray(c) && c.length >= 2) return { lat: Number(c[0]), lng: Number(c[1]) };
+    return null;
+  } catch (e) {
+    return null;
+  }
+};
 
 const pushTrackToStrapi = async ({ baseUrl, token, viajeId, payload }) => {
   if (!baseUrl || !viajeId) return;
@@ -63,18 +81,28 @@ const loadGoogleMaps = () => {
 };
 
 const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
-  const { travel } = useParams(); // :travel en la ruta
-  const viajeId = travel;
+  const { travel } = useParams(); // :travel en la ruta (ej. offer-1765...)
+  // travelD toma la última parte del path (por seguridad)
+  const travelD = (() => {
+    try {
+      const pathname = (typeof window !== 'undefined' && window.location && window.location.pathname) ? window.location.pathname : '';
+      const clean = pathname.replace(/\/+$/, '');
+      const parts = clean.split('/');
+      return parts.length ? parts[parts.length - 1] : String(travel || '');
+    } catch (e) {
+      return String(travel || '');
+    }
+  })();
 
   const [viaje, setViaje] = useState(null);
   const [loadingViaje, setLoadingViaje] = useState(false);
 
-  // coordenadas locales
+  // coordenadas locales / datos del viaje
   const [userCoords, setUserCoords] = useState(null); // posición del conductor (o GPS)
-  const [travelData, setTravelData] = useState([]); // si quieres listas de requests (compatible con Conductor)
+  const [travelData, setTravelData] = useState([]); // array con originCoordinates / destinationCoordinates
   const [consultedTravel, setConsultedTravel] = useState(null);
 
-  // mapa & google
+  // mapa & google refs
   const mapRef = useRef(null);
   const googleLoadedRef = useRef(false);
   const markersRef = useRef([]);
@@ -84,10 +112,10 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
   const driverMarkerRef = useRef(null);
   const destMarkerRef = useRef(null);
 
-  // socket local si no te pasan uno (pero preferimos usar externalSocket si viene)
+  // socket ref (prioriza externalSocket)
   const socketRef = useRef(externalSocket || null);
 
-  // Inicializar Google Maps (exactamente como en tu Conductor.js)
+  // Inicializar Google Maps (igual que antes)
   useEffect(() => {
     let mounted = true;
     loadGoogleMaps()
@@ -109,50 +137,96 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
     return () => { mounted = false; };
   }, []);
 
-  // Cargar el viaje desde Strapi (colección "viajes")
+  // ----- FETCH único: buscar viaje por travelid (usa travelD) -----
   useEffect(() => {
     const base = (strapiConfig && strapiConfig.baseUrl) ? strapiConfig.baseUrl : STRAPI_BASE;
     const token = (strapiConfig && strapiConfig.token) ? strapiConfig.token : STRAPI_TOKEN;
-    if (!base || !viajeId) return;
+    if (!base || !travelD) return;
+
     let mounted = true;
     setLoadingViaje(true);
+
     (async () => {
       try {
-        const res = await fetch(`${base.replace(/\/$/, '')}/api/viajes/${viajeId}?populate=*`, {
+        const encoded = encodeURIComponent(String(travelD));
+        // IMPORTANTE: el campo en tu Strapi es `travelid` (minúsculas)
+        const url = `${base.replace(/\/$/, '')}/api/viajes?filters[travelid][$eq]=${encoded}&populate=*`;
+        console.log('[TripView] consultando Strapi por travelid:', travelD, '->', url);
+
+        const res = await fetch(url, {
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
+
         if (!res.ok) {
-          console.warn('fetch viaje falló', res.status);
-          setLoadingViaje(false);
+          console.warn('[TripView] fetch viajes por travelid falló', res.status, await res.text());
+          if (mounted) setLoadingViaje(false);
           return;
         }
-        const data = await res.json();
+
+        const json = await res.json();
         if (!mounted) return;
-        const v = data?.data || data;
-        setViaje(v);
-        // setear coords iniciales si vienen en el viaje
-        const attrs = v?.attributes || v;
-        if (attrs?.taxiPosition) setUserCoords(attrs.taxiPosition);
-        if (attrs?.pickup) {
-          // se guarda en travelData para compatibilidad con ConductorRender si lo usas
-          setTravelData([ { originCoordinates: attrs.pickup, destinationCoordinates: attrs.destination, id: v?.id, originAdress: attrs.pickupAddress } ]);
-        } else {
+
+        const found = Array.isArray(json?.data) && json.data.length ? json.data[0] : null;
+        if (!found) {
+          console.warn(`[TripView] No se encontró viaje con travelid="${travelD}"`);
+          setViaje(null);
           setTravelData([]);
+          if (mounted) setLoadingViaje(false);
+          return;
+        }
+
+        // Guardamos el viaje tal como lo devuelve Strapi (objeto data[i])
+        setViaje(found);
+        console.log('[TripView] viaje (found):', found);
+
+        // Mapear atributos según ejemplo de tu Strapi
+        const attrs = found.attributes || {};
+        // Coordenadas conductor (si existe)
+        if (attrs.conductorcoords) {
+          setUserCoords(attrs.conductorcoords);
+        } else if (attrs.taxiPosition) {
+          setUserCoords(attrs.taxiPosition);
+        } else if (attrs.origencoords) {
+          // si no hay conductorcoords pero sí origencoords, lo usamos como fallback
+          setUserCoords(attrs.origencoords);
+        }
+
+        // Crear travelData con origencoords / destinocoords para compatibilidad con la lógica de rutas
+        const origin = attrs.origencoords || attrs.pickup || null;
+        const destination = attrs.destinocoords || attrs.destination || null;
+        const originAdress = (attrs.origendireccion && (attrs.origendireccion.label || attrs.origendireccion)) || null;
+        const destinationAdress = (attrs.destinodireccion && (attrs.destinodireccion.label || attrs.destinodireccion)) || null;
+
+        // normalizamos coords para evitar strings y formatos raros
+        const originNorm = normalizeCoord(origin);
+        const destNorm = normalizeCoord(destination);
+
+        if (originNorm || destNorm) {
+        setTravelData([{
+            originCoordinates: originNorm,
+            destinationCoordinates: destNorm,
+            id: found.id,
+            originAdress,
+            destinationAdress,
+            travelid: attrs.travelid || travelD,
+        }]);
+        } else {
+        setTravelData([]);
         }
       } catch (e) {
-        console.warn('error fetch viaje', e);
+        console.warn('[TripView] error buscando viaje por travelid', e);
       } finally {
-        setLoadingViaje(false);
+        if (mounted) setLoadingViaje(false);
       }
     })();
 
     return () => { mounted = false; };
-  }, [viajeId, strapiConfig]);
+  }, [travelD, strapiConfig]);
 
-  // Inicializar Directions cuando map esté listo (igual que Conductor.js)
+  // Inicializar Directions (igual que Conductor.js)
   useEffect(() => {
     if (!mapRef.current || !window.google) return;
     if (!directionsServiceRef.current) directionsServiceRef.current = new window.google.maps.DirectionsService();
@@ -167,7 +241,7 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
     }
   }, [mapRef.current, googleLoadedRef.current]);
 
-  // Crear/actualizar driver marker y centrar mapa (basado en el useEffect que pegaste)
+  // Crear/actualizar driver marker y centrar mapa
   useEffect(() => {
     if (!mapRef.current || !window.google) return;
 
@@ -201,15 +275,15 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
     } catch (e) {}
   }, [mapRef.current, userCoords]);
 
-  // Dibujar ruta usando exactamente la lógica que pegaste (consultedTravel y travelData)
+  // Dibujar ruta cuando se consulte un travel en la lista (misma lógica que pegaste)
   useEffect(() => {
     if (consultedTravel === null) return;
-    const travel = travelData[consultedTravel];
-    if (!travel) return;
+    const travelItem = travelData[consultedTravel];
+    if (!travelItem) return;
     if (!window.google || !mapRef.current) return;
 
-    const pickupCoords = travel.originCoordinates || null;
-    const destinationCoords = travel.destinationCoordinates || null;
+    const pickupCoords = travelItem.originCoordinates || null;
+    const destinationCoords = travelItem.destinationCoordinates || null;
     const driverCoords = userCoords || (mapRef.current.getCenter ? mapRef.current.getCenter().toJSON() : null);
 
     if (!pickupCoords || !destinationCoords || !driverCoords) {
@@ -231,25 +305,24 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
     }
 
     try {
-      const request = {
+        const request = {
         origin: { lat: Number(driverCoords.lat), lng: Number(driverCoords.lng) },
         destination: { lat: Number(destinationCoords.lat), lng: Number(destinationCoords.lng) },
         waypoints: [
-          { location: { lat: Number(pickupCoords.lat), lng: Number(pickupCoords.lng) }, stopover: true },
+            { location: { lat: Number(pickupCoords.lat), lng: Number(pickupCoords.lng) }, stopover: true },
         ],
         travelMode: window.google.maps.TravelMode.DRIVING,
         optimizeWaypoints: false,
-      };
+    };
 
       directionsServiceRef.current.route(request, (result, status) => {
         if (status === 'OK' || status === window.google.maps.DirectionsStatus.OK) {
           directionsRendererRef.current.setDirections(result);
 
-          // actualizar markers: driver, pickup, destination
+          // actualizar markers
           try {
             const legs = result.routes?.[0]?.legs || [];
 
-            // driver marker
             const driverPos = { lat: Number(driverCoords.lat), lng: Number(driverCoords.lng) };
             if (driverMarkerRef.current) {
               driverMarkerRef.current.setPosition(driverPos);
@@ -263,7 +336,6 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
               });
             }
 
-            // pickup marker (start of first leg)
             const leg = result.routes?.[0]?.legs?.[0];
             const pickupPos = leg ? leg.start_location : { lat: Number(pickupCoords.lat), lng: Number(pickupCoords.lng) };
             if (pickupMarkerRef.current) {
@@ -278,7 +350,6 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
               });
             }
 
-            // destination marker (end of last leg)
             let destPos;
             if (legs.length >= 1 && legs[legs.length - 1].end_location) {
               destPos = legs[legs.length - 1].end_location;
@@ -300,7 +371,7 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
             console.warn('[TripView] error actualizando markers', mkErr);
           }
 
-          // ajustar viewport al recorrido completo
+          // fitBounds
           try {
             const bounds = new window.google.maps.LatLngBounds();
             const overview = result.routes?.[0]?.overview_path;
@@ -324,19 +395,61 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
     }
   }, [consultedTravel, travelData, userCoords]);
 
-  // SOCKET: usar externalSocket si viene, si no usaremos socketRef creado externo anteriormente
+  // Preferir socket pasado por props
   useEffect(() => {
     if (!externalSocket) return;
     socketRef.current = externalSocket;
   }, [externalSocket]);
 
-  // Conexión socket / listeners y lógica conductor->emit + push a Strapi cada 60s
+
+  // cuando travelData llega y el mapa + directions están listos, abrimos la vista y forzamos dibujo
+useEffect(() => {
+  if (!travelData || travelData.length === 0) return;
+
+  // esperar a que mapRef y directionsRenderer existan
+  const waitAndOpen = () => {
+    if (!mapRef.current || !window.google) return false;
+    // asegurar que el renderer esté inicializado
+    if (!directionsRendererRef.current) {
+      // intentar inicializar si no existe
+      try {
+        directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
+          suppressMarkers: true,
+          polylineOptions: { strokeColor: '#cc19d2ff', strokeWeight: 6, strokeOpacity: 0.95 },
+        });
+        directionsRendererRef.current.setMap(mapRef.current);
+      } catch (e) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  if (waitAndOpen()) {
+    setConsultedTravel(0);
+  } else {
+    // reintentar en X ms hasta que esté listo (mínimo 3 reintentos cortos)
+    let tries = 0;
+    const t = setInterval(() => {
+      tries += 1;
+      if (waitAndOpen()) {
+        setConsultedTravel(0);
+        clearInterval(t);
+      } else if (tries >= 8) {
+        clearInterval(t);
+      }
+    }, 300);
+    return () => clearInterval(t);
+  }
+}, [travelData]);
+
+  // Socket: emitir ubicación si es driver, y push a Strapi cada 60s
   useEffect(() => {
     const socket = socketRef.current;
-    if (!socket || !viajeId) return;
+    if (!socket || !travelD) return;
     const isDriver = !!user?.isDriver || user?.role === 'driver';
     const driverId = user?.id || user?.sub || user?.email || 'driver-unknown';
-    const channel = `trip:${viajeId}`;
+    const channel = `trip:${travelD}`;
 
     const onDriverLocation = (payload) => {
       if (!payload?.coords) return;
@@ -345,7 +458,6 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
 
     const onTripUpdate = (payload) => {
       if (!payload) return;
-      // actualizar viaje/atributos si vienen
       if (payload.pickup || payload.destination || payload.status) {
         setViaje((prev) => {
           const copy = prev ? { ...prev } : { attributes: {} };
@@ -370,7 +482,7 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
       const emitLocation = () => {
         if (!userCoords) return;
         const payload = {
-          viajeId,
+          travelid: travelD,
           driverId,
           coords: userCoords,
           ts: new Date().toISOString(),
@@ -382,12 +494,14 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
       emitLocation();
       locInterval = setInterval(emitLocation, 10 * 1000);
 
+      // push a Strapi cada 60s usando el id interno de Strapi si lo tenemos
       trackInterval = setInterval(async () => {
         if (!userCoords) return;
+        const internalId = viaje?.id || null; // numeric id de Strapi
         await pushTrackToStrapi({
           baseUrl: (strapiConfig && strapiConfig.baseUrl) ? strapiConfig.baseUrl : STRAPI_BASE,
           token: (strapiConfig && strapiConfig.token) ? strapiConfig.token : STRAPI_TOKEN,
-          viajeId,
+          viajeId: internalId,
           payload: {
             data: {
               driver: driverId,
@@ -406,9 +520,9 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
       if (locInterval) clearInterval(locInterval);
       if (trackInterval) clearInterval(trackInterval);
     };
-  }, [socketRef.current, viajeId, user, userCoords, strapiConfig]);
+  }, [socketRef.current, travelD, user, userCoords, strapiConfig, viaje]);
 
-  // Handlers para la UI (similar a tu ConductorRender expectations)
+  // Handlers UI
   const handleTravelCardClick = (index) => setConsultedTravel(index);
   const handleBackButtonClick = () => {
     try {
@@ -429,36 +543,35 @@ const TripView = ({ user, socket: externalSocket, strapiConfig }) => {
 
   const handleAcceptTrip = async (index) => {
     const idx = typeof index === 'number' ? index : consultedTravel;
-    const travel = travelData[idx];
-    if (!travel) return;
+    const t = travelData[idx];
+    if (!t) return;
     const socket = socketRef.current;
     const driverId = user?.id || user?.sub || user?.email || 'driver-unknown';
     try {
       if (socket && socket.connected) {
         socket.emit('oferta', {
           driverId,
-          travelId: travel.id || travel.travelId,
-          originAddress: travel.originAdress,
-          destinationAddress: travel.destinationAdress,
+          travelId: t.id || t.travelid,
+          originAddress: t.originAdress,
+          destinationAddress: t.destinationAdress,
           coordinates: userCoords,
           destinationCoords: userCoords,
         });
-        setTravelData(prev => prev.map((t, i) => i === idx ? { ...t, accepted: true } : t));
+        setTravelData(prev => prev.map((item, i) => i === idx ? { ...item, accepted: true } : item));
       } else {
-        // fallback HTTP
         await fetch(`${STRAPI_BASE.replace(/\/$/, '')}/api/ofertas`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}) },
-          body: JSON.stringify({ driverId, travelId: travel.id || travel.travelId }),
+          body: JSON.stringify({ driverId, travelid: t.id || t.travelid }),
         });
-        setTravelData(prev => prev.map((t, i) => i === idx ? { ...t, accepted: true } : t));
+        setTravelData(prev => prev.map((item, i) => i === idx ? { ...item, accepted: true } : item));
       }
     } catch (e) {
       console.error('Error en handleAcceptTrip', e);
     }
   };
 
-  // Render: mapa + componente conductor/usuario (mantengo la UX que te dí antes)
+  // Render
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <div id="map" style={{ width: '100%', height: '60vh' }} />

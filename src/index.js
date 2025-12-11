@@ -66,9 +66,6 @@ import PedidosEntregados from './Pages/MarketPlace/PedidosEntregados.jsx';
 import PagosTienda from './Pages/MarketPlace/PagosTienda.jsx';
 import ConfiguracionTienda from './Pages/MarketPlace/ConfiguracionTienda.jsx';
 import EliminarProducto from './Pages/MarketPlace/EliminarProducto.jsx';
-import HomeViewModelWrapper from './components/Florateca/home/HomeViewModelWrapper.jsx';
-import DetailViewModelWrapper from './components/Florateca/detail/DetailViewModelWrapper.jsx';
-import FloratecaLayout from './components/Florateca/FloratecaLayout.jsx';
 import QuienesSomos from './Pages/Info/QuienesSomos.jsx';
 import PreguntasFrecuentes from './Pages/Info/PreguntasFrecuentes.jsx';
 import EventosPage from './components/Eventos/index.jsx';
@@ -230,10 +227,6 @@ function AppWithConditionalNavbar() {
         <Route path="/herramientas/juego-static" element={<JuegoStatic />} />
         <Route path="/coowork" element={<Coowork />} />
         <Route path="/herramientas/mi-agencia" element={<Agencia />} />
-        <Route path="/florateca" element={<FloratecaLayout />}>
-          <Route index element={<HomeViewModelWrapper />} />
-          <Route path="detalle/:slug" element={<DetailViewModelWrapper />} />
-        </Route>
       </Routes>
 
       {!hideNavbar && <Asistente />}
