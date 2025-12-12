@@ -355,13 +355,20 @@ useEffect(() => {
             driverMarkerRef.current.setPosition(driverPos);
             driverMarkerRef.current.setMap(mapRef.current);
           } else {
-            driverMarkerRef.current = new window.google.maps.Marker({
-              position: driverPos,
-              map: mapRef.current,
-              title: 'Conductor',
-              icon: taxiIcon ? { url: taxiIcon, scaledSize: new window.google.maps.Size(40, 40) } : undefined,
-            });
-          }
+    const fallbackInvisibleIcon = {
+      url: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", // pixel transparente
+      scaledSize: new window.google.maps.Size(1, 1),
+    };
+
+    driverMarkerRef.current = new window.google.maps.Marker({
+      position: driverPos,
+      map: mapRef.current,
+      title: 'Conductor',
+      icon: taxiIcon
+        ? { url: taxiIcon, scaledSize: new window.google.maps.Size(40, 40) }
+        : fallbackInvisibleIcon,
+    });
+  }
 
           // pickup marker (origen) — usa userIcon si disponible, si no default
           const leg = result.routes?.[0]?.legs?.[0];

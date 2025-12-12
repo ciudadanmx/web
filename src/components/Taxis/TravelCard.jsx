@@ -225,7 +225,13 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, handleReject, onAcce
           <div style={{ fontSize: 12, color: '#666' }}>
             <strong>Origen</strong>
           </div>
-          <div style={{ fontSize: 15, marginBottom: 8 }}>{origin}</div>
+          <div style={{ fontSize: 15, marginBottom: 8 }}>
+            {origin
+              ?.split(" ")
+              .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+              .join(" ")
+            }
+          </div>
 
           <div style={{ fontSize: 12, color: '#666' }}>
             <strong>Destino</strong>
@@ -246,7 +252,7 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, handleReject, onAcce
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#fafafa', padding: 8, borderRadius: 8 }}>
             <div style={{ fontSize: 12, color: '#666' }}>Precio sugerido</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#111' }}>{suggestedFormatted ?? '—'}</div>
+            <center><div style={{ fontSize: 18, fontWeight: 700, color: '#135f13ff' }}>{suggestedFormatted ?? '—'}</div></center>
 
             <label style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Precio final (MXN)</label>
             <input
@@ -290,7 +296,7 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, handleReject, onAcce
                 padding: '10px 12px',
                 borderRadius: 8,
                 border: '1px solid #ddd',
-                background: '#fff',
+                background: '#b0b1aec4',
                 cursor: 'pointer',
               }}
               aria-label="Rechazar viaje"

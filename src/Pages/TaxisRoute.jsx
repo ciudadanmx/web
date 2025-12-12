@@ -56,21 +56,36 @@ const TaxisRoute = () => {
     }
   }, [routeRepeat, roles]);
 
-  // --- Nuevo: preloader mientras no estemos seguros de los roles ---
-  // Consideramos que aún no estamos seguros si:
-  //  - roles es null/undefined
-  //  - roles es un array vacío
-  //  - roles === ['invitado'] (esperamos fetchRoles para confirmar)
+  // --- Corregido: preloader sólo cuando realmente NO tenemos ninguna respuesta ---
   const isRolesLoading = (() => {
-    if (roles == null) return true;
-    if (Array.isArray(roles) && roles.length === 0) return true;
-    if (Array.isArray(roles) && roles.length === 1 && roles[0] === 'invitado') return true;
-    if (!Array.isArray(roles) && typeof roles === 'object') {
-      const r = roles.roles;
-      if (!r) return true;
-      if (Array.isArray(r) && r.length === 0) return true;
-      if (Array.isArray(r) && r.length === 1 && r[0] === 'invitado') return true;
+    // Si roles === undefined -> aún no llegó nada (loading)
+    if (roles === undefined) return true;
+
+    // Si roles === null -> Strapi respondió y puso null -> no estamos en loading (mostrar Invitado)
+    if (roles === null) return false;
+
+    // Si roles es un array (ej: fetch devolvió array) -> consideramos que ya llegó la info
+    if (Array.isArray(roles)) {
+      // Si quieres tratar array vacío como loading cambia esto, pero por ahora lo consideramos respuesta válida
+      return false;
     }
+
+    // Si roles es objeto: revisar la propiedad roles
+    if (typeof roles === 'object') {
+      // Si no tiene la propiedad 'roles' -> posible estado intermedio (seguir esperando)
+      if (!('roles' in roles)) return true;
+
+      // Si roles.roles === undefined -> todavía no sabemos
+      if (roles.roles === undefined) return true;
+
+      // Si roles.roles === null -> Strapi devolvió null explícito -> no es loading
+      if (roles.roles === null) return false;
+
+      // Si es array (vacío o con items) -> ya tenemos respuesta
+      if (Array.isArray(roles.roles)) return false;
+    }
+
+    // Por defecto: no loading
     return false;
   })();
 

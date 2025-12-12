@@ -138,13 +138,15 @@ const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
 /* ---------- Componente principal con lógica del Nav ---------- */
 function AppWithConditionalNavbar() {
   const location = useLocation();
+  var siteSection = (location.pathname.split('/').filter(Boolean)[0]) || '';
+  if (siteSection === 'productos') siteSection = 'market';
 
   // 🔥 Ocultar NavBar si la ruta es /wiki
   const hideNavbar = location.pathname === '/wiki';
 
   return (
     <>
-      {!hideNavbar && <NavBar />}
+      {!hideNavbar && <NavBar siteSection={siteSection} />}
 
       <Routes>
         {/* Rutas sin Navbar */}
@@ -233,6 +235,8 @@ function AppWithConditionalNavbar() {
     </>
   );
 }
+
+
 
 /* ---------- Render principal ---------- */
 const rootElement = document.getElementById('root');
