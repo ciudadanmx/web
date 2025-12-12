@@ -5,6 +5,10 @@ import Conductor from '../components/Taxis/Conductor';
 import Pasajero from '../components/Taxis/Pasajero';
 import Invitado from '../components/Taxis/Invitado'; // Nuevo componente agregado
 
+// Material UI + Framer Motion para el preloader
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
+
 const TaxisRoute = () => {
   const location = useLocation();
   const { roles, fetchRoles } = useRoles();
@@ -51,6 +55,51 @@ const TaxisRoute = () => {
       setActiveTab(newActiveTab);
     }
   }, [routeRepeat, roles]);
+
+  // --- Nuevo: preloader mientras no estemos seguros de los roles ---
+  // Consideramos que aún no estamos seguros si:
+  //  - roles es null/undefined
+  //  - roles es un array vacío
+  //  - roles === ['invitado'] (esperamos fetchRoles para confirmar)
+  const isRolesLoading = (() => {
+    if (roles == null) return true;
+    if (Array.isArray(roles) && roles.length === 0) return true;
+    if (Array.isArray(roles) && roles.length === 1 && roles[0] === 'invitado') return true;
+    if (!Array.isArray(roles) && typeof roles === 'object') {
+      const r = roles.roles;
+      if (!r) return true;
+      if (Array.isArray(r) && r.length === 0) return true;
+      if (Array.isArray(r) && r.length === 1 && r[0] === 'invitado') return true;
+    }
+    return false;
+  })();
+
+  if (isRolesLoading) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2,
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
+          <CircularProgress size={56} />
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            Verificando permisos...
+          </Typography>
+        </motion.div>
+      </Box>
+    );
+  }
 
   // Si el usuario no está autenticado o no tiene los roles "pasajero" o "conductor", mostrar <Invitado />
   if (!actualRoles.includes("conductor") && !actualRoles.includes("pasajero")) {

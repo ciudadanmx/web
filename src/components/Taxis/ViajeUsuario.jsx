@@ -1,7 +1,34 @@
 // src/components/Trips/ViajeUsuario.jsx
 import React, { useEffect, useState } from 'react';
 
+// normaliza coords a {lat, lng} o null
+const normalizeCoord = (c) => {
+  if (!c) return null;
+  try {
+    if (typeof c.lat === 'number' && typeof c.lng === 'number') return { lat: c.lat, lng: c.lng };
+    if (typeof c.lat === 'string' && typeof c.lng === 'string') return { lat: Number(c.lat), lng: Number(c.lng) };
+    if (typeof c.latitude !== 'undefined' && typeof c.longitude !== 'undefined')
+      return { lat: Number(c.latitude), lng: Number(c.longitude) };
+    if (Array.isArray(c) && c.length >= 2)
+      return { lat: Number(c[0]), lng: Number(c[1]) };
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 const ViajeUsuario = ({ viaje, socket, userCoords, setUserCoords, mapRef, setConsultedTravel }) => {
+    console.log('viajando usuario', viaje);
+    console.log('viajando coords', viaje?.attributes?.origencoords);
+    console.log('viajando direccion', viaje?.attributes?.origendireccion?.label);
+
+  // normalizamos todo ANTES de usarlo
+  const pickupNorm = viaje?.attributes?.origendireccion?.label;
+  //const destNorm   = normalizeCoord(viaje?.attributes?.destination);
+  const destNorm   = viaje?.attributes?.destinodireccion?.label;
+  const destiNorm   = normalizeCoord(viaje?.attributes?.destination);
+  const taxiNorm   = normalizeCoord(userCoords);
+
   const [expanded, setExpanded] = useState(true);
   const status = viaje?.attributes?.status || 'esperando';
   const routeInfo = viaje?.attributes?._routeInfo || null;
@@ -15,7 +42,8 @@ const ViajeUsuario = ({ viaje, socket, userCoords, setUserCoords, mapRef, setCon
 
     const onDriverLocation = (payload) => {
       if (!payload?.coords) return;
-      setUserCoords(payload.coords);
+      const n = normalizeCoord(payload.coords);
+      if (n) setUserCoords(n);
     };
     const onTripUpdate = (p) => {
       if (!p) return;
@@ -60,38 +88,54 @@ const ViajeUsuario = ({ viaje, socket, userCoords, setUserCoords, mapRef, setCon
 
       {expanded && (
         <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+
           <div style={{ display: 'flex', gap: 12 }}>
             <div style={{ flex: 1 }}>
               <div><strong>Taxi</strong></div>
-              <div style={{ fontSize: 13 }}>{userCoords ? `${userCoords.lat.toFixed(6)}, ${userCoords.lng.toFixed(6)}` : 'No disponible aún'}</div>
+              <div style={{ fontSize: 13 }}>
+                {taxiNorm ? `${taxiNorm}` : 'No disponible aún'}
+              </div>
             </div>
+
             <div style={{ flex: 1 }}>
               <div><strong>Pickup</strong></div>
-              <div style={{ fontSize: 13 }}>{viaje?.attributes?.pickup ? `${viaje.attributes.pickup.lat.toFixed(6)}, ${viaje.attributes.pickup.lng.toFixed(6)}` : 'Sin pickup'}</div>
+              <div style={{ fontSize: 13 }}>
+                {pickupNorm ? `${pickupNorm}` : 'Sin pickup'}
+              </div>
             </div>
+
             <div style={{ flex: 1 }}>
               <div><strong>Destino</strong></div>
-              <div style={{ fontSize: 13 }}>{viaje?.attributes?.destination ? `${viaje.attributes.destination.lat.toFixed(6)}, ${viaje.attributes.destination.lng.toFixed(6)}` : 'Sin destino'}</div>
+              <div style={{ fontSize: 13 }}>
+                {destNorm ? `${destNorm.lat.toFixed(6)}, ${destNorm.lng.toFixed(6)}` : 'Sin destino'}
+              </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => {
-              const center = viaje?.attributes?.pickup || userCoords;
-              if (mapRef?.current && center) {
-                mapRef.current.setCenter(center);
-                mapRef.current.setZoom(16);
-              }
-            }} style={{ padding: 12, borderRadius: 8, border: '1px solid #ddd', background: '#fff', flex: 1 }}>
+            <button
+              onClick={() => {
+                const center = pickupNorm || taxiNorm;
+                if (mapRef?.current && center) {
+                  mapRef.current.setCenter(center);
+                  mapRef.current.setZoom(16);
+                }
+              }}
+              style={{ padding: 12, borderRadius: 8, border: '1px solid #ddd', background: '#fff', flex: 1 }}
+            >
               Centrar en pickup / taxi
             </button>
 
-            <button onClick={() => {
-              try { socket?.emit('trip-action', { viajeId: viaje.id, action: 'request-status' }); } catch (e) {}
-            }} style={{ padding: 12, borderRadius: 8, background: '#fff200', border: 'none', fontWeight: '700', flex: 1 }}>
+            <button
+              onClick={() => {
+                try { socket?.emit('trip-action', { viajeId: viaje.id, action: 'request-status' }); } catch (e) {}
+              }}
+              style={{ padding: 12, borderRadius: 8, background: '#fff200', border: 'none', fontWeight: '700', flex: 1 }}
+            >
               Solicitar estado
             </button>
           </div>
+
         </div>
       )}
     </div>
