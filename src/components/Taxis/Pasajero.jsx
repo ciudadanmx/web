@@ -95,7 +95,7 @@ const Pasajero = ({ onFoundDrivers = () => {} }) => {
           map: mapRef.current,
           icon: {
             url: taxiIcon,
-            scaledSize: new window.google.maps.Size(40, 40),
+            scaledSize: new window.google.maps.Size(20, 40),
           },
           title: `Oferta $${price}`,
         });

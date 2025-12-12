@@ -159,7 +159,7 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, handleReject, onAcce
     } catch (e) {
       console.warn('[TravelCard] onAccept lanzó error:', e);
     } finally {
-      setSending(false);
+      setSending(true);
     }
   };
 
@@ -306,7 +306,7 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, handleReject, onAcce
                 padding: '10px 12px',
                 borderRadius: 8,
                 border: 'none',
-                background: sending ? '#e0c200' : '#ffbf00',
+                background: sending ? '#d8c966af' : '#ffbf00',
                 color: '#111',
                 fontWeight: 700,
                 cursor: sending ? 'not-allowed' : 'pointer',
@@ -314,7 +314,7 @@ const TravelCard = ({ travel = {}, index, onClick, onClose, handleReject, onAcce
               }}
               aria-label="Enviar propuesta"
             >
-              {sending ? 'Enviando…' : 'Enviar propuesta'}
+              {sending ? 'Esperando respuesta' : 'Enviar propuesta'}
             </button>
           </div>
         </div>

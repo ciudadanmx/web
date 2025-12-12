@@ -5,29 +5,11 @@ import ViajeConductor from './ViajeConductor.jsx';
 import ViajeUsuario from './ViajeUsuario.jsx';
 import taxiIcon from '../../assets/taxi_marker.png';
 import userIcon from '../../assets/user_marker.png';
+import { normalizeCoord } from '../../utils/mapUtils.jsx';
 
 const ZOCALO = { lat: 19.432607, lng: -99.133209 };
-
 const STRAPI_BASE = process.env.REACT_APP_STRAPI_URL || '';
 const STRAPI_TOKEN = process.env.REACT_APP_STRAPI_TOKEN || '';
-
-// normaliza distintos formatos de coord a { lat: Number, lng: Number } o devuelve null
-const normalizeCoord = (c) => {
-  if (!c) return null;
-  try {
-    // si ya es LatLngLiteral
-    if (typeof c.lat === 'number' && typeof c.lng === 'number') return { lat: c.lat, lng: c.lng };
-    // si vienen como strings
-    if (typeof c.lat === 'string' && typeof c.lng === 'string') return { lat: Number(c.lat), lng: Number(c.lng) };
-    // si vienen como { latitude, longitude }
-    if (typeof c.latitude !== 'undefined' && typeof c.longitude !== 'undefined') return { lat: Number(c.latitude), lng: Number(c.longitude) };
-    // si vienen como array [lat, lng]
-    if (Array.isArray(c) && c.length >= 2) return { lat: Number(c[0]), lng: Number(c[1]) };
-    return null;
-  } catch (e) {
-    return null;
-  }
-};
 
 const pushTrackToStrapi = async ({ baseUrl, token, viajeId, payload }) => {
   if (!baseUrl || !viajeId) return;
