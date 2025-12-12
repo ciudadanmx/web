@@ -82,7 +82,7 @@ const ViajeUsuario = ({ viaje, socket, userCoords, setUserCoords, mapRef, setCon
           <div style={{ fontSize: 12, color: '#666' }}>{status} • Dist: {formatDistance(routeInfo?.distance_m)} • ETA: {formatDuration(routeInfo?.duration_s)}</div>
         </div>
         <div style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms' }}>▼</div>
+          <div style={{ transform: expanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 200ms' }}>▼</div>
         </div>
       </div>
 
@@ -107,7 +107,7 @@ const ViajeUsuario = ({ viaje, socket, userCoords, setUserCoords, mapRef, setCon
             <div style={{ flex: 1 }}>
               <div><strong>Destino</strong></div>
               <div style={{ fontSize: 13 }}>
-                {destNorm ? `${destNorm.lat.toFixed(6)}, ${destNorm.lng.toFixed(6)}` : 'Sin destino'}
+                {destNorm ? `${destNorm}` : 'Sin destino'}
               </div>
             </div>
           </div>
