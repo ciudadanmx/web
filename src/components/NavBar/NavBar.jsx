@@ -132,7 +132,7 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
   // --- Notifications context (usa lo que tengas disponible) ---
   // Asegúrate que tu NotificationsContext exponga refreshNotificaciones si quieres que pushNotification
   // dispare una recarga desde el servidor.
-  const { notificationsNum, refreshNotificaciones } = useNotifications();
+  const { notificationsNum, refreshNotificaciones, contadorNotificaciones } = useNotifications();
 
   // contador optimista local para respuesta instantánea en UI
   const [optimisticUnread, setOptimisticUnread] = useState(0);
@@ -160,6 +160,7 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
 
       // 2) Si tu contexto provee la función para refrescar, la usamos
       if (typeof refreshNotificaciones === 'function') {
+        console.log('notificando pusheando socket');
         await refreshNotificaciones(); // espera a que el servidor responda y el contexto se actualice
         // al actualizar el contexto, el useEffect que observa currentNotificationsNum limpiará optimisticUnread
       } else {
@@ -411,6 +412,7 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
               section={section}
               activeTab={activeTab}
               handleNavigation={handleNavigation}
+              count={contadorNotificaciones?.[section] || 0}
             />
           ))}
         </div>

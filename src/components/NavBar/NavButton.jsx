@@ -16,10 +16,10 @@ const iconMap = {
   comunidad: <AiOutlineApartment />,
 };
 
-const NavButton = ({ section, activeTab, handleNavigation }) => {
+const NavButton = ({ count=0, section, activeTab, handleNavigation }) => {
   const navigate = useNavigate();
   const isActive = activeTab === `/${section}`;
-  const messageCount = 10; // Placeholder para pruebas
+  //const count = 10; // Placeholder para pruebas
 
   if (section === "taxis") {
     return (
@@ -30,9 +30,9 @@ const NavButton = ({ section, activeTab, handleNavigation }) => {
       >
         <span className="big-icon" style={{ position: "relative" }}>
           <FaCarSide />
-          {messageCount > 0 && (
+          {count > 0 && (
             <span id="message-count-taxis" className="message-count">
-              {messageCount}
+              {count}
             </span>
           )}
         </span>
@@ -49,9 +49,9 @@ const NavButton = ({ section, activeTab, handleNavigation }) => {
     >
       <span className="small-icon" style={{ position: "relative" }}>
         {iconMap[section]}
-        {messageCount > 0 && (
+        {count > 0 && (
           <span id={`message-count-${section}`} className="message-count">
-            {messageCount}
+            {count}
           </span>
         )}
       </span>

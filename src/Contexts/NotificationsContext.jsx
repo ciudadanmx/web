@@ -41,6 +41,27 @@ export const NotificationsProvider = ({ children }) => {
   const notificationsNum = () =>
     notificaciones.filter(n => !n.attributes?.leida).length;
 
+  const contadorNotificaciones = {
+    gana: 0,
+    cartera: 0,
+    market: 0,
+    comida: 0,
+    cowork: 0,
+    academia: 0,
+    comunidad: 0,
+  };
+
+  notificaciones
+    .filter(n => !n.attributes?.leida)
+    .forEach(n => {
+      const tipo = n.attributes?.tipo;
+      if (tipo && contadorNotificaciones.hasOwnProperty(tipo)) {
+        contadorNotificaciones[tipo]++;
+      }
+    });
+
+
+
   // traer notificaciones al login
   useEffect(() => {
     fetchNotificaciones();
@@ -80,6 +101,7 @@ export const NotificationsProvider = ({ children }) => {
     });
 
     socket.on('notification', () => {
+      console.log('traer notificaciones desde contexto');
       fetchNotificaciones();
     });
 
@@ -99,6 +121,7 @@ export const NotificationsProvider = ({ children }) => {
         notificaciones,
         cargando,
         notificationsNum,
+        contadorNotificaciones,
         refreshNotificaciones: fetchNotificaciones,
       }}
     >
