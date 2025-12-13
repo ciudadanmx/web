@@ -1,28 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import io from 'socket.io-client';
 import { registerUserInStrapi, findUserInStrapi } from '../../utils/strapiUserService';
+import { useNotifications } from '../../Contexts/NotificationsContext.jsx';
 import { FaUniversity, FaDollarSign, FaWallet, FaCarSide, FaHamburger, FaStore } from 'react-icons/fa';
 import { BsBriefcaseFill } from "react-icons/bs";
 import { AiOutlineApartment } from "react-icons/ai";
-import io from 'socket.io-client';
-import { useNotifications } from '../../Contexts/NotificationsContext.jsx';
-import guestImage from '../../assets/guest.png';
-import BotonCircular from './../Usuarios/BotonCircular.jsx';
 import AIInput from './AIInput';
 import MenuIcon from './MenuIcon';
 import MessagesIcon from './MessagesIcon';
 import NotificationsIcon from './NotificationsIcon';
 import UserIcon from './UserIcon.jsx';
 import NavButton from './NavButton.jsx';
+import BotonCircular from './../Usuarios/BotonCircular.jsx';
+import Direccionador from '../../utils/Direccionador';
+import CiudadanBadge from '../CiudadanBadge';
+import MenuTopBar from './MenuTopBar';
+import guestImage from '../../assets/guest.png';
 import '../../styles/NavBar.css';
 import '../../styles/CuentaIcon.css';
 import '../../styles/AccountMenu.css';
-
-import Direccionador from '../../utils/Direccionador';
-import CiudadanBadge from '../CiudadanBadge';
-
-import MenuTopBar from './MenuTopBar';
 
 // ------------------------------
 // NavBar con barra superior expandible
@@ -51,6 +49,7 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
   const [lastRoute, setLastRoute] = useState(siteSection);
   const [routeRepeat, setRouteRepeat] = useState(0);
   const [activeTab, setActiveTab] = useState('');
+  const [optimisticByType, setOptimisticByType] = useState({});
   const location = useLocation();
   const isHomeOrInfo = location.pathname === '/' || location.pathname.startsWith('/info/');
 
@@ -154,9 +153,19 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
    * 3) si ocurre error, mantiene el incremento optimista para que el usuario vea la alerta
    */
   const pushNotification = async (notif) => {
+    console.log('notificando push', notif?.data?.tipo);
     try {
       // 1) Feedback inmediato en UI
       setOptimisticUnread((v) => v + 1);
+
+      const tipo = notif?.data?.tipo;
+    if (tipo) {
+      setOptimisticByType((prev) => ({
+        ...prev,
+        [tipo]: (prev[tipo] || 0) + 1,
+      }));
+    }
+
 
       // 2) Si tu contexto provee la función para refrescar, la usamos
       if (typeof refreshNotificaciones === 'function') {
@@ -202,6 +211,7 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
       };
       // Llamamos a la función que actualiza contador y refresca notificaciones
       pushNotification(newNotif);
+      console.log('notificando', newNotif.data);
     });
 
     socket.on('disconnect', (reason) => console.log('Socket desconectado:', reason));
@@ -412,7 +422,7 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
               section={section}
               activeTab={activeTab}
               handleNavigation={handleNavigation}
-              count={contadorNotificaciones?.[section] || 0}
+              count={(contadorNotificaciones?.[section] || 0) + (optimisticByType?.[section] || 0)}
             />
           ))}
         </div>
