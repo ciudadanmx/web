@@ -243,6 +243,9 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
     setIsMenuOpen(false);
   };
 
+
+  const displayCount = currentNotificationsNum + optimisticUnread;
+
   const closeAllMenus = () => {
     setIsProfileMenuOpen(false);
     setIsNotificationMenuOpen(false);
@@ -368,11 +371,19 @@ const NavBar = ({ SetIsMenuOpen, siteSection }) => {
               </div>
               <div className="nav-linky">
                 <NotificationsIcon
-                  isOpen={isMenuOpen}
-                  onClose={() => setIsMenuOpen(false)}
+                  action='notifications'
+                  isOpen={isNotificationMenuOpen}
+                  setIsOpen={(open) => {
+                    closeAllMenus();
+                    setIsNotificationMenuOpen(open);
+                  }}
+                  onClose={() => setIsNotificationMenuOpen(false)}
                   authenticated={isAuthenticated}
                   userData={user}
+                  containerRef={notifRef}
                   className="cuenta-icon"
+                  handleLogout={handleLogout}
+                  count={displayCount}
                 />
               </div>
 
